@@ -14,16 +14,16 @@
 #define GYRO_XOUT_H  0x43
 #define GYRO_YOUT_H  0x45
 #define GYRO_ZOUT_H  0x47
-
+//GYRO Calibrate will be Soon
 int fd;
 
 void MPU6050_Init(){
-	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);	
+	wiringPiI2CWriteReg8 (fd, SMPLRT_DIV, 0x07);
 	wiringPiI2CWriteReg8 (fd, PWR_MGMT_1, 0x01);
-	wiringPiI2CWriteReg8 (fd, CONFIG, 0);	
-	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 24);	
-	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x01);	
-} 
+	wiringPiI2CWriteReg8 (fd, CONFIG, 0);
+	wiringPiI2CWriteReg8 (fd, GYRO_CONFIG, 24);
+	wiringPiI2CWriteReg8 (fd, INT_ENABLE, 0x01);
+}
 
 short read_raw_data(int addr){
 	short high_byte,low_byte,value;
@@ -49,12 +49,12 @@ int main(){
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
 		Acc_y = read_raw_data(ACCEL_YOUT_H);
 		Acc_z = read_raw_data(ACCEL_ZOUT_H);
-	
+
 		Gyro_x = read_raw_data(GYRO_XOUT_H);
 		Gyro_y = read_raw_data(GYRO_YOUT_H);
 		Gyro_z = read_raw_data(GYRO_ZOUT_H);
 
-		
+
 
 		/* Divide raw value by sensitivity scale factor */
 		Ax = Acc_x/16384.0;
