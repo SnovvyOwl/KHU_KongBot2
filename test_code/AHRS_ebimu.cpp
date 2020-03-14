@@ -9,7 +9,7 @@ int main()
 {
     int fd;
     int data;
-    if((fd=serialOpen("/dev/ttyS0",115200))<0){
+    if((fd=serialOpen("/dev/ttyUSB0",115200))<0){
         fprintf(stderr,"Unable to open serial device: %s\n",strerror(errno));
 	return 1;
     }
