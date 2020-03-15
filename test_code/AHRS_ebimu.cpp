@@ -21,6 +21,7 @@ int main(){
     for(int j=0;j<50;j++){
         AHRSread(roll,pitch,yaw,fd);//FUNCTION SENSOR NEED
         cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<endl;
+        //fout<<<<roll<<"\t"<<pitch<<"\t"<<yaw<<endl;
     }
     return 0;
 } 
@@ -39,8 +40,7 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
     }while(rawdata!=44);
     sout<<data;
     sout>>ROLL;
-    sout.str("");
-    data="";
+    sout.str("");data="";
     //DATA PITCH
     do{
         rawdata=serialGetchar(fd);
@@ -48,8 +48,7 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
     }while(rawdata!=44);
     sout<<data;
     sout>>PITCH;
-    sout.str("");
-    data="";
+    sout.str("");data="";
     
     //DATA YAW
     do{
@@ -58,7 +57,5 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
     }while(rawdata!=10);
     sout<<data;
     sout>>YAW;
-    data="";
-    sout.str("");
+    sout.str("");data="";
 }
-
