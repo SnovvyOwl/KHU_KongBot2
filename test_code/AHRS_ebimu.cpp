@@ -18,9 +18,9 @@ int main(){
 	return 1;
     }
     cout<<"\nRasberry Pi AHRS Test"<<endl;
-    for(int j=0;j<10;j++){
+    for(int j=0;j<50;j++){
         AHRSread(roll,pitch,yaw,fd);//FUNCTION SENSOR NEED
-        //cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<endl;
+        cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<endl;
     }
     return 0;
 } 
@@ -37,21 +37,18 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
         rawdata=serialGetchar(fd);
         data+=(char)rawdata;
     }while(rawdata!=44);
-    //cout<<data<<endl;
     sout<<data;
     sout>>ROLL;
-    sout.clear();
+    sout.str("");
     data="";
     //DATA PITCH
     do{
         rawdata=serialGetchar(fd);
         data+=(char)rawdata;
     }while(rawdata!=44);
-    //cout<<data<<endl;
     sout<<data;
     sout>>PITCH;
-    cout<<PITCH<<endl<<endl;
-    
+    sout.str("");
     data="";
     
     //DATA YAW
@@ -62,7 +59,8 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
         data+=(char)rawdata;
     }
     sout<<data;
-    sout>>PITCH;
+    sout>>YAW;
     data="";
+    sout.str("");
 }
 
