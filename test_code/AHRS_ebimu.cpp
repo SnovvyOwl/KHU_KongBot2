@@ -52,8 +52,6 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
     data="";
     
     //DATA YAW
-    rawdata=serialGetchar(fd);
-    data+=(char)rawdata;
     do{
         rawdata=serialGetchar(fd);
         data+=(char)rawdata;
