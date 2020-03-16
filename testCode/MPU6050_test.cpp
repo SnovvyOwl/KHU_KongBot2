@@ -37,30 +37,22 @@ short read_raw_data(int addr){
 int main(){
 	float Acc_x,Acc_y,Acc_z;
 	float Gyro_x,Gyro_y,Gyro_z;
-    float Ax=0, Ay=0, Az=0;
+    	float Ax=0, Ay=0, Az=0;
 	float Gx=0, Gy=0, Gz=0;
-
 	fd = wiringPiI2CSetup(Device_Address);   /*Initializes I2C with device Address*/
 	MPU6050_Init();		                 /* Initializes MPU6050 */
-
-	while(1)
-	{
+	while(1){
 		/*Read raw value of Accelerometer and gyroscope from MPU6050*/
 		Acc_x = read_raw_data(ACCEL_XOUT_H);
 		Acc_y = read_raw_data(ACCEL_YOUT_H);
 		Acc_z = read_raw_data(ACCEL_ZOUT_H);
-
 		Gyro_x = read_raw_data(GYRO_XOUT_H);
 		Gyro_y = read_raw_data(GYRO_YOUT_H);
 		Gyro_z = read_raw_data(GYRO_ZOUT_H);
-
-
-
 		/* Divide raw value by sensitivity scale factor */
 		Ax = Acc_x/16384.0;
 		Ay = Acc_y/16384.0;
 		Az = Acc_z/16384.0;
-
 		Gx = Gyro_x/131;
 		Gy = Gyro_y/131;
 		Gz = Gyro_z/131;
@@ -69,3 +61,4 @@ int main(){
 	}
 	return 0;
 }
+//https://alnova2.tistory.com/1227
