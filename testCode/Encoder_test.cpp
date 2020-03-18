@@ -15,6 +15,7 @@ void Interrupt_A();
 void Interrupt_B();
 
 int main(){
+	wiringPiSetup();
 	pinMode(PhaseA, INPUT);
 	pinMode(PhaseB, INPUT);
 	wiringPiISR(PhaseA, INT_EDGE_BOTH, &Interrupt_A);//  encoder pin on interrupt 0 (pin 2)
