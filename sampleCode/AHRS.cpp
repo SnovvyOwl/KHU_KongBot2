@@ -5,27 +5,27 @@
 #include <wiringPi.h>
 #include <wiringSerial.h>
 using namespace std;
-void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd);
+void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
 int main(){
     //ofstream fout;
     //fout.open("AHRS_data.txt");
-    int fd;//Serial
+    int AHRS;//Serial
     float roll;
     float pitch;
     float yaw;
-    if((fd=serialOpen("/dev/ttyUSB0",115200))<0){
+    if((AHRS=serialOpen("/dev/ttyUSB0",115200))<0){
         cerr<<"Unable to open serial device"<<endl;
-	return 1;
+		return 1;
     }
     cout<<"\nRasberry Pi AHRS Test"<<endl;
     for(int j=0;j<50;j++){
-        AHRSread(roll,pitch,yaw,fd);//FUNCTION SENSOR NEED
-        cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<endl;
+        AHRSread(roll,pitch,yaw,AHRS);//FUNCTION SENSOR NEED
+        cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<"\n";
         //fout<<<<roll<<"\t"<<pitch<<"\t"<<yaw<<endl;
     }
     return 0;
 } 
-void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
+void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd){
     int rawdata;
     string data;
     stringstream sout;
