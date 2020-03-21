@@ -22,7 +22,7 @@ int main(){
 	wiringPiISR(PhaseB, INT_EDGE_BOTH, &Interrupt_B); //  encoder pin on interrupt 1 (pin 3)
 	while(1) {
 		encoder_pulse = (float)360 / (1024 * 4);
-		cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\tPulse : " << encoder_pulse << endl;
+		cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\tPulse : " << encoder_pulse << "\n";
 	}
 }
 

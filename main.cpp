@@ -4,9 +4,9 @@
 #include<wiringPi.h>
 #include<wiringSerial.h>
 #include<sstream>
-#include<pthread>
+#include<pthread.h>
 using namespace std;
-void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd);
+void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
 void Foward_1(); 
 void Foward_2();
 void Backward_1(); 
@@ -26,14 +26,14 @@ int main(){
     }
     for(int j=0;j<50;j++){
         AHRSread(roll,pitch,yaw,fd);//FUNCTION SENSOR NEED
-        cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<endl;
+        cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<"\n";
         //fout<<<<roll<<"\t"<<pitch<<"\t"<<yaw<<endl;
     }
     return 0;
 }
 
 
-void AHRSread(float &ROLL,float &PITCH,float &YAW,int &fd){
+void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd){
     int rawdata;
     string data;
     stringstream sout;
