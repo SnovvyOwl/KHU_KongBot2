@@ -30,6 +30,7 @@ int main(){
         cerr<<"Unable to open Arduino"<<endl;
 	      return 1;
     }
+    
     initNano(NanoCMD);
     
     for(int j=0;j<50;j++){
@@ -39,23 +40,34 @@ int main(){
         
         //CMD to NANO
     // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
-        string CMD="*1500 1500 1500 1500"; //fake CMD
-        serialPuts(NanoCMD,CMD.c_str());
+        //string CMD="* 1500 1500 1500 1500\n"; //fake CMD
+        //serialPuts(NanoCMD,CMD.c_str());
         
     }
+    serialClose(NanoCMD);
+    serialClose(AHRS);
     return 0;
 }
 void initNano(const int &fd){
     int rawdata;
-    string data;
-    serialPuts(fd,"*");
+    string data="";
     do{
         rawdata=serialGetchar(fd);
         data+=(char)rawdata;
-    }while(rawdata!=44);
-    if (data=="Arduino is Ready*"){
-        cout<<data<<endl;
-    }
+    }while(rawdata!=42);
+    cout<<data<<endl; //"Arduino is Ready*"
+    //init IDU Stable...
+    //####################################
+    string CMD="1500";
+
+    serialPuts(fd,CMD.c_str());//fake CMD
+    //#######################################
+    data="";
+    do{
+        rawdata=serialGetchar(fd);
+        data+=(char)rawdata;
+    }while(rawdata!=64);
+    cout<<data<<endl; //"KHU KongBot2 is Ready@"
 }
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd){
     int rawdata;
