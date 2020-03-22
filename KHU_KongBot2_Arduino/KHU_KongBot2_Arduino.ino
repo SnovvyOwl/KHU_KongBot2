@@ -30,10 +30,13 @@ String CMD;
 
 void setup() {
   Serial.begin(115200);//Baudrate는 추후 결정!
-  while(Serial.available()<=0){
+  while(Serial.available()<0){
     delay(10);
   }
-  Serial.write("Arduino is Ready");
+  while((CMD_IDU=Serial.read())!=42){
+    delay(10);
+  }
+  Serial.write("Arduino is Ready*");
   init_motor();
 }
 
