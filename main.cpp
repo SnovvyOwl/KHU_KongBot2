@@ -92,13 +92,10 @@ int main(){
                 //CMD=k
                 cout<< "chage yaw  -15 degree direction \n"<<endl;
                 break;
-
         }
-
 
     } while (CMD != 'q');
     cout << "quit" << endl;  
-    }
     serialClose(NanoCMD);
     serialClose(AHRS);
     return 0;
