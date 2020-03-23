@@ -38,17 +38,66 @@ int main(){
     }
     
     initNano(NanoCMD);
-    
-    for(int j=0;j<50;j++){
-        AHRSread(roll,pitch,yaw,AHRS);//FUNCTION SENSOR NEED
-        cout<<"Roll: "<<roll<<"\t"<<"Pitch: "<<pitch<<"\t"<<"YAW: "<<yaw<<"\n";
+            
+       
         //fout<<<<roll<<"\t"<<pitch<<"\t"<<yaw<<endl;
-        
+    do{
+        AHRSread(roll,pitch,yaw,AHRS);//FUNCTION SENSOR NEED
+        switch (int(CMD)){
         //CMD to NANO
-    // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
+        // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
         //string CMD="* 1500 1500 1500 1500\n"; //fake CMD
         //serialPuts(NanoCMD,CMD.c_str());
-        
+        // keyboard INPUT
+        // w (foward_1) 
+        // s (backward_1
+        // a (chage roll) - direction  
+        // d (chage roll) + direction 
+        // j (change yaw) +
+        // k (chage yaw ) -
+        // W (Foward_2)]
+        // S (Backward_2)
+            case 119 :
+                //CMD=w
+                cout<< "go\n";
+                break;
+            case 115 :
+                //CMD=s
+                cout<<"back\n";
+                break;
+
+            case 87:
+                //CMD=W
+                cout<< "GO\n"<<endl;
+                break;
+            
+            case 83:
+                //CMD=S
+                cout<< "BACK\n"<<endl;
+                break;
+            
+            case 97:
+                //CMD=a
+                cout<< "chage roll - direction \n"<<endl;
+                break;
+            case 100:
+                //CMD=d
+                cout<< "chage roll + direction \n"<<endl;
+                break;
+            case 106:
+                //CMD=j
+                cout<< "chage yaw  +15 degree direction \n"<<endl;
+                break;
+            case 107:
+                //CMD=k
+                cout<< "chage yaw  -15 degree direction \n"<<endl;
+                break;
+
+        }
+
+
+    } while (CMD != 'q');
+    cout << "quit" << endl;  
     }
     serialClose(NanoCMD);
     serialClose(AHRS);
