@@ -11,7 +11,6 @@ void input(char &CMD) {
 int main()
 {
     char CMD;
-    int i = 0;
     thread inputCMD(&input, ref(CMD));//INPUT command Thread.....
     inputCMD.detach();
     do{
