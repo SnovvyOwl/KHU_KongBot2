@@ -4,9 +4,11 @@
 #include<wiringPi.h>
 #include<wiringSerial.h>
 #include<sstream>
-#include<pthread.h>
+#include<thread>
 using namespace std;
+//senseor
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
+//Robot
 void initNano(const int &fd);
 void Foward_1(); 
 void Foward_2();
@@ -15,13 +17,17 @@ void Backward_2();
 void changeYaw(int yaw);
 void changeRoll(int roll);
 void run (int roll, int step);
-
+//Thread
+void input(char &CMD);
 int main(){
     int AHRS;//Serial
     int NanoCMD;
     float roll;
     float pitch;
     float yaw;
+    char CMD;
+    thread inputCMD(&input, ref(CMD));//INPUT command Thread.....
+    inputCMD.detach();
     if((AHRS=serialOpen("/dev/ttyUSB1",115200))<0){
         cerr<<"Unable to open AHRS"<<endl;
 	      return 1;
@@ -102,4 +108,10 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd){
     sout<<data;
     sout>>YAW;
     sout.str("");data="";
+}
+void input(char &CMD) {
+    do {
+        cin >> CMD;
+    } while (CMD != 'q');
+    
 }
