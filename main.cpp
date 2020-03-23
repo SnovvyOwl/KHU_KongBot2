@@ -68,29 +68,34 @@ int main(){
 
             case 87:
                 //CMD=W
-                cout<< "GO\n"<<endl;
+                cout<< "GO\n";
                 break;
             
             case 83:
                 //CMD=S
-                cout<< "BACK\n"<<endl;
+                cout<< "BACK\n";
                 break;
             
             case 97:
                 //CMD=a
-                cout<< "chage roll - direction \n"<<endl;
+                cout<< "chage roll - direction \n";
                 break;
             case 100:
                 //CMD=d
-                cout<< "chage roll + direction \n"<<endl;
+                cout<< "chage roll + direction \n";
                 break;
             case 106:
                 //CMD=j
-                cout<< "chage yaw  +15 degree direction \n"<<endl;
+                cout<< "chage yaw  +15 degree direction \n";
                 break;
             case 107:
                 //CMD=k
-                cout<< "chage yaw  -15 degree direction \n"<<endl;
+                cout<< "chage yaw  -15 degree direction \n";
+                break;
+            case 113:
+                break;
+            default:
+                cout<< "Wrong OR EMPTY CMD\n";
                 break;
         }
 
