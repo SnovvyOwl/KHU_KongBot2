@@ -1,5 +1,4 @@
 #include<iostream>
-#include<wiringPi.h>
 #include<string.h>
 #include<wiringPi.h>
 #include<wiringSerial.h>
