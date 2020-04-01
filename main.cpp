@@ -4,6 +4,9 @@
 #include<wiringSerial.h>
 #include<sstream>
 #include<thread>
+#include <raspicam/raspicam_cv.h>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 using namespace std;
 //senseor
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
@@ -18,7 +21,8 @@ void changeRoll(int roll);
 void run (int roll, int step);
 //Thread
 void input(char &CMD);
-int main(){
+void CAM(char &CMD);
+int main(int argc,char **argv){
     int AHRS;//Serial
     int NanoCMD;
     float roll;
@@ -26,6 +30,8 @@ int main(){
     float yaw;
     char CMD;
     thread inputCMD(&input, ref(CMD));//INPUT command Thread.....
+    thread camera(&CAM,ref(CMD));
+    camera.detach();
     inputCMD.detach();
     if((AHRS=serialOpen("/dev/ttyUSB1",115200))<0){
         cerr<<"Unable to open AHRS"<<endl;
@@ -164,4 +170,31 @@ void input(char &CMD) {
         cin >> CMD;
     } while (CMD != 'q');
     
+}
+void CAM(char &CMD){
+    raspicam::RaspiCam_Cv Camera;
+    cv::Mat image;
+    Camera.set( CV_CAP_PROP_FORMAT, CV_8UC3);
+    Camera.set( CV_CAP_PROP_FRAME_WIDTH, 320 );
+    Camera.set( CV_CAP_PROP_FRAME_HEIGHT, 240);
+    if (!Camera.open()) {cerr<<"Error opening the camera"<<endl;return;}
+    cv::VideoWriter outputVideo;
+    cv::Size frameSize(320,240);
+    int fps = 25;
+    outputVideo.open("output.avi", cv::VideoWriter::fourcc('X','V','I','D'),fps, frameSize, true);
+    if (!outputVideo.isOpened())
+    {
+        cout  << "Could not open the output video for write: " <<"output.avi" << endl;
+        return;
+    }
+    while(1){
+        Camera.grab();
+        Camera.retrieve ( image);
+        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+        cv::imshow( "test", image );
+        outputVideo.write(image);
+        if ( cv::waitKey(1) > 0 ) break;
+        //if ( CMD == "q") break;
+    }
+    Camera.release();
 }
