@@ -11,6 +11,7 @@ Therefore, We redesign KHU_KongBot1. and It called KHU_KongBot2.\
 \
 \
 [Team Member]
+
 Seongwon Lee, Myenghyen Kim, Hyungju Choi\
 \
 \
