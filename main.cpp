@@ -33,11 +33,11 @@ int main(int argc,char **argv){
     thread camera(&CAM,ref(CMD));
     camera.detach();
     inputCMD.detach();
-    if((AHRS=serialOpen("/dev/ttyUSB1",115200))<0){
+    if((AHRS=serialOpen("/dev/ttyUSB0",115200))<0){
         cerr<<"Unable to open AHRS"<<endl;
 	      return 1;
     }
-      if((NanoCMD=serialOpen("/dev/ttyUSB0",115200))<0){
+      if((NanoCMD=serialOpen("/dev/ttyUSB1",115200))<0){
         cerr<<"Unable to open Arduino"<<endl;
 	      return 1;
     }
