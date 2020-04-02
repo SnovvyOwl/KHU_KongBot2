@@ -20,7 +20,7 @@ Hyungju Choi
 
 
 [HardWare]
-RaspberryPi 4 4GB
+RaspberryPi 4 4GB\
 Raspberry Camera V 2.1
 E2BOX EBIMU 9DOF V4
 Arduino Nano
