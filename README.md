@@ -1,7 +1,7 @@
 # KHU_KongBot 2
 \
 \
-[About]
+[About]\
 In 2019 Spring semester, We made spherical Robot,"KHU_KongBot1". But it had many Problem.\
 Therefore, We redesign KHU_KongBot1. and It called KHU_KongBot2.\
 \
@@ -21,8 +21,8 @@ Raspberry Camera V 2.1\
 E2BOX EBIMU 9DOF V4\
 Arduino Nano\
 SPT5325LV-360 Servo\
-TowerPro MG 946R 3eA\
-Autonomics E50s8-3600-3-T-5\
+TowerPro MG 946R 3ea\
+Autonomics E50S8-3600-3-T-5\
 \
 \
 [Dependency]\
