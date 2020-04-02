@@ -37,8 +37,8 @@ mkdir build\
 cd build\
 cmake ..\
 make\
-
-
+\
+\
 [How to Run]\
 cd ~/KHU_KongBot2/build\
 ./main\
