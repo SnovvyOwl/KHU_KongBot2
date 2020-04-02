@@ -177,7 +177,10 @@ void CAM(char &CMD){
     Camera.set( CV_CAP_PROP_FORMAT, CV_8UC3);
     Camera.set( CV_CAP_PROP_FRAME_WIDTH, 320 );
     Camera.set( CV_CAP_PROP_FRAME_HEIGHT, 240);
-    if (!Camera.open()) {cerr<<"Error opening the camera"<<endl;return;}
+    if (!Camera.open()) {
+        cerr<<"Error opening the camera"<<endl; // Connect Camera..
+        return;
+    }
     cv::VideoWriter outputVideo;
     cv::Size frameSize(320,240);
     int fps = 25;
@@ -187,14 +190,14 @@ void CAM(char &CMD){
         cout  << "Could not open the output video for write: " <<"output.avi" << endl;
         return;
     }
-    while(1){
+    
+    do{
         Camera.grab();
         Camera.retrieve ( image);
         cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
         cv::imshow( "test", image );
         outputVideo.write(image);
-        if ( cv::waitKey(1) > 0 ) break;
-        //if ( CMD == "q") break;
-    }
+
+    } while(CMD!='q');
     Camera.release();
 }
