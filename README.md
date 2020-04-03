@@ -16,7 +16,7 @@ Seongwon Lee, Myenghyen Kim, Hyungju Choi\
 \
 \
 [HardWare]\
-RaspberryPi 4 4GB\
+RaspberryPi 4 4GB(Raspbian Buster){Testing Hardware is Raspberry Pi 3B / Raspbian Buster }\
 Raspberry Camera V 2.1\
 E2BOX EBIMU 9DOF V4\
 Arduino Nano\
