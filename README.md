@@ -1,17 +1,13 @@
 # KHU_KongBot 2
-\
-\
 [About]\
 In 2019 Spring semester, We made spherical Robot,"KHU_KongBot1". But it had many Problem.\
 Therefore, We redesign KHU_KongBot1. and It called KHU_KongBot2.\
-\
 \
 2019년 1학기 '기계공학종합설계-로봇공학연구실 2조' 에서 태어난 말썽꾸러기 KHU_KongBot 1을 개조하여 
 말 잘듣는 KHU_KongBot 2로 새로 태어나게 만드는 팀입니다.
 \
 \
-[Team Member]
-
+[Team Member]\
 Seongwon Lee, Myenghyen Kim, Hyungju Choi\
 \
 \
