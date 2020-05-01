@@ -32,8 +32,8 @@ void Interrupt_A();
 void Interrupt_B(); 
 
 //Global Varialbe;
-double encoder_pulse = 0;
-double angle = 0;
+float encoder_pulse = 0;
+float angle = 0;
 int encoder_pos = 0;
 bool State_A = 0;
 bool State_B = 0;
@@ -49,11 +49,15 @@ int main(int argc,char **argv){
     thread camera(&CAM,ref(CMD));
     camera.detach();
     inputCMD.detach();
-    if((AHRS = serialOpen("/dev/ttyUSB0",115200))<0){
+    pinMode(PhaseA, INPUT);
+	pinMode(PhaseB, INPUT);
+	wiringPiISR(PhaseA, INT_EDGE_BOTH, &Interrupt_A);
+	wiringPiISR(PhaseB, INT_EDGE_BOTH, &Interrupt_B);
+    if((AHRS = serialOpen("/dev/ttyUSB1",115200))<0){
         cerr<<"Unable to open AHRS"<<endl;
 	      return 1;
     }
-      if((NanoCMD=serialOpen("/dev/ttyUSB1",115200))<0){
+      if((NanoCMD=serialOpen("/dev/ttyUSB0",115200))<0){
         cerr<<"Unable to open Arduino"<<endl;
 	      return 1;
     }
@@ -64,25 +68,26 @@ int main(int argc,char **argv){
     uint32_t past = 0;
     uint32_t now = 0;
     uint32_t controlPeriod = 20; //20ms
-    double angularVel = 0;
+    float angularVel = 0;
     encoder_pulse = (float)360 / (3600 * 4); //3600 PPR	
 
     initNano(NanoCMD);
     now = past = millis();
-	double anglePast = angle;
-	double angleNow = angle;         
+	float anglePast = angle;
+	float angleNow = angle;         
        
-    //fout<<<<roll<<"\t"<<pitch<<"\t"<<yaw<<angle<<angleVel<<endl;
+    //fout<<roll<<"\t"<<pitch<<"\t"<<yaw<<angle<<angleVel<<endl;
     do{
         AHRSread(roll,pitch,yaw,AHRS);
         if((now-past)>controlPeriod){
 			angleNow =angle;
 			angularVel = (angleNow-anglePast)/(now-past);
-			now = past=millis();
+			past=millis();
 			anglePast=angle;
 		}
 		now=millis();//FUNCTION SENSOR NEED
         cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\t Vel : " << angularVel << "\n";
+        cout <<roll<<"\t"<<pitch<<"\t"<<yaw<<"\n";
         switch (int(CMD)){
         //CMD to NANO
         // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
