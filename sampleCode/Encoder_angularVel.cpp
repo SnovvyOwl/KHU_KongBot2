@@ -6,13 +6,14 @@ using namespace std;
 
 uint32_t past;
 uint32_t now;
-uint32_t controlPeriod = 20; //10ms
+uint32_t controlPeriod = 20; //20ms
 double encoder_pulse = 0;
 double angle = 0;
 int encoder_pos = 0;
-float vel=0;
+
 bool State_A = 0;
 bool State_B = 0;
+float vel=0;
 void Interrupt_A();
 void Interrupt_B(); 
 
