@@ -80,8 +80,8 @@ int main(int argc,char **argv){
     do{
         AHRSread(roll,pitch,yaw,AHRS);
         if((now-past)>controlPeriod){
-			angleNow =angle;
-			angularVel = (angleNow-anglePast)/(now-past);
+			angleNow = angle;
+			angularVel = (angleNow-anglePast)/(now-past) * 1000;
 			past=millis();
 			anglePast=angle;
 		}
