@@ -30,7 +30,7 @@ int main(){
 	while(1){
 		if((now-past)>controlPeriod){
 			angleNow =angle;
-			vel = (angleNow-anglePast)/(now-past);
+			vel = (angleNow-anglePast)/(now-past) * 1000;
 			now = past=millis();
 			anglePast=angle;
 		}
