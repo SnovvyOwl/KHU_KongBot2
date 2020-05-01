@@ -69,7 +69,7 @@ int main(int argc,char **argv){
     uint32_t now = 0;
     uint32_t controlPeriod = 20; //20ms
     float angularVel = 0;
-    encoder_pulse = (float)360 / (3600 * 4); //3600 PPR	
+    encoder_pulse = (float)360 / (3600 * 4)*1000; //3600 PPR	
 
     initNano(NanoCMD);
     now = past = millis();
