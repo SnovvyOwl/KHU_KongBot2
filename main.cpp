@@ -77,11 +77,12 @@ int main(int argc,char **argv){
         AHRSread(roll,pitch,yaw,AHRS);
         if((now-past)>controlPeriod){
 			angleNow =angle;
-			vel = (angleNow-anglePast)/(now-past);
+			angularVel = (angleNow-anglePast)/(now-past);
 			now = past=millis();
 			anglePast=angle;
 		}
 		now=millis();//FUNCTION SENSOR NEED
+        cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\t Vel : " << angularVel << "\n";
         switch (int(CMD)){
         //CMD to NANO
         // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
@@ -236,7 +237,7 @@ void CAM(char &CMD){
     Camera.release();
 }
 
-oid Interrupt_A() {
+void Interrupt_A() {
 
 	State_A = digitalRead(PhaseA);
 	State_B = digitalRead(PhaseB);
