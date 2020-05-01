@@ -9,7 +9,10 @@
 #include <opencv2/opencv.hpp>
 using namespace std;
 //senseor
+#define PhaseA 21 //Encoder A
+#define PhaseB 22 //Encoder B
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
+
 //Robot
 void initNano(const int &fd);
 void Foward_1(); 
@@ -19,21 +22,34 @@ void Backward_2();
 void changeYaw(int yaw);
 void changeRoll(int roll);
 void run (int roll, int step);
+
 //Thread
 void input(char &CMD);
 void CAM(char &CMD);
+
+//Interupt
+void Interrupt_A();
+void Interrupt_B(); 
+
+//Global Varialbe;
+double encoder_pulse = 0;
+double angle = 0;
+int encoder_pos = 0;
+bool State_A = 0;
+bool State_B = 0;
+
 int main(int argc,char **argv){
+    if(wiringPiSetup()==-1){
+        return 1;
+    }
     int AHRS;//Serial
-    int NanoCMD;
-    float roll;
-    float pitch;
-    float yaw;
-    char CMD;
+    int NanoCMD; //NANO
+    char CMD; //CMD
     thread inputCMD(&input, ref(CMD));//INPUT command Thread.....
     thread camera(&CAM,ref(CMD));
     camera.detach();
     inputCMD.detach();
-    if((AHRS=serialOpen("/dev/ttyUSB0",115200))<0){
+    if((AHRS = serialOpen("/dev/ttyUSB0",115200))<0){
         cerr<<"Unable to open AHRS"<<endl;
 	      return 1;
     }
@@ -41,13 +57,31 @@ int main(int argc,char **argv){
         cerr<<"Unable to open Arduino"<<endl;
 	      return 1;
     }
-    
+    //INIT ROBOT
+    float roll =0;
+    float pitch = 0;
+    float yaw = 0;
+    uint32_t past = 0;
+    uint32_t now = 0;
+    uint32_t controlPeriod = 20; //20ms
+    double angularVel = 0;
+    encoder_pulse = (float)360 / (3600 * 4); //3600 PPR	
+
     initNano(NanoCMD);
-            
+    now = past = millis();
+	double anglePast = angle;
+	double angleNow = angle;         
        
-        //fout<<<<roll<<"\t"<<pitch<<"\t"<<yaw<<endl;
+    //fout<<<<roll<<"\t"<<pitch<<"\t"<<yaw<<angle<<angleVel<<endl;
     do{
-        AHRSread(roll,pitch,yaw,AHRS);//FUNCTION SENSOR NEED
+        AHRSread(roll,pitch,yaw,AHRS);
+        if((now-past)>controlPeriod){
+			angleNow =angle;
+			vel = (angleNow-anglePast)/(now-past);
+			now = past=millis();
+			anglePast=angle;
+		}
+		now=millis();//FUNCTION SENSOR NEED
         switch (int(CMD)){
         //CMD to NANO
         // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
@@ -200,4 +234,63 @@ void CAM(char &CMD){
 
     } while(CMD!='q');
     Camera.release();
+}
+
+oid Interrupt_A() {
+
+	State_A = digitalRead(PhaseA);
+	State_B = digitalRead(PhaseB);
+
+	if (State_A == 1) {
+
+		if (State_B == 0) {
+			encoder_pos++;                    // 회전방향 : CW
+			angle +=  encoder_pulse;
+		}
+		else {
+			encoder_pos--;                    // 회전방향 : CCW
+			angle -= encoder_pulse;
+		}
+	}
+
+	else {
+		if (State_B == 1) {
+			encoder_pos++;                    // 회전방향 : CW
+			angle += encoder_pulse;
+		}
+		else {
+			encoder_pos--;                    // 회전방향 : CCW
+			angle -= encoder_pulse;
+		}
+	}
+
+}
+
+void Interrupt_B() {
+
+	State_A = digitalRead(PhaseA);
+	State_B = digitalRead(PhaseB);
+
+	if (State_B == 1) {
+
+		if (State_A == 1) {
+			encoder_pos++;                    // 회전방향 : CW
+			angle += encoder_pulse;
+		}
+		else {
+			encoder_pos--;                    // 회전방향 : CCW
+			angle -= encoder_pulse;
+		}
+	}
+
+	else {
+		if (State_A == 0) {
+			encoder_pos++;                    // 회전방향 : CW
+			angle +=  encoder_pulse;
+		}
+		else {
+			encoder_pos--;                    // 회전방향 : CCW
+			angle -=  encoder_pulse;
+		}
+	}
 }
