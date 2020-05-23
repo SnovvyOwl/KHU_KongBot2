@@ -12,7 +12,3 @@ rt=([1,0 ,0 ;0 cos(tx) -sin(tx); 0 -sin(tx) cos(tx)]*[-0.0032098,rpin*ttm,0.0638
 rpl=rpml+([cos(tpml) 0 sin(tpml);0,1,0; -sin(tpml) 0 cos(tpml)]*lp')' % left pendulum center of mass by tpml
 rpr=rpmr+([cos(tpmr) 0 sin(tpmr);0,1,0; -sin(tpmr) 0 cos(tpmr)]*lp')' % right pendulum center of mass by tpmr
 r_R=((Mr-2*mp-mt)*rcm+mp*rpl+mp*rpr+mt*rt)/Mr
-rpl=simplify(rpl);
-rpr=simplify(rpr);
-r_R=simplify(r_R);
-pretty(r_R)
