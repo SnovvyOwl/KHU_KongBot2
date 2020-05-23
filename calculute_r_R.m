@@ -15,4 +15,7 @@ r_R=((Mr-2*mp-mt)*rcm+mp*rpl+mp*rpr+mt*rt)/Mr
 rpl=simplify(rpl);
 rpr=simplify(rpr);
 r_R=simplify(r_R);
-pretty(r_R)
+Mrg=Mr*[0 ,0, -9.81]';
+countermass=cross(r_R,Mrg);
+ccode(r_R)
+ccode(countermass)
