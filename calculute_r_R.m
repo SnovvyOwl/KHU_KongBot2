@@ -1,4 +1,5 @@
-syms tpml tpmr ttm tx ty;
+syms tpml tpmr ttm tx ty tz;
+assume(ttm,'real')
 % tpml =Theta_pml, tpmr = Theta_pmr, ttm=Theta_tm, tx= theta_x ty=theta_y
 Mr=2.4614; % Robot Weight
 mp=0.35875; % Pendulum Weight
@@ -8,14 +9,15 @@ rpmr=[0 -0.05370 -0.44008]'; % right Pendulum Motor vector
 rpin=0.005;
 rcm=[0.00040319,0.012421,-0.0015810]';
 lp=[0.00032, 0, -0.057047]';% pendulum Center of Mass vector 
-rt=([cos(ty) 0 sin(ty);0,1,0; -sin(ty) 0 cos(ty)]*([1,0 ,0 ;0 cos(tx) -sin(tx); 0 sin(tx) cos(tx)]*[-0.0032098,rpin*ttm,0.063823 ]')); % Tilt Motor Vector
-rpl=([cos(ty) 0 sin(ty);0,1,0; -sin(ty) 0 cos(ty)]*(rpml+([cos(tpml) 0 sin(tpml);0,1,0; -sin(tpml) 0 cos(tpml)]*lp))) % left pendulum center of mass by tpml
-rpr=([cos(ty) 0 sin(ty);0,1,0; -sin(ty) 0 cos(ty)]*(rpmr+([cos(tpmr) 0 sin(tpmr);0,1,0; -sin(tpmr) 0 cos(tpmr)]*lp))) % right pendulum center of mass by tpmr
-r_R=((Mr-2*mp-mt)*rcm+mp*rpl+mp*rpr+mt*rt)/Mr
-rpl=simplify(rpl);
-rpr=simplify(rpr);
+R=[1, 0 ,0 ;0 cos(tx) -sin(tx); 0 sin(tx) cos(tx)]; % Rotate Matrix tx  AXIS X
+P=[cos(ty) 0 sin(ty);0,1,0; -sin(ty) 0 cos(ty)]; % Rotate Matrix ty  AXIS Y
+Y=[cos(tz) -sin(tz) 0 ; sin(tz)  cos(tz) 0 ; 0 0 1]; % Rotate Matrix tz  AXIS Z
+rt=[-0.0032098,rpin*ttm,0.063823 ]'; % Tilt Motor Vector
+rpl=rpml+([cos(tpml) 0 sin(tpml);0,1,0; -sin(tpml) 0 cos(tpml)]*lp); % left pendulum center of mass by tpml
+rpr=rpmr+([cos(tpmr) 0 sin(tpmr);0,1,0; -sin(tpmr) 0 cos(tpmr)]*lp); % right pendulum center of mass by tpmr
+r_R=Y*P*R*(((Mr-2*mp-mt)*rcm+mp*rpl+mp*rpr+mt*rt)/Mr);
 r_R=simplify(r_R);
 Mrg=Mr*[0 ,0, -9.81]';
 countermass=cross(r_R,Mrg);
-ccode(r_R)
-ccode(countermass)
+vec_rR=ccode(r_R)
+tau_c=ccode(countermass)
