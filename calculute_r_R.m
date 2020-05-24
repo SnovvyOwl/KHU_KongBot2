@@ -21,3 +21,9 @@ Mrg=Mr*[0 ,0, -9.81]';
 countermass=cross(r_R,Mrg);
 vec_rR=ccode(r_R)
 tau_c=ccode(countermass)
+file1=fopen("r_R.txt",'w');
+file2=fopen("tau_rc.txt",'w');
+fprintf(file1,vec_rR);
+fprintf(file2,tau_c);
+fclose(file1);
+fclose(file2);
