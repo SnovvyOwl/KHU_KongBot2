@@ -43,4 +43,4 @@ cd ~/KHU_KongBot2/build\
 
 [Lagrangian]
 
-\partianl(n)
+\frac(n)(c)
