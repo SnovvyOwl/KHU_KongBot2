@@ -43,4 +43,4 @@ cd ~/KHU_KongBot2/build\
 
 [Lagrangian]
 
-\frac(n)(c)
+\\(\frac{\partial SE}{\partial w}=\frac{\partial}{\partial w}\frac{1}{2}
