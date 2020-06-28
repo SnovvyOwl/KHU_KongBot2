@@ -34,7 +34,11 @@ mkdir build\
 cd build\
 cmake ..\
 make\
-\
+
+
+html header: <script type="text/javascript"  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+\\(\
 \
 [How to Run]\
 cd ~/KHU_KongBot2/build\
