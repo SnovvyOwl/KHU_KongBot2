@@ -38,7 +38,9 @@ make\
 \
 [How to Run]\
 cd ~/KHU_KongBot2/build\
-./main \
+./main 
 
 
 [Lagrangian]
+
+\partianl(n)
