@@ -84,7 +84,8 @@ for i=1:length(q)
 end
 
 %ANSWER
-dL=simplify(dL)'
+%dL=simplify(dL)'
+dL
 
 function res = diffDepVar(fun,depVar)
 syms xx
