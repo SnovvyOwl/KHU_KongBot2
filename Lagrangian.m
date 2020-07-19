@@ -76,7 +76,7 @@ U=m_i*g'*x_i+m_p*g'*x_pr+m_p*g'*x_pl+m_t*g'*rt;
 q=[x_o(t),y_o(t),th_ix(t),th_iy(t),th_iz(t)];
 dq=[diff(x_o(t),t), diff(y_o(t),t), diff(th_ix(t),t), diff(th_iy(t),t),diff(th_iz(t),t)];
 
-L=T-U;
+L=T+U;
 % SOLVE Lagrange
 EulerLagrange  = @(fun,t,q,dq) diff(diffDepVar(fun,dq),t) - diffDepVar(fun,q);
 for i=1:length(q)
