@@ -85,7 +85,7 @@ end
 
 %ANSWER
 %dL=simplify(dL)'
-dL
+dL'
 
 function res = diffDepVar(fun,depVar)
 syms xx
