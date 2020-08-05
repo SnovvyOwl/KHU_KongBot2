@@ -2,7 +2,7 @@
 % KHU-Kong-Bot 2 Project
 % Calculate Largrangian
 clear;clc;
-syms x_o(t) y_o(t) th_iz(t) th_oy(t) th_ix(t) th_pr(t) th_pl(t) t th_t(t) th_iy(t) t
+syms x_i(t) y_i(t) th_iz(t) th_oy(t) th_ix(t) th_pr(t) th_pl(t) t th_t(t) th_iy(t) t
 assume(x_o(t),'real')
 assume(y_o(t),'real')
 assume(th_iz(t),'real')
@@ -33,13 +33,16 @@ g=[0;0;-9.81;0];
 %Frame (Fixed ZYX) 
 T_01=[1 0 0 -x_o(t);0 1 0 0;0 0 1 0; 0 0 0 1]; % X-Axis Translate
 T_12=[1 0 0 0; 0 1 0 y_o(t);0 0 1 0;0 0 0 1]; % Y-Axis Translate
-R_23=[cos(th_iz(t)) sin(th_iz(t)) 0 0; -sin(th_iz(t)) cos(th_iz(t)) 0 0; 0 0 1 0; 0 0 0 1];% rotate Yaw
-R_34=[cos(th_iy(t)+th_oy(t)) 0 -sin(th_iy(t)+th_oy(t)) 0 ; 0 1 0 0;sin(th_iy(t)+th_oy(t)) 0 cos(th_iy(t)+th_oy(t)) 0 ; 0 0 0 1];% rotate pitch
-R_45=[1 0 0 0; 0 cos(th_ix(t)) sin(th_ix(t)) 0;0 -sin(th_ix(t)) cos(th_ix(t)) 0 ; 0 0 0 1];% roatate Roll
-T_5pml=[1 0 0 0;0 1 0 0.05370;0 0 1  -0.44008;0 0 0 1];
-T_5pmr=[1 0 0 0;0 1 0 -0.05370;0 0 1  -0.44008;0 0 0 1];
-R_pml=[cos(th_pl(t)) 0 -sin(th_pl(t)) 0;0,1,0 0 ; sin(th_pl(t)) 0 cos(th_pl(t)) 0 ; 0 0 0 1];
-R_pmr=[cos(th_pr(t)) 0 sin(th_pr(t)) 0;0,1,0 0 ; -sin(th_pr(t)) 0 cos(th_pr(t)) 0 ; 0 0 0 1];
+R_23=[cos(th_oz(t)) sin(th_oz(t)) 0 0; -sin(th_oz(t)) cos(th_oz(t)) 0 0; 0 0 1 0; 0 0 0 1];% rotate Yaw
+R_34=[cos(th_oy(t)) 0 -sin(th_oy(t)) 0 ; 0 1 0 0;sin(th_oy(t)) 0 cos(th_oy(t)) 0 ; 0 0 0 1];% rotate pitch
+R_45=[1 0 0 0; 0 cos(th_ox(t)) sin(th_ox(t)) 0;0 -sin(th_ox(t)) cos(th_ox(t)) 0 ; 0 0 0 1];% roatate Roll
+R_56=[cos(th_iy(t)) 0 -sin(th_iy(t)) 0 ; 0 1 0 0;sin(th_iy(t)) 0 cos(th_iy(t)) 0 ; 0 0 0 1];% rotate pitch
+T_6pl=[1 0 0 0;0 1 0 0.05370;0 0 1  -0.44008;0 0 0 1];
+T_6pr=[1 0 0 0;0 1 0 -0.05370;0 0 1  -0.44008;0 0 0 1];
+R_pl=[cos(th_pl(t)) 0 -sin(th_pl(t)) 0;0,1,0 0 ; sin(th_pl(t)) 0 cos(th_pl(t)) 0 ; 0 0 0 1];
+R_pr=[cos(th_pr(t)) 0 sin(th_pr(t)) 0;0,1,0 0 ; -sin(th_pr(t)) 0 cos(th_pr(t)) 0 ; 0 0 0 1];
+
+%여기까지 수정완료
 
 % Shell
 V_oo=[diff(x_o(t),t);diff(y_o(t),t); 0;1];
