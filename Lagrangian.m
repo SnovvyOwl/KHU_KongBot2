@@ -2,12 +2,12 @@
 % KHU-Kong-Bot 2 Project
 % Calculate Largrangian
 clear;clc;
-syms x_i(t) y_i(t) th_iz(t) th_oy(t) th_ix(t) th_pr(t) th_pl(t) t th_t(t) th_iy(t) t
+syms x_o(t) y_o(t) th_oz(t) th_oy(t) th_ox(t) th_iy(t) th_pr(t) th_pl(t) th_t(t) t
 assume(x_o(t),'real')
 assume(y_o(t),'real')
-assume(th_iz(t),'real')
+assume(th_oz(t),'real')
 assume(th_oy(t),'real')
-assume(th_ix(t),'real')
+assume(th_ox(t),'real')
 assume(th_iy(t),'real')
 assume(th_t(t),'real')
 assume(th_pr(t),'real')
