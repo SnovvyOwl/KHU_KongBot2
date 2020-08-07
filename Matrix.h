@@ -98,8 +98,22 @@ class Matrix{
             }
             return *this;
         }
-
-        void transpose();// Transpose Matrix
+        // Transpose Matrix
+        Matrix& transpose(){
+            std::vector<std::vector<T>>data;
+            data.resize(col);
+            for(int j=0;j<col;j++){
+                for(int i=0;i<row;i++){
+                    data[j].push_back(matrix[i][j]);
+                }
+            }
+            size_t temp;
+            temp=row;
+            row=col;
+            col=temp; 
+            std::swap(matrix,data);
+            return *this;
+        }
         void inverse();//Inverse Matrix
         void guasselimination();//guass elliminationssss   
 };
