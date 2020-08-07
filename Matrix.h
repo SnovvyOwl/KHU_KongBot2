@@ -38,17 +38,19 @@ class Matrix{
         const std::vector<T>& operator[](size_t row) const{
             return matrix[row];//index Matrix
         }
-
+        std::vector<std::vector<T>> element(){
+            return matrix;
+        }
         Matrix(const Matrix& other) = default;
         Matrix(Matrix&& other) :
-        matrix(std::move(other.matrix))
+        matrix(std::move(other.element()))
         {
             row = other.rows();
             col = other.columns();
         }
         Matrix& operator=(const Matrix& other) = default;
         Matrix& operator=(Matrix&& other){
-            std::swap(matrix, other.matrix);
+            std::swap(matrix, other.element);
             row = other.rows();
             col = other.columns();
             return *this;
