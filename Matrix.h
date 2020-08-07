@@ -50,7 +50,7 @@ class Matrix{
         }
         Matrix& operator=(const Matrix& other) = default;
         Matrix& operator=(Matrix&& other){
-            std::swap(matrix, other.element);
+            std::swap(matrix, other.element());
             row = other.rows();
             col = other.columns();
             return *this;
