@@ -17,6 +17,8 @@ class Matrix{
                 std::cerr<<"Matrix size error"<<std::endl;
             }
         };
+
+        //Call Private Variable;
         size_t rows(){
             return row;
         }
@@ -32,6 +34,8 @@ class Matrix{
         size_t size(){
             return row*col;//Size of Matrix
         }
+
+        //Indexing Matrix
         std::vector<T>& operator[](size_t row){
             return matrix[row];
         }
@@ -41,6 +45,7 @@ class Matrix{
         std::vector<std::vector<T>> element(){
             return matrix;
         }
+        //Assign;
         Matrix(const Matrix& other) = default;
         Matrix(Matrix&& other) :
         matrix(std::move(other.element()))
@@ -55,6 +60,7 @@ class Matrix{
             col = other.columns();
             return *this;
         }
+        //Multiply Matrix
         Matrix& operator *= (const T& rhs){
             for (auto& row : matrix){
                 for (auto& cell : row){
@@ -63,6 +69,7 @@ class Matrix{
             }
             return *this;
         }
+        
         Matrix& operator *= (const Matrix& rhs){
             if (col != rhs.rows()){
                 throw std::logic_error("First Matrix's column count and Second Matrix's row count are not equal\n");
@@ -86,7 +93,7 @@ class Matrix{
             matrix.swap(data);
             return *this;
         }
-
+        //ADD Matrix
         Matrix& operator +=(const Matrix& rhs){
             if (row != rhs.rows() || col != rhs.columns()){
             throw std::logic_error("either or both of row count and column count of two matrices are not equal\n");
@@ -94,6 +101,18 @@ class Matrix{
             for (size_t i = 0; i < row; i++){
                 for (size_t j = 0; j < col; j++){
                     matrix[i][j] += rhs[i][j];
+                }
+            }
+            return *this;
+        }
+        //subs
+        Matrix& operator -=(const Matrix& rhs){
+            if (row != rhs.rows() || col != rhs.columns()){
+            throw std::logic_error("either or both of row count and column count of two matrices are not equal\n");
+            }
+            for (size_t i = 0; i < row; i++){
+                for (size_t j = 0; j < col; j++){
+                    matrix[i][j] -= rhs[i][j];
                 }
             }
             return *this;
@@ -115,8 +134,10 @@ class Matrix{
             return *this;
         }
         void inverse();//Inverse Matrix
-        void guasselimination();//guass elliminationssss   
+        void guasselimination();//guass elliminationssss 
 };
+
+// correct
 template <typename T>
 bool operator==(const Matrix<T>& lhs, const Matrix<T>& rhs){
     if (lhs.rows() != rhs.rows() || lhs.columns() != rhs.columns()){
@@ -131,15 +152,21 @@ bool operator==(const Matrix<T>& lhs, const Matrix<T>& rhs){
     }
     return true;
 }
-
+//  NOT
 template <typename T>        
 bool operator != (const Matrix<T>& lhs, const Matrix<T>& rhs){
     return !(lhs == rhs);
 }
+// Add Matrix
 template <typename T>
 Matrix<T> operator + (Matrix<T> lhs, const Matrix<T>& rhs){   
     return lhs += rhs;
 }
+template <typename T>
+Matrix<T> operator - (Matrix<T> lhs, const Matrix<T>& rhs){   
+    return lhs -= rhs;
+}
+//Multiply Matrix
 template <typename T>
 Matrix<T> operator * (Matrix<T> lhs, const Matrix<T>& rhs){
     return lhs *= rhs;
@@ -148,7 +175,7 @@ template <typename T>
 Matrix<T> operator * (Matrix<T> lhs, const T& rhs){
     return lhs *= rhs;
 }
-template <typename T>
+template <typename T> 
 Matrix<T> operator * (const T& lhs, Matrix<T> rhs){
     return rhs *= lhs;
 }
@@ -162,7 +189,7 @@ std::istream& operator >> (std::istream& is, Matrix<T>& matrix){
     }
     return is;
 }*/
-template <typename T>
+template <typename T> //print Matrix
 std::ostream& operator << (std::ostream& os, const Matrix<T>& matrix){
     for (size_t i = 0; i < matrix.rows(); i++){
         for (size_t j = 0; j < matrix.columns(); j++){
@@ -172,30 +199,3 @@ std::ostream& operator << (std::ostream& os, const Matrix<T>& matrix){
         }   
     return os;
 }
-/*
-int main()
-{
-    size_t rowCount = 2, columntCount = 2;
-    std::vector<std::vector<int>>b={{1 , 0} , {0 ,1},{0,0}};
-    std::vector<std::vector<int>>a={{1 , 0} , {0 ,1}};
-    Matrix<int> firstMatrix(size_t(3), columntCount, b);
-
-    Matrix<int> secondMatrix(rowCount, columntCount, a);
-
-    std::cout << "Choose operator (+ or *): ";
-    char op;
-    std::cin >> op;
-
-    switch (op)
-    {
-    case '*':
-        std::cout << firstMatrix * secondMatrix;
-        break;
-    default:
-        std::cout << firstMatrix + secondMatrix;
-        break;
-    }
-
-    std::system("pause");
-
-}*/
