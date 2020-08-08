@@ -74,7 +74,6 @@ void init_motor(){
   Serial.write("KHU KONG BOT2 is READY@");
   delay(1000);
   active_motor();
- }
 
  /*void reSYNC_motor(){
   CMD_IDU=idu.read();
@@ -84,30 +83,30 @@ void init_motor(){
   CMD=String(CMD_IDU)+String(',')+String(CMD_PEND_R)+String(',')+String(CMD_PEND_L)+String(',') +String(CMD_CTRL_ROLL);  
   Serial.write(CMD.c_str());
   }*/
-
+}
  void active_motor(){
   Serial.write("enter pendulum target angle");
   //angular = Serial.read();//
   //ori_angular = angular * 10;//
   for(int i = 0; i<2; i++){
-    ori_angular = 86;
+    ori_angular = -98;
     pendR.writeMicroseconds(1500+ori_angular);
     pendL.writeMicroseconds(1500+ori_angular);
-    delay(800);
+    delay(2000);
     ori_angular = 0;
      pendR.writeMicroseconds(1500+ori_angular);
-     delay(800);
+     delay(2000);
     Serial.println(i);
     }
 
    for(int j = 0; j<3; j++){
-    ori_angular = 172;
+    ori_angular =-197;
     pendR.writeMicroseconds(1500+ori_angular);
     pendL.writeMicroseconds(1500+ori_angular);
-    delay(800);
+    delay(2000);
     ori_angular = 0;
     pendR.writeMicroseconds(1500+ori_angular);
-    delay(800);
+    delay(2000);
     Serial.println(j);
    }
   } 

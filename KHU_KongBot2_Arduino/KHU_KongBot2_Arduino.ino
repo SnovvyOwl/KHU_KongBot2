@@ -57,7 +57,7 @@ void init_motor(){
   pendL.attach(PEND_L);
   idu.attach(IDU);
   ctrl_roll.attach(CTRL_ROLL);
-  pendR.writeMicroseconds(1500);//700~2300
+  pendR.writeMicroseconds(560);//700~2300
   pendL.writeMicroseconds(1500);//700~2300
   ctrl_roll.writeMicroseconds(1500);//700~2300
   do{

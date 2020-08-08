@@ -53,11 +53,11 @@ int main(int argc,char **argv){
 	pinMode(PhaseB, INPUT);
 	wiringPiISR(PhaseA, INT_EDGE_BOTH, &Interrupt_A);
 	wiringPiISR(PhaseB, INT_EDGE_BOTH, &Interrupt_B);
-    if((AHRS = serialOpen("/dev/ttyUSB1",115200))<0){
+    if((AHRS = serialOpen("/dev/ttyUSB0",115200))<0){
         cerr<<"Unable to open AHRS"<<endl;
 	      return 1;
     }
-      if((NanoCMD=serialOpen("/dev/ttyUSB0",115200))<0){
+      if((NanoCMD=serialOpen("/dev/ttyACM0",115200))<0){
         cerr<<"Unable to open Arduino"<<endl;
 	      return 1;
     }

@@ -35,7 +35,7 @@ int main(){
 	wiringPiISR(PhaseA, INT_EDGE_BOTH, &Interrupt_A);
 	wiringPiISR(PhaseB, INT_EDGE_BOTH, &Interrupt_B);
 	encoder_pulse = (float)360 / (3600 * 4); //3600 ppr
-	if((NanoCMD=serialOpen("/dev/ttyACM1",115200))<0){
+	if((NanoCMD=serialOpen("/dev/ttyACM0",115200))<0){
 		cerr<<"Unable to open Arduino"<<endl;
 		return 1;
 	}
@@ -53,7 +53,7 @@ int main(){
 		}
 		now=millis();
 		cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\tVel : " << vel << "\n";
-		fout<<"time: "<<now<<"\tEncoder Pos : *"<<encoder_pos<<"\tAngle : " << angle<< "\tVel :" <<vel<<"\n";
+		fout<<"time: @"<<now<<"\tEncoder Pos : *"<<encoder_pos<<"\tAngle : $" << angle<< "\tVel :#" <<vel<<"\n";
 	}while(CMD!='q');
 	cout<<"quit"<<endl;
 	string quit="*1500 1500 1500 1500 1500\n";

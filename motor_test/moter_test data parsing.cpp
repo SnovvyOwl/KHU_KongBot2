@@ -21,9 +21,9 @@ int main() {
 	pout.open("pos.csv");
 	while (getline(fin, data)) {
 		time = data.substr(7, data.find("E") - 7);
-		pos = data.substr((data.find("s") + 4), (data.find("A") - 1) - (data.find("s") + 4));
-		angle = data.substr(data.find("le") + 5, (data.find("V") - 1) - (data.find("le") + 6));
-		vel = data.substr(data.find("Vel") + 5);
+		pos = data.substr((data.find("*") + 1), (data.find("A") - 1) - (data.find("*") + 1));
+		angle = data.substr(data.find("$") + 1, (data.find("V") - 1) - (data.find("$") + 1));
+		vel = data.substr(data.find("#") +1 );
 		tout << time << endl;
 		aout << angle << endl;
 		vout << vel << endl;
