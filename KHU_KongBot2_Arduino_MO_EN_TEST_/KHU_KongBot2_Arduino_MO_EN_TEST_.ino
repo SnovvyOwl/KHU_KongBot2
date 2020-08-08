@@ -101,7 +101,7 @@ void init_motor(){
     }
 
    for(int j = 0; j<3; j++){
-    ori_angular = 170;
+    ori_angular = 172;
     pendR.writeMicroseconds(1500+ori_angular);
     pendL.writeMicroseconds(1500+ori_angular);
     delay(800);
