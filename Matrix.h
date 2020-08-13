@@ -202,3 +202,66 @@ class Matrix {
 			return *this;
 		}
 };
+
+// correct
+template <typename T>
+bool operator==(const Matrix<T>& lhs, const Matrix<T>& rhs) {
+	if (lhs.rows() != rhs.rows() || lhs.columns() != rhs.columns()) {
+		return false;
+	}
+	for (int i = 0; i < lhs.rows(); i++) {
+		for (int j = 0; j < lhs.columns(); j++) {
+			if (lhs[i][j] != rhs[i][j]) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+//  NOT
+template <typename T>
+bool operator != (const Matrix<T>& lhs, const Matrix<T>& rhs) {
+	return !(lhs == rhs);
+}
+// Add Matrix
+template <typename T>
+Matrix<T> operator + (Matrix<T> lhs, const Matrix<T>& rhs) {
+	return lhs += rhs;
+}
+template <typename T>
+Matrix<T> operator - (Matrix<T> lhs, const Matrix<T>& rhs) {
+	return lhs -= rhs;
+}
+//Multiply Matrix
+template <typename T>
+Matrix<T> operator * (Matrix<T> lhs, const Matrix<T>& rhs) {
+	return lhs *= rhs;
+}
+template <typename T>
+Matrix<T> operator * (Matrix<T> lhs, const T& rhs) {
+	return lhs *= rhs;
+}
+template <typename T>
+Matrix<T> operator * (const T& lhs, Matrix<T> rhs) {
+	return rhs *= lhs;
+}
+/*
+template <typename T>
+std::istream& operator >> (std::istream& is, Matrix<T>& matrix){
+	for (size_t i = 0; i < matrix.rows(); i++){
+		for (size_t j = 0; j < matrix.columns(); j++){
+			is >> matrix[i][j];
+		}
+	}
+	return is;
+}*/
+template <typename T> //print Matrix
+std::ostream& operator << (std::ostream& os, const Matrix<T>& matrix) {
+	for (size_t i = 0; i < matrix.rows(); i++) {
+		for (size_t j = 0; j < matrix.columns(); j++) {
+			os << matrix[i][j] << ' ';
+		}
+		os << "\n";
+	}
+	return os;
+}
