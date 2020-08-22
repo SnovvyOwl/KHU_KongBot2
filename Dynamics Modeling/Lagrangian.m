@@ -2,7 +2,7 @@
 % KHU-Kong-Bot 2 Project
 % Calculate Largrangian
 clear;clc;
-syms x_o(t) y_o(t) th_oz(t) th_oy(t) th_ox(t) th_iy(t) th_pr(t) th_pl(t) th_t(t) t
+syms x_o(t) y_o(t) th_oz(t) th_oy(t) th_ox(t) th_iy(t) th_pr(t) th_pl(t) th_t(t) t 
 assume(x_o(t),'real')
 assume(y_o(t),'real')
 assume(th_oz(t),'real')
@@ -37,47 +37,45 @@ R_23=[cos(th_oz(t)) sin(th_oz(t)) 0 0; -sin(th_oz(t)) cos(th_oz(t)) 0 0; 0 0 1 0
 R_34=[cos(th_oy(t)) 0 -sin(th_oy(t)) 0 ; 0 1 0 0;sin(th_oy(t)) 0 cos(th_oy(t)) 0 ; 0 0 0 1];% rotate pitch
 R_45=[1 0 0 0; 0 cos(th_ox(t)) sin(th_ox(t)) 0;0 -sin(th_ox(t)) cos(th_ox(t)) 0 ; 0 0 0 1];% roatate Roll
 R_56=[cos(th_iy(t)) 0 -sin(th_iy(t)) 0 ; 0 1 0 0;sin(th_iy(t)) 0 cos(th_iy(t)) 0 ; 0 0 0 1];% rotate pitch
-T_6pl=[1 0 0 0;0 1 0 0.05370;0 0 1  -0.44008;0 0 0 1];
-T_6pr=[1 0 0 0;0 1 0 -0.05370;0 0 1  -0.44008;0 0 0 1];
-R_pl=[cos(th_pl(t)) 0 -sin(th_pl(t)) 0;0,1,0 0 ; sin(th_pl(t)) 0 cos(th_pl(t)) 0 ; 0 0 0 1];
-R_pr=[cos(th_pr(t)) 0 sin(th_pr(t)) 0;0,1,0 0 ; -sin(th_pr(t)) 0 cos(th_pr(t)) 0 ; 0 0 0 1];
+T_6pl=[cos(th_pl(t)) 0 -sin(th_pl(t)) 0;0,1,0 0.05370 ; sin(th_pl(t)) 0 cos(th_pl(t)) -0.44008 ; 0 0 0 1];
+T_6pr=[cos(th_pr(t)) 0 sin(th_pr(t)) 0;0,1,0 -0.05370 ; -sin(th_pr(t)) 0 cos(th_pr(t)) -0.44008 ; 0 0 0 1];
 
 %여기까지 수정완료
 
 % Shell
-V_oo=[diff(x_o(t),t);diff(y_o(t),t); 0;1];
-w_5o=[diff(th_ix,t);diff(th_oy,t);diff(th_iz,t); 1]; 
-w_oo=T_01*T_12*R_23*R_34*R_45*w_5o;
+V_0o=[diff(x_o(t),t);diff(y_o(t),t); 0;1];
+w_0o=[diff(th_ox,t);diff(th_oy,t);diff(th_oz,t); 1];
 
 % IDU
 r_idu=[0; 0; -1; 1]; % I don't have value.....
-x_i=T_01*T_12*R_23*R_34*R_45*r_idu;
-V_oi=diff(x_i,t);
-th_5i=[th_ix(t);th_iy(t)+th_oy(t);th_iz(t); 1];
+x_i=T_01*T_12*R_23*R_34*R_45*R_56*r_idu;
+V_0i=diff(x_i,t);
+th_5i=[0;th_iy(t);0; 1];
 w_5i=diff(th_5i,t);
+w_0i=T_01*T_12*R_23*R_34*R_45*w_5i;
 
 % Pendulum R
-x_pr=T_01*T_12*R_23*R_34*R_45*T_5pmr*R_pmr*lp;
-V_pr=diff(x_pr,t);
-w_pr=diff(T_01*T_12*R_23*R_34*R_45*[0; th_pr(t); 0; 1],t);
-%w_5pr=diff([0; th_pr(t); 0; 1],t);
+x_pr=T_01*T_12*R_23*R_34*R_45*R_56*T_6pr*lp;
+V_6pr=diff(x_pr,t);
+w_0pr=diff(T_01*T_12*R_23*R_34*R_45*R_56*[0; th_pr(t); 0; 1],t);
+w_6pr=[0; th_pr(t); 0; 1];
 
 % Pendulum L
-x_pl=T_01*T_12*R_23*R_34*R_45*T_5pml*R_pml*lp;
-V_pl=diff(x_pl,t);
-w_pl=diff(T_01*T_12*R_23*R_34*R_45*[0; th_pl(t); 0; 1],t);
-%w_5pl=diff([0; th_pl(t); 0; 1],t);
+x_pl=T_01*T_12*R_23*R_34*R_45*R_56*T_6pl*lp;
+V_6pl=diff(x_pl,t);
+w_0pl=diff(T_01*T_12*R_23*R_34*R_45*R_56*[0; th_pl(t); 0; 1],t);
+w_6pl=[0; th_pl(t); 0; 1];
 
 % Tilt
-rt=[1,-rpin*th_t(t),1 1]';
-w_5t=w_5i;
-V_ot=diff(T_01*T_12*R_23*R_34*R_45*rt,t);
+rt=[1,-rpin*th_t(t),1 1]';%no value
+w_0t=w_0i;
+V_0t=diff(T_01*T_12*R_23*R_34*R_45*R_56*rt,t);
 
 % Energy EQN
-T=0.5*(m_o*(V_oo'*V_oo-1)+m_i*(V_oi'*V_oi-1)+m_p*(V_pr'*V_pr-1)+m_p*(V_pl'*V_pl-1)+(w_oo'*j_o*w_oo-1)+(w_5i'*j_i*w_5i-1)+(w_pr'*j_pr*w_pr-1)+(w_pl'*j_pl*w_pl-1)+(w_5t'*j_t*w_5t-1));
+T=0.5*(m_o*(V_0o'*V_0o-1)+m_i*(V_0i'*V_0i-1)+m_p*(V_pr'*V_pr-1)+m_p*(V_pl'*V_pl-1)+m_t*(V_t'*V_t-1)+(w_0o'*j_o*w_0o-1)+(w_5i'*j_i*w_5i-1)+(w_6pr'*j_pr*w_6pr-1)+(w_6pl'*j_pl*w_6pl-1)+(w_6t'*j_t*w_6t-1));
 U=m_i*g'*x_i+m_p*g'*x_pr+m_p*g'*x_pl+m_t*g'*rt;
-q=[x_o(t),y_o(t),th_ix(t),th_iy(t),th_iz(t)];
-dq=[diff(x_o(t),t), diff(y_o(t),t), diff(th_ix(t),t), diff(th_iy(t),t),diff(th_iz(t),t)];
+q=[th_pl(t),th_pr(t),th_i(t),th_t(t)];
+dq=[diff(th_pl(t),t), diff(th_pr(t),t), diff(th_i(t),t),diff(th_t(t),t)];
 
 L=T+U;
 % SOLVE Lagrange
