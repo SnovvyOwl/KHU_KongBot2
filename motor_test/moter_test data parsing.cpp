@@ -20,10 +20,10 @@ int main() {
 	vout.open("vel.csv");
 	pout.open("pos.csv");
 	while (getline(fin, data)) {
-		time = data.substr(7, data.find("E") - 7);
-		pos = data.substr((data.find("*") + 1), (data.find("A") - 1) - (data.find("*") + 1));
-		angle = data.substr(data.find("$") + 1, (data.find("V") - 1) - (data.find("$") + 1));
-		vel = data.substr(data.find("#") +1 );
+		time = data.substr(data.find("@")+1, data.find("E") - data.find("@")-2);
+		pos = data.substr((data.find("*") + 1), data.find("A") - data.find("*")-2);
+		angle = data.substr(data.find("$") + 1, data.find("V") - data.find("$") -2);
+		vel = data.substr(data.find("#") + 1);
 		tout << time << endl;
 		aout << angle << endl;
 		vout << vel << endl;
