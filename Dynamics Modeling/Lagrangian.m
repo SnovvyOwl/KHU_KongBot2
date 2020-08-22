@@ -12,7 +12,7 @@ assume(th_iy(t),'real')
 assume(th_t(t),'real')
 assume(th_pr(t),'real')
 assume(th_pl(t),'real')
-assume(t,'positive')
+assume(t,'real')
 
 %parameter
 Mr=2.4614; % Robot Weight
