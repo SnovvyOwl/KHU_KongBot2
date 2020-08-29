@@ -11,7 +11,7 @@ y=unique(y,'rows','stable'); % REFINED DATA;
 
 %step function
 u=[y(:,1),zeros(21235,1)];
-%u=unique(u,"rows","stable");
+u=unique(u,"rows","stable");
 t1=find(u(:,1)==1.009);
 t2=find(u(:,1)==3.019);
 u(t1:t2,2)=8.3;
