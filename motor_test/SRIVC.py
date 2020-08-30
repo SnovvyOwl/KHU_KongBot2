@@ -32,7 +32,6 @@ while ((flag==1) and (j<=2)):
     for i in range(n-1):
         p_i=np.zeros(n)
         p_i[i]=1
-        print(p_i)
         Bp=control.tf(B,1)
         filter_y=control.tf(p_i,A)
         estimate_y=Bp*filter_y
@@ -50,24 +49,11 @@ while ((flag==1) and (j<=2)):
         filter_u=control.tf2io(filter_u)
         uf=control.input_output_response(filter_u,u[:,0],u[:,1])
         phi[n+i-1]=uf[1]
-        print(phi)
         phi_hat[n+i-1]=uf[1]
 
-    front=phi_hat*phi
+    front=np.matmul(phi_hat,phi.T)
+    back=np.matmul(phi_hat,yf[1].T)
+    new_theta=np.matmul(np.linalg.inv(front),back)
+    print(new_theta)
     j=j+1
 
-
-
-
-
-
-
-
-#B=np.reshape(1,n)
-#s=control.TransferFunction.s
-#sys=control.tf(B,A)
-#sys=control.tf2io(sys)
-#sys=B[0]/(A[0]*s**3+A[1]*s**2+A[2]*s+A[3])
-#u.sort(axis=0)
-#yf=control.input_output_response(sys,u[:,0],u[:,1])
-#print(yf)
