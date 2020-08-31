@@ -31,7 +31,7 @@ theta=np.array([45.29,1413,17970,18130]) #INITIAL ESTIMATE
 phi=np.zeros((n+m+1,len(u)))
 phi_hat=np.zeros((n+m+1,len(u)))
 j=1
-while (j<=100):
+while (j<=2):
     A=theta[0:n]
     A=np.insert(A,0,1)
     B=theta[n]
@@ -68,6 +68,7 @@ A=np.insert(A,0,1)
 B=theta[n]
 sys=control.tf(B,A)
 sys=control.tf2io(sys)
-est_y=control.input_output_response(sys,t,u)
-plt.plot(t,u,est_y[0],est_y[1])
-plt.show()
+#est_y=control.input_output_response(sys,t,u)
+#plt.plot(est_y[0],est_y[1])
+#plt.show()
+print("end")
