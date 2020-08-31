@@ -25,8 +25,10 @@ def fil_y(pi_a, t, y, yf):
 
 if __name__ == "__main__":
     freeze_support()
-    y = np.loadtxt("RefinedY.txt", delimiter=",")
-    u = np.loadtxt("RefinedU.txt", delimiter=",")
+    y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",") #linux
+    u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",") #linux
+    #y = np.loadtxt("RefinedY.txt", delimiter=",") #window
+    #u = np.loadtxt("RefinedU.txt", delimiter=",") #window
     yr = y
     ur = u
     t = y[0:3000, 0]
