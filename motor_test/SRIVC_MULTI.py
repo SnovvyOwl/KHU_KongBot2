@@ -15,112 +15,127 @@ import control
 from matplotlib import pyplot as plt
 import numpy as np
 from multiprocessing import Process, Queue, freeze_support
-import os
 
 
-def fil_y(pi_a, t, y, yf):
-    yf.put(control.input_output_response(pi_a, t, y))
+def fil_y(pi_a, time, y_val, fil_y_val):
+    fil_y_val.put(control.input_output_response(pi_a, time, y_val))
     return
 
-def er(th,nth,e):
-    ap_Err=nth-th
-    #ap_Err=ap_Err/th
-    ap_Err=np.abs(ap_Err)
-    ap_Err=np.sum(ap_Err)
-    e.put(ap_Err)
+
+def er(th, nth, ans):
+    ap_err = nth - th
+    ap_err = np.abs(ap_err)
+    ap_err = ap_err/np.abs(th)
+    ap_err = np.sum(ap_err)
+    ans.put(ap_err)
     return
+
 
 if __name__ == "__main__":
     freeze_support()
     print("Reading Data")
-    y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",") #linux
-    u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",") #linux
-    #y = np.loadtxt("RefinedY.txt", delimiter=",") #window
-    #u = np.loadtxt("RefinedU.txt", delimiter=",") #window
-    #y = y[:,1]
-    #u = u[:,1]
-    #t = u[:,0]
+    # y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",")  # linux
+    # u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",")  # linux
+    y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
+    u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
+    # y = y[:,1]
+    # u = u[:,1]
+    # t = u[:,0]
     t = y[0:15000, 0]
     y = y[0:15000, 1]
     u = u[0:15000, 1]
     print("Init..")
+
     # DP CONTROLLER
     n = 3
     m = 0
-    theta = np.array([45.29, 1413, 17970, 18130])  # INITIAL ESTIMATE
-    A = theta[0:n]
-    A = np.insert(A, 0, 1)
-    B = theta[n]
-
-    """
-    init = control.tf(B, A)
-    init = control.tf2io(init)
-    while (j <= 1000000):
-    first = control.input_output_response(init, t, u)
-    plt.plot(first[0], first[1])
-    plt.show()
-    """
-
     result = Queue()
     phi = np.zeros((n + m + 1, len(u)))
     phi_hat = np.zeros((n + m + 1, len(u)))
+    A = np.array([1, 45.29, 1413, 17970])  # INITIAL ESTIMATE
+
+    for i in range(n):
+        p_i = np.zeros(n)
+        p_i[i] = 1
+        F = control.tf(p_i, A)  # P^n/A(p)
+        F = control.tf2io(F)
+        Yf = control.input_output_response(F, t, y)
+        phi[i] = -Yf[1].T
+    for i in range(m + 1):
+        p_i = np.zeros(m + 1)
+        p_i[i] = 1
+        Uf = control.tf(p_i, A)  # P^m/A(p)
+        Uf = control.tf2io(Uf)
+        Uf = control.input_output_response(Uf, t, u)
+        phi[n + i] = Uf[1].T
+
+    Pn = np.zeros(n + 1)
+    Pn[0] = 1
+    yfn = control.tf(Pn, A)
+    yfn = control.tf2io(yfn)
+    yfn = control.input_output_response(yfn, t, y)
+    front = np.matmul(phi, phi.T)
+    back = np.matmul(phi, yfn[1])
+    theta = np.matmul(np.linalg.inv(front), back)
+    A = theta[0:n]
+    A = np.insert(A, 0, 1)
+    B = theta[n]
+    print("Starting SRIVC...")
     j = 1
-    while (j <= 1000):
-        print(j)
+    while j <= 10000:
+        Bp_Ap = control.tf(B, A)
         for i in range(n):
-            p_i = np.zeros(n + 1)
-            p_i[i + 1] = -1
-            sys_hat = control.tf(B, A)
-            Pn_Ap = control.tf(p_i, A)  # P^n/A(p)
-            Pn_Ap_IO = control.tf2io(Pn_Ap)
-            pro1 = Process(target=fil_y, args=(Pn_Ap_IO, t, y, result))  # calc P^n*Y_f
+            p_i = np.zeros(n)
+            p_i[i] = 1
+            F = control.tf(p_i, A)  # P^n/A(p)
+            F_IO = control.tf2io(F)
+            pro1 = Process(target=fil_y, args=(F_IO, t, y, result))  # calc Y_f
             pro1.start()
-            PnxXf = Pn_Ap * sys_hat  # P^n/A(p)*B(p)/A(p)
-            PnxXf = control.tf2io(PnxXf)
-            PnxXf = control.input_output_response(PnxXf, t, u)  # calc P^n*X_f
-            PnxYf = result.get()
+            Xf = F * Bp_Ap  # F(p)*B(p)/A(p)
+            Xf = control.tf2io(Xf)
+            Xf = control.input_output_response(Xf, t, u)  # calc P^n*X_f
+            Yf = result.get()
             pro1.join()
-            phi[i] = PnxYf[1]
-            phi_hat[i] = PnxXf[1]
+            phi[i] = -Yf[1].T
+            phi_hat[i] = -Xf[1].T
             pro1.close()
 
         for i in range(m + 1):
             p_i = np.zeros(m + 1)
             p_i[i] = 1
-            Pm_Ap = control.tf(p_i, A) # P^m/A(p)
-            PmxUf = control.tf2io(Pm_Ap)
-            PmxUf = control.input_output_response(PmxUf, t, u)
-            phi[n + i] = PmxUf[1]
-            phi_hat[n + i] = PmxUf[1]
+            Uf = control.tf(p_i, A)  # P^m/A(p)
+            Uf = control.tf2io(Uf)
+            Uf = control.input_output_response(Uf, t, u)
+            phi[n + i] = Uf[1].T
+            phi_hat[n + i] = Uf[1].T
 
-        Pn = np.zeros(3)
-        Pn = np.insert(Pn, 0, 1)
-        yf = control.tf(Pn, A)
-        yf = control.tf2io(yf)
-        yf = control.input_output_response(yf, t, y)
+        Pn = np.zeros(n + 1)
+        Pn[0] = 1
+        yfn = control.tf(Pn, A)
+        yfn = control.tf2io(yfn)
+        yfn = control.input_output_response(yfn, t, y)
         front = np.matmul(phi_hat, phi.T)
-        back = np.matmul(phi_hat, yf[1].T)
+        back = np.matmul(phi_hat, yfn[1])
         new_theta = np.matmul(np.linalg.inv(front), back)
-        
-        pro2=Process(target=er, args=(theta, new_theta, result))
+        pro2 = Process(target=er, args=(theta, new_theta, result))
         pro2.start()
-        e=result.get()
+        e = result.get()
         pro2.join()
-        print(e)
-        if e<0.0001:
+        print("{} : {}".format(j,e))
+        if e < 0.0001:
             break
-
         j = j + 1
         theta = new_theta
         A = theta[0:n]
         A = np.insert(A, 0, 1)
         B = theta[n]
         pro2.close()
-
     sys = control.tf(B, A)
     sys = control.tf2io(sys)
     est_y = control.input_output_response(sys, t, u)
-    plt.plot(est_y[0], est_y[1])
-    plt.show()
-    
+    print("saving")
+    fig = plt.figure()
+    plt.plot(t, u, t, y, est_y[0], est_y[1])
+    fig.savefig("Graph.png")
+    np.savetxt('theta.txt', theta)
     print("end")
