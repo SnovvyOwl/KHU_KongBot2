@@ -22,19 +22,28 @@ def fil_y(pi_a, t, y, yf):
     yf.put(control.input_output_response(pi_a, t, y))
     return
 
+def er(th,nth,e):
+    ap_Err=nth-th
+    #ap_Err=ap_Err/th
+    ap_Err=np.abs(ap_Err)
+    ap_Err=np.sum(ap_Err)
+    e.put(ap_Err)
+    return
 
 if __name__ == "__main__":
     freeze_support()
+    print("Reading Data")
     y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",") #linux
     u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",") #linux
     #y = np.loadtxt("RefinedY.txt", delimiter=",") #window
     #u = np.loadtxt("RefinedU.txt", delimiter=",") #window
-    yr = y
-    ur = u
-    t = y[0:3000, 0]
-    y = y[0:3000, 1]
-    u = u[0:3000, 1]
-    yf_p = np.zeros((2, len(t)))
+    #y = y[:,1]
+    #u = u[:,1]
+    #t = u[:,0]
+    t = y[0:15000, 0]
+    y = y[0:15000, 1]
+    u = u[0:15000, 1]
+    print("Init..")
     # DP CONTROLLER
     n = 3
     m = 0
@@ -46,6 +55,7 @@ if __name__ == "__main__":
     """
     init = control.tf(B, A)
     init = control.tf2io(init)
+    while (j <= 1000000):
     first = control.input_output_response(init, t, u)
     plt.plot(first[0], first[1])
     plt.show()
@@ -55,7 +65,8 @@ if __name__ == "__main__":
     phi = np.zeros((n + m + 1, len(u)))
     phi_hat = np.zeros((n + m + 1, len(u)))
     j = 1
-    while (j <= 10):
+    while (j <= 1000):
+        print(j)
         for i in range(n):
             p_i = np.zeros(n + 1)
             p_i[i + 1] = -1
@@ -90,16 +101,26 @@ if __name__ == "__main__":
         front = np.matmul(phi_hat, phi.T)
         back = np.matmul(phi_hat, yf[1].T)
         new_theta = np.matmul(np.linalg.inv(front), back)
-        theta = new_theta
+        
+        pro2=Process(target=er, args=(theta, new_theta, result))
+        pro2.start()
+        e=result.get()
+        pro2.join()
+        print(e)
+        if e<0.0001:
+            break
+
         j = j + 1
+        theta = new_theta
         A = theta[0:n]
         A = np.insert(A, 0, 1)
         B = theta[n]
-        print(j)
+        pro2.close()
 
     sys = control.tf(B, A)
     sys = control.tf2io(sys)
     est_y = control.input_output_response(sys, t, u)
     plt.plot(est_y[0], est_y[1])
     plt.show()
+    
     print("end")
