@@ -36,17 +36,17 @@ if __name__ == "__main__":
     print("Reading Data")
     #y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",")  # linux
     #u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",")  # linux
-    #y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
-    #u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
-    y = np.loadtxt("totestY.txt", delimiter=",")  # window
-    u = np.loadtxt("totestu.txt", delimiter=",")  # window
+    y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
+    u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
+    #y = np.loadtxt("totestY.txt", delimiter=",")  # window
+    #u = np.loadtxt("totestu.txt", delimiter=",")  # window
     # y = y[:,1]
     # u = u[:,1]
-    # t = u[:,0]
-    t = np.arange(0, 13.001, step=0.001)
-    t=t.T
-    y = y[0:, 1]
-    u = u[0:, 1]
+    t = u[0:15000, 0]
+    #t = np.arange(0, 13.001, step=0.001)
+    #t=t.T
+    y = y[0:15000, 1]
+    u = u[0:15000, 1]
     #print(t)
     #u[2074:3344]=0.4
     #u[4676:6013]=0.2
