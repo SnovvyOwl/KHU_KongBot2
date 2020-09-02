@@ -114,8 +114,18 @@ dL=simplify(dL,'IgnoreAnalyticConstraints',true).'
 %%assume(dL,'real');
 %%dL.'
 
+%clear define
+syms w_oy w_ox w_oz
+dL=change(dL,diff(th_oy(t),t),w_oy)
+dL=change(dL,diff(th_ox(t),t),w_ox)
+dL=change(dL,diff(th_ox(t),t),w_oz)
+
 function res = diffDepVar(fun,depVar)
 syms xx
 res = diff(subs(fun,depVar,xx),xx);
 res = subs(res,xx,depVar);
+end
+
+function new_eqn= change(eqn,dxdt, v)
+    eqn=subs(eqn,dxdt,v)
 end
