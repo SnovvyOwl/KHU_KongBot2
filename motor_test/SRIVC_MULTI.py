@@ -36,14 +36,18 @@ if __name__ == "__main__":
     print("Reading Data")
     #y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",")  # linux
     #u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",")  # linux
-    y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
-    u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
+    #y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
+    #u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
+    y = np.loadtxt("totestY.txt", delimiter=",")  # window
+    u = np.loadtxt("totestu.txt", delimiter=",")  # window
     # y = y[:,1]
     # u = u[:,1]
     # t = u[:,0]
-    t = y[0:15000, 0]
-    y = y[0:15000, 1]
-    u = u[0:15000, 1]
+    t = np.arange(0, 13.001, step=0.001)
+    t=t.T
+    y = y[0:, 1]
+    u = u[0:, 1]
+    #print(t)
     #u[2074:3344]=0.4
     #u[4676:6013]=0.2
     #u[8865:10175]=16.95
@@ -59,7 +63,7 @@ if __name__ == "__main__":
     result = Queue()
     phi = np.zeros((n + m + 1, len(u)))
     phi_hat = np.zeros((n + m + 1, len(u)))
-    A = np.array([1, 45.29, 1413, 17970])  # INITIAL ESTIMATE
+    A = np.array([1, 23, 13133, 13000])  # INITIAL ESTIMATE
 
     for i in range(n):
         p_i = np.zeros(n)
@@ -137,12 +141,15 @@ if __name__ == "__main__":
         A = np.insert(A, 0, 1)
         B = theta[n]
         pro2.close()
+
     sys = control.tf(B, A)
     sys = control.tf2io(sys)
     est_y = control.input_output_response(sys, t, u)
     print("saving")
     fig = plt.figure()
-    plt.plot(t, u, t, y, est_y[0], est_y[1])
-    fig.savefig("Graph.png",dpi=300)
+    plt.plot(t, u, color="b")
+    plt.plot(t, y, color='r')
+    plt.plot(est_y[0], est_y[1], color="g")
+    fig.savefig("Graph.png", dpi=360)
     np.savetxt('theta.txt', theta)
     print("end")
