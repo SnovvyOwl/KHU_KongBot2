@@ -34,8 +34,8 @@ def er(th, nth, ans):
 if __name__ == "__main__":
     freeze_support()
     print("Reading Data")
-    # y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",")  # linux
-    # u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",")  # linux
+    #y = np.loadtxt("KHU_KongBot2/motor_test/RefinedY.txt", delimiter=",")  # linux
+    #u = np.loadtxt("KHU_KongBot2/motor_test/RefinedU.txt", delimiter=",")  # linux
     y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
     u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
     # y = y[:,1]
@@ -44,6 +44,13 @@ if __name__ == "__main__":
     t = y[0:15000, 0]
     y = y[0:15000, 1]
     u = u[0:15000, 1]
+    #u[2074:3344]=0.4
+    #u[4676:6013]=0.2
+    #u[8865:10175]=16.95
+    #u[10176:11439]=-0.2
+    #u[12701:]=-0.2
+    #plt.plot(t, u, t, y)
+    #plt.show()
     print("Init..")
 
     # DP CONTROLLER
@@ -82,7 +89,7 @@ if __name__ == "__main__":
     B = theta[n]
     print("Starting SRIVC...")
     j = 1
-    while j <= 10000:
+    while j <= 582:
         Bp_Ap = control.tf(B, A)
         for i in range(n):
             p_i = np.zeros(n)
@@ -122,7 +129,7 @@ if __name__ == "__main__":
         e = result.get()
         pro2.join()
         print("{} : {}".format(j,e))
-        if e < 0.0001:
+        if e < 0.001:
             break
         j = j + 1
         theta = new_theta
@@ -136,6 +143,6 @@ if __name__ == "__main__":
     print("saving")
     fig = plt.figure()
     plt.plot(t, u, t, y, est_y[0], est_y[1])
-    fig.savefig("Graph.png")
+    fig.savefig("Graph.png",dpi=300)
     np.savetxt('theta.txt', theta)
     print("end")
