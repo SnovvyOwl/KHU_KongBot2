@@ -63,7 +63,7 @@ if __name__ == "__main__":
     result = Queue()
     phi = np.zeros((n + m + 1, len(u)))
     phi_hat = np.zeros((n + m + 1, len(u)))
-    A = np.array([1, 23, 13133, 13000])  # INITIAL ESTIMATE
+    A = np.array([1, 37, 1150, 14000])  # INITIAL ESTIMATE
 
     for i in range(n):
         p_i = np.zeros(n)
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     B = theta[n]
     print("Starting SRIVC...")
     j = 1
-    while j <= 290:
+    while j <= 300:
         Bp_Ap = control.tf(B, A)
         for i in range(n):
             p_i = np.zeros(n)
