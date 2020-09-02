@@ -84,7 +84,7 @@ w_6pl=[0; th_pl(t); 0; 1];
 
 
 % Tilt
-rt=[-3.2098005734442e-004, -1.79374587721968e-002-rpin*th_t(t),6.38233185099966e-002, 1]';% NEED to Measure
+rt=[-3.2098005734442e-004, -1.79374587721968e-002-rpin*th_t(t),6.38233185099966e-002, 1].';% NEED to Measure
 w_0t=w_0i;
 V_0t=diff(T_01*T_12*R_23*R_34*R_45*R_56*rt,t);
 w_6t=inv(R_56)*inv(R_45)*inv(R_34)*inv(R_23)*w_0t;
@@ -93,8 +93,8 @@ w_6t=inv(R_56)*inv(R_45)*inv(R_34)*inv(R_23)*w_0t;
 th_i=th_oy+th_iy; % motor ouput
 
 
-T=0.5*(m_o*(V_0o'*V_0o-1)+m_i*(V_0i'*V_0i-1)+m_p*(V_0pr'*V_0pr-1)+m_p*(V_0pl'*V_0pl-1)+m_t*(V_0t'*V_0t-1)+(w_0o'*j_o*w_0o-1)+(w_5i'*j_i*w_5i-1)+(w_6pr'*j_pr*w_6pr-1)+(w_6pl'*j_pl*w_6pl-1)+(w_6t'*j_t*w_6t-1));
-U=m_i*g'*x_i+m_p*g'*x_pr+m_p*g'*x_pl+m_t*g'*rt;
+T=0.5*(m_o*(V_0o.'*V_0o-1)+m_i*(V_0i.'*V_0i-1)+m_p*(V_0pr.'*V_0pr-1)+m_p*(V_0pl.'*V_0pl-1)+m_t*(V_0t.'*V_0t-1)+(w_0o.'*j_o*w_0o-1)+(w_5i.'*j_i*w_5i-1)+(w_6pr.'*j_pr*w_6pr-1)+(w_6pl.'*j_pl*w_6pl-1)+(w_6t.'*j_t*w_6t-1));
+U=m_i*g.'*x_i+m_p*g.'*x_pr+m_p*g.'*x_pl+m_t*g.'*rt;
 q=[th_pl(t),th_pr(t),th_i(t),th_t(t)];
 dq=[diff(th_pl(t),t), diff(th_pr(t),t), diff(th_i(t),t),diff(th_t(t),t)];
 
@@ -109,9 +109,10 @@ for i=1:length(q)
 end
 
 %ANSWER
-% dL=simplify(dL)'
-assume(dL,'real');
-dL'
+dL=simplify(dL,'IgnoreAnalyticConstraints',true).'
+
+%%assume(dL,'real');
+%%dL.'
 
 function res = diffDepVar(fun,depVar)
 syms xx
