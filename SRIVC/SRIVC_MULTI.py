@@ -97,7 +97,7 @@ if __name__ == "__main__":
     B = theta[n:]
     print("Starting SRIVC...")
     j = 1
-    while j <= 1:
+    while j <= 500:
         Bp_Ap = control.tf(B, A)
         for i in range(n):
             p_i = np.zeros(n)
