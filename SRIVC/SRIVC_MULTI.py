@@ -58,10 +58,14 @@ if __name__ == "__main__":
     print("Init..")
 
     # DP CONTROLLER
+    #n = 3
+    #m = 0
+    # PD CONTROLLER
     n = 3
-    m = 0
+    m = 1
     result = Queue()
     phi = np.zeros((n + m + 1, len(u)))
+    
     phi_hat = np.zeros((n + m + 1, len(u)))
     A = np.array([1, 37, 1150, 14000])  # INITIAL ESTIMATE
 
@@ -90,10 +94,10 @@ if __name__ == "__main__":
     theta = np.matmul(np.linalg.inv(front), back)
     A = theta[0:n]
     A = np.insert(A, 0, 1)
-    B = theta[n]
+    B = theta[n:]
     print("Starting SRIVC...")
     j = 1
-    while j <= 500:
+    while j <= 1:
         Bp_Ap = control.tf(B, A)
         for i in range(n):
             p_i = np.zeros(n)
@@ -139,7 +143,7 @@ if __name__ == "__main__":
         theta = new_theta
         A = theta[0:n]
         A = np.insert(A, 0, 1)
-        B = theta[n]
+        B = theta[n:]
         pro2.close()
 
     sys = control.tf(B, A)
