@@ -34,10 +34,10 @@ def er(th, nth, ans):
 if __name__ == "__main__":
     freeze_support()
     print("Reading Data")
-    y = np.loadtxt("KHU_KongBot2/SRIVC/RefinedY.txt", delimiter=",")  # linux
-    u = np.loadtxt("KHU_KongBot2/SRIVC/RefinedU.txt", delimiter=",")  # linux
-    #y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
-    #u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
+    #y = np.loadtxt("KHU_KongBot2/SRIVC/RefinedY.txt", delimiter=",")  # linux
+    #u = np.loadtxt("KHU_KongBot2/SRIVC/RefinedU.txt", delimiter=",")  # linux
+    y = np.loadtxt("SRIVC/RefinedY.txt", delimiter=",")  # window
+    u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
     #y = np.loadtxt("totestY.txt", delimiter=",")  # window
     #u = np.loadtxt("totestu.txt", delimiter=",")  # window
     # y = y[:,1]
