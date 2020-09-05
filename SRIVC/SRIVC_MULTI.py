@@ -3,13 +3,11 @@
 % Servo Motors( 18th IEEE International Conference on Control Applications
 % Part of 2009 IEEE Multi-conference on Systems and Control
 % Saint Petersburg, Russia, July 8-10, 2009)
-
 Dependency: python Control Sysytem Library
             numpy
             scipy
             matplotlib
             from multiprocessing import Process, Queue
-
 """
 import control
 from matplotlib import pyplot as plt
@@ -62,15 +60,14 @@ if __name__ == "__main__":
     #m = 0
     # PD CONTROLLER
     #n = 3
-    #m = 1 dd SR
+    #m = 1 
     # Pi CONTROLLER
     n = 4
     m = 1
     result = Queue()
     phi = np.zeros((n + m + 1, len(u)))
-    
     phi_hat = np.zeros((n + m + 1, len(u)))
-    A = np.array([1, 10, 100, 2000, 10000])  # INITIAL ESTIMATE
+    A = np.array([1, 10, 100, 100, 10000])  # INITIAL ESTIMATE
 
     for i in range(n):
         p_i = np.zeros(n)
