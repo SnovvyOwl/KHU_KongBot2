@@ -34,10 +34,10 @@ def er(th, nth, ans):
 if __name__ == "__main__":
     freeze_support()
     print("Reading Data")
-    #y = np.loadtxt("KHU_KongBot2/SRIVC/RefinedY.txt", delimiter=",")  # linux
-    #u = np.loadtxt("KHU_KongBot2/SRIVC/RefinedU.txt", delimiter=",")  # linux
-    y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
-    u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
+    y = np.loadtxt("KHU_KongBot2/SRIVC/RefinedY.txt", delimiter=",")  # linux
+    u = np.loadtxt("KHU_KongBot2/SRIVC/RefinedU.txt", delimiter=",")  # linux
+    #y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
+    #u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
     #y = np.loadtxt("totestY.txt", delimiter=",")  # window
     #u = np.loadtxt("totestu.txt", delimiter=",")  # window
     # y = y[:,1]
@@ -61,13 +61,16 @@ if __name__ == "__main__":
     #n = 3
     #m = 0
     # PD CONTROLLER
-    n = 3
+    #n = 3
+    #m = 1 
+    # Pi CONTROLLER
+    n = 4
     m = 1
     result = Queue()
     phi = np.zeros((n + m + 1, len(u)))
     
     phi_hat = np.zeros((n + m + 1, len(u)))
-    A = np.array([1, 37, 1150, 14000])  # INITIAL ESTIMATE
+    A = np.array([1, 10, 100, 2000, 10000])  # INITIAL ESTIMATE
 
     for i in range(n):
         p_i = np.zeros(n)
@@ -97,7 +100,7 @@ if __name__ == "__main__":
     B = theta[n:]
     print("Starting SRIVC...")
     j = 1
-    while j <= 500:
+    while j <= 110:
         Bp_Ap = control.tf(B, A)
         for i in range(n):
             p_i = np.zeros(n)
