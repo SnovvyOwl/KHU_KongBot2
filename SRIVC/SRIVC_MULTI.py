@@ -62,7 +62,7 @@ if __name__ == "__main__":
     #m = 0
     # PD CONTROLLER
     #n = 3
-    #m = 1 
+    #m = 1 dd SR
     # Pi CONTROLLER
     n = 4
     m = 1
