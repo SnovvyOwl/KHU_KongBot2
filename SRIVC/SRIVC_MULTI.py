@@ -32,10 +32,10 @@ def er(th, nth, ans):
 if __name__ == "__main__":
     freeze_support()
     print("Reading Data")
-    y = np.loadtxt("KHU_KongBot2/SRIVC/RefinedY.txt", delimiter=",")  # linux
-    u = np.loadtxt("KHU_KongBot2/SRIVC/RefinedU.txt", delimiter=",")  # linux
-    #y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
-    #u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
+    #y = np.loadtxt("KHU_KongBot2/SRIVC/RefinedY.txt", delimiter=",")  # linux
+    #u = np.loadtxt("KHU_KongBot2/SRIVC/RefinedU.txt", delimiter=",")  # linux
+    y = np.loadtxt("RefinedY.txt", delimiter=",")  # window
+    u = np.loadtxt("RefinedU.txt", delimiter=",")  # window
     #y = np.loadtxt("totestY.txt", delimiter=",")  # window
     #u = np.loadtxt("totestu.txt", delimiter=",")  # window
     # y = y[:,1]
@@ -155,6 +155,6 @@ if __name__ == "__main__":
     plt.plot(t, y, color='r')
     plt.plot(est_y[0], est_y[1], color="g")
     fig.savefig("Graph.png", dpi=480)
-    np.savetxt("estY.txt",est_y)
+    np.savetxt("estY.txt", est_y)
     np.savetxt('theta.txt', theta)
     print("end")
