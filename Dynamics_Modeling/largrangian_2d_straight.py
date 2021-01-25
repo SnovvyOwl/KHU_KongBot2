@@ -1,4 +1,4 @@
-from sympy import diff, Function, symbols,cos, sin
+from sympy import diff, Function, symbols,cos, sin, latex, simplify
 from sympy.physics.mechanics import *
 # variable define
 ms, mi, mp, Rs, Js, Ji, Jp, t, g ,lp= symbols("m_{s} m_{i} m_{p} R_{s} J_{s} J_{i} J_{p} t g l_{p}")
@@ -18,5 +18,4 @@ T=Ts+Ti+Tp
 U=-mp*g*lp*cos(th_s+th_im+th_pm)
 L=T-U
 LM=LagrangesMethod(L,[th_s,th_im,th_pm])
-print(LM.form_lagranges_equations())
-
+print(latex(simplify(LM.form_lagranges_equations())))
