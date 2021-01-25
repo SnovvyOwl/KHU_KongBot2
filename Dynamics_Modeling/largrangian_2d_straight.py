@@ -3,9 +3,21 @@ from sympy.physics.mechanics import *
 # variable define
 ms, mi, mp, Rs, Js, Ji, Jp, t, g ,lp= symbols("m_{s} m_{i} m_{p} R_{s} J_{s} J_{i} J_{p} t g l_{p}")
 """
-th_s=Function("\\theta_{s}")(t)
-th_im= Function("\\theta_{im}")(t) 
-th_pm=Function("\\theta_{pm}")(t)
+    m_{s}= mass of Shell
+    m_{i}= mass of IDU
+    m_{p}= mass of pendulums
+    R_{s}= Radius of Shell (Scala)
+    J_{s}= inertia of Shell
+    J_{i}= inertia of IDU
+    J_{p}= inertia of pendulums (rotational axis)
+    g = gravity accelation (scala)
+    l_{p}= length of pendulums C.M to rotational Axis
+    \\theta_{s}= angle of Shell (Global Frame)
+    \\theta_{im}= angle of IDU motor (Shell Frame)
+    \\theta_{pm}=angle of pendulum motors (IDU Frame)
+
+    \\theta_{i}=\\theta_{im}+\\theta_{s}                        (Global Frame)
+    \\theta_{p}=\\theta_{im}+\\theta_{s}+\\theta_{pm}           (Global Frame)
 """
 
 th_s,th_im,th_pm=dynamicsymbols("\\theta_{s} \\theta_{im} \\theta_{pm}")
