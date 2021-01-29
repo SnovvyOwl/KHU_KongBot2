@@ -22,6 +22,17 @@ ms, mi, mp, Rs, Js, Ji, Jp, t, g ,lp= symbols("m_{s} m_{i} m_{p} R_{s} J_{s} J_{
 
 th_s,th_im,th_pm=dynamicsymbols("\\theta_{s} \\theta_{im} \\theta_{pm}")
 
+"""
+th_s, th_i,th_p=dynamicsymbols("\\theta_{s} \\theta_{i} \\theta_{p}")
+Ts=1/2*ms*(Rs*  th_s.diff())**2+1/2*Js* th_s.diff()**2
+Ti=1/2*mi*(Rs*  th_s.diff())**2+1/2*Ji*( th_i.diff())**2
+Tp=1/2*mp*((Rs* th_s.diff()+lp*(th_p.diff())*cos(th_p))**2+(lp*( th_p.diff())*sin(th_p))**2)+1/2*Jp*( th_p.diff())**2
+T=Ts+Ti+Tp
+U=-mp*g*lp*cos(th_p)
+L=T-U
+LM=LagrangesMethod(L,[th_s,th_i,th_p])
+
+"""
 # Energy Equation
 Ts=1/2*ms*(Rs*  th_s.diff())**2+1/2*Js* th_s.diff()**2
 Ti=1/2*mi*(Rs*  th_s.diff())**2+1/2*Ji*( th_s.diff()+  th_im.diff())**2
@@ -30,4 +41,5 @@ T=Ts+Ti+Tp
 U=-mp*g*lp*cos(th_s+th_im+th_pm)
 L=T-U
 LM=LagrangesMethod(L,[th_s,th_im,th_pm])
+LM.to_linearizer(q_dep=[th_s+th_im])
 print(latex(simplify(LM.form_lagranges_equations())))
