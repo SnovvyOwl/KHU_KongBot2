@@ -41,5 +41,4 @@ T=Ts+Ti+Tp
 U=-mp*g*lp*cos(th_s+th_im+th_pm)
 L=T-U
 LM=LagrangesMethod(L,[th_s,th_im,th_pm])
-LM.to_linearizer(q_dep=[th_s+th_im])
 print(latex(simplify(LM.form_lagranges_equations())))
