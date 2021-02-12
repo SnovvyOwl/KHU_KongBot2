@@ -115,10 +115,13 @@ dL=simplify(dL,'IgnoreAnalyticConstraints',true).'
 %%dL.'
 
 %clear define
-syms w_oy w_ox w_oz
-dL=change(dL,diff(th_oy(t),t),w_oy)
-dL=change(dL,diff(th_ox(t),t),w_ox)
-dL=change(dL,diff(th_ox(t),t),w_oz)
+syms w_oy w_ox w_oz w_pr w_pl w_i w_t
+dL=change(dL,diff(th_oy(t),t),w_oy);
+dL=change(dL,diff(th_ox(t),t),w_ox);
+dL=change(dL,diff(th_oz(t),t),w_oz);
+dL=change(dL,diff(th_i(t),t),w_i);
+dL=change(dL,diff(th_pr(t),t),w_pr);
+dL=change(dL,diff(th_pl(t),t),w_pl)
 
 function res = diffDepVar(fun,depVar)
 syms xx
