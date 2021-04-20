@@ -17,10 +17,10 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
 
 //Robot
 void initNano(const int &fd);
-void change_Vel(int speed);
-void change_Yaw(int yaw);
-void change_Roll(int roll);
-void run (int roll, int speed);
+void change2Vel(float desire_speed,float real_speed);
+void change2Yaw(float desire_yaw, float real_yaw);
+void change2Roll(float desire_roll, float real_roll);
+void run (float desire_roll, float real_roll, float desire_speed, float real_speed);
 
 
 
@@ -107,7 +107,9 @@ int main(int argc,char **argv){
             case 119 :
                 //CMD=w
                 cout<< "go\n";
+                
                 break;
+
             case 115 :
                 //CMD=s
                 cout<<"back\n";
@@ -127,20 +129,25 @@ int main(int argc,char **argv){
                 //CMD=a
                 cout<< "chage roll - direction \n";
                 break;
+
             case 100:
                 //CMD=d
                 cout<< "chage roll + direction \n";
                 break;
+
             case 106:
                 //CMD=j
                 cout<< "chage yaw  +15 degree direction \n";
                 break;
+
             case 107:
                 //CMD=k
                 cout<< "chage yaw  -15 degree direction \n";
                 break;
+
             case 113:
                 break;
+                
             default:
                 cout<< "Wrong OR EMPTY CMD\n";
                 break;
@@ -317,23 +324,33 @@ void initNano(const int &fd){
 
 
 //SPEED CONTROL
-void change_Vel(int speed){
-    double kp=0;
-    double ki=0;
-    double kd=0;
-
-    cout<<speed<<endl;
+void change_Vel(float desire_speed,float real_speed){
+    float error=0;
+    float kp=0;
+    float ki=0;
+    float kd=0;
+    error=desire_speed-real_speed;
+    cout<<real_speed<<endl;
 }
 
 //CHANGE YAW
-void change_Yaw(int yaw){
-    cout<<yaw<<endl;
+void change_Yaw(float desire_yaw, float real_yaw){
+    cout<<desire_yaw<<endl;
 }
-void change_Roll(int roll){
-    cout<<roll<<endl;
-}
-void run (int roll, int speed){
 
-    change_Roll(roll);
-    change_Vel(speed);
+// CHANGE ROLL
+void change_Roll(float desire_roll, float real_roll){
+    float error=0;
+    float kp=0;
+    float ki=0;
+    float kd=0;
+    error=desire_roll-real_roll;
+    cout<<desire_roll<<endl;
+}
+
+//CURVE 
+void run (float desire_roll, float real_roll, float desire_speed, float real_speed){
+
+    change_Roll(desire_roll,real_roll);
+    change_Vel(desire_speed,real_speed);
 }
