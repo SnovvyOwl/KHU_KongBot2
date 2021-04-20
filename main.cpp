@@ -8,20 +8,21 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 using namespace std;
-//senseor
+
+//SENSOR
 #define PhaseA 21 //Encoder A
 #define PhaseB 22 //Encoder B
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
 
+
 //Robot
 void initNano(const int &fd);
-void Foward_1(); 
-void Foward_2();
-void Backward_1(); 
-void Backward_2();
-void changeYaw(int yaw);
-void changeRoll(int roll);
-void run (int roll, int step);
+void change_Vel(int speed);
+void change_Yaw(int yaw);
+void change_Roll(int roll);
+void run (int roll, int speed);
+
+
 
 //Thread
 void input(char &CMD);
@@ -37,6 +38,7 @@ float angle = 0;
 int encoder_pos = 0;
 bool State_A = 0;
 bool State_B = 0;
+
 
 int main(int argc,char **argv){
     if(wiringPiSetup()==-1){
@@ -150,27 +152,50 @@ int main(int argc,char **argv){
     serialClose(AHRS);
     return 0;
 }
-void initNano(const int &fd){
-    int rawdata;
-    string data="";
-    do{
-        rawdata=serialGetchar(fd);
-        data+=(char)rawdata;
-    }while(rawdata!=42);
-    cout<<data<<endl; //"Arduino is Ready*"
-    //init IDU Stable...
-    //####################################
-    string CMD="1500";
 
-    serialPuts(fd,CMD.c_str());//fake CMD
-    //#######################################
-    data="";
-    do{
-        rawdata=serialGetchar(fd);
-        data+=(char)rawdata;
-    }while(rawdata!=64);
-    cout<<data<<endl; //"KHU KongBot2 is Ready@"
+// THREAD 2, 3
+//KEBOARD INPUT [THREAD 2]
+void input(char &CMD) {
+    do {
+        cin >> CMD;
+    } while (CMD != 'q');
+    
 }
+
+//CAMERA RECORD [THREAD 3]
+void CAM(char &CMD){
+    raspicam::RaspiCam_Cv Camera;
+    cv::Mat image;
+    Camera.set( CV_CAP_PROP_FORMAT, CV_8UC3);
+    Camera.set( CV_CAP_PROP_FRAME_WIDTH, 320 );
+    Camera.set( CV_CAP_PROP_FRAME_HEIGHT, 240);
+    if (!Camera.open()) {
+        cerr<<"Error opening the camera"<<endl; // Connect Camera..
+        return;
+    }
+    cv::VideoWriter outputVideo;
+    cv::Size frameSize(320,240);
+    int fps = 25;
+    outputVideo.open("output.avi", cv::VideoWriter::fourcc('X','V','I','D'),fps, frameSize, true);
+    if (!outputVideo.isOpened())
+    {
+        cout  << "Could not open the output video for write: " <<"output.avi" << endl;
+        return;
+    }
+    
+    do{
+        Camera.grab();
+        Camera.retrieve ( image);
+        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
+        cv::imshow( "test", image );
+        outputVideo.write(image);
+
+    } while(CMD!='q');
+    Camera.release();
+}
+
+//SENSOR 
+//DETECT ROLL,PITCH,YAW, Gx,Gy,Gz [AHRS]
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd){
     int rawdata;
     string data;
@@ -205,43 +230,8 @@ void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd){
     sout>>YAW;
     sout.str("");data="";
 }
-void input(char &CMD) {
-    do {
-        cin >> CMD;
-    } while (CMD != 'q');
-    
-}
-void CAM(char &CMD){
-    raspicam::RaspiCam_Cv Camera;
-    cv::Mat image;
-    Camera.set( CV_CAP_PROP_FORMAT, CV_8UC3);
-    Camera.set( CV_CAP_PROP_FRAME_WIDTH, 320 );
-    Camera.set( CV_CAP_PROP_FRAME_HEIGHT, 240);
-    if (!Camera.open()) {
-        cerr<<"Error opening the camera"<<endl; // Connect Camera..
-        return;
-    }
-    cv::VideoWriter outputVideo;
-    cv::Size frameSize(320,240);
-    int fps = 25;
-    outputVideo.open("output.avi", cv::VideoWriter::fourcc('X','V','I','D'),fps, frameSize, true);
-    if (!outputVideo.isOpened())
-    {
-        cout  << "Could not open the output video for write: " <<"output.avi" << endl;
-        return;
-    }
-    
-    do{
-        Camera.grab();
-        Camera.retrieve ( image);
-        cv::cvtColor(image, image, cv::COLOR_BGR2RGB);
-        cv::imshow( "test", image );
-        outputVideo.write(image);
 
-    } while(CMD!='q');
-    Camera.release();
-}
-
+//INTERRUPT pin A [ENCODER]
 void Interrupt_A() {
 
 	State_A = digitalRead(PhaseA);
@@ -271,7 +261,7 @@ void Interrupt_A() {
 	}
 
 }
-
+//INTERRUPT pin B [ENCODER]
 void Interrupt_B() {
 
 	State_A = digitalRead(PhaseA);
@@ -299,4 +289,51 @@ void Interrupt_B() {
 			angle -=  encoder_pulse;
 		}
 	}
+}
+
+//ROBOT MOVE
+//CONNECT ARDUINO [INIT..]
+void initNano(const int &fd){
+    int rawdata;
+    string data="";
+    do{
+        rawdata=serialGetchar(fd);
+        data+=(char)rawdata;
+    }while(rawdata!=42);
+    cout<<data<<endl; //"Arduino is Ready*"
+    //init IDU Stable...
+    //####################################
+    string CMD="1500";
+
+    serialPuts(fd,CMD.c_str());//fake CMD
+    //#######################################
+    data="";
+    do{
+        rawdata=serialGetchar(fd);
+        data+=(char)rawdata;
+    }while(rawdata!=64);
+    cout<<data<<endl; //"KHU KongBot2 is Ready@"
+}
+
+
+//SPEED CONTROL
+void change_Vel(int speed){
+    double kp=0;
+    double ki=0;
+    double kd=0;
+
+    cout<<speed<<endl;
+}
+
+//CHANGE YAW
+void change_Yaw(int yaw){
+    cout<<yaw<<endl;
+}
+void change_Roll(int roll){
+    cout<<roll<<endl;
+}
+void run (int roll, int speed){
+
+    change_Roll(roll);
+    change_Vel(speed);
 }
