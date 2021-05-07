@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7a14d319-cfd0-4895-a9d5-9c39883172a4" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/KHU_KongBot2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/KHU_KongBot2.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/Lagrange_to_AB.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/Lagrange_to_AB.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/largrangian_2d_straight.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/largrangian_2d_straight.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/rootlocus.m" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/rootlocus.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/AB_matrix_0507.asv" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/AB_matrix_0507.asv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/AB_matrix_0507.m" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/AB_matrix_0507.m" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +38,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="D:/struct2depth" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -181,5 +178,15 @@
       <updated>1599218579582</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Dynamics_Modeling/largrangian_2d_straight.py</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
