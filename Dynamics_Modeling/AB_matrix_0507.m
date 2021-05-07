@@ -42,12 +42,12 @@ G= B*T+A*B*T^2/2+A^2*B*T^3/6
 sys=ss(A,B,C,D);
 sys_discrete=c2d(sys,T)
 %% Initial Conditions
-x(:,1) = [0;0;0;0]; % true initial state
+x(:,1) = [0;0;1*d2r;0]; % true initial state
 xp(:,1) = [0;0;0;0]; % guess of initial posteriori estimation
 nx = length(xp(:,1)); % number of state
 Pp = 1e3*eye(nx); % guess of initial error covariance
 sigma_Pp(:,1) = sqrt(diag(Pp));
-u(:,1)=0;
+u(:,1)=[0]';
 %% Noise
 sigma_w = 100;        % system noise (std of acceleration)
 sigma_v = 10;       % measurement noise (std of position sensor)
@@ -59,35 +59,28 @@ y=[];
 t = 0:T:100;
 for i = 1:length(t)-1
     %% True dynamics    
-    x(:,i+1) = F*x(:,i)+G*u(:,i)+Gamma*randn(size(Gamma,2),1)*sigma_w; % system dynamics
+    %x(:,i+1) = F*x(:,i)+G*u(:,i)+Gamma*randn(size(Gamma,2),1)*sigma_w; % system dynamics
+    x(:,i+1) = F*x(:,i)+Gamma*randn(size(Gamma,2),1)*sigma_w;
     %% ====================================================
     %% Time update
     %% ====================================================
     %% Equation 1: Prediction of state
-    x_ = F*xp(:,i)+G*u(:,i);     
+    %x_ = F*xp(:,i)+G*u(:,i);    
+    x_ = F*xp(:,i);   
     %% Equation 2: Prediction of covariance
     P_ = F*Pp*F' + Gamma*Q*Gamma'; 
-    %% ====================================================
+     %% compute Jacobian
+    H =C;
     %% Measurement update
     %% ====================================================
     %% measurement generation
-    y(i) = x(2,i+1) + diag(randn(size(sigma_v,1),1))*sigma_v;    
-    %% compute Jacobian
-    H = fn_JH(xr,yr,zr,x_);
+    y(:,i) = H*x(:,i+1) + diag(randn(size(sigma_v,1),1))*sigma_v;   
+
     %% Equation 3: Innovation Covariance
     S = H*P_*H'+R; 
     %% Equation 4: Residual
-    nu = y(:,i)-fn_hx(xr,yr,zr,x_);
-    % make the absolute value of angles under 180deg ~ bearing angle
-    if abs(nu(2)) > pi
-        nu(2) = nu(2) - 2*pi*sign(nu(2));
-    end  
-
-    % make the absolute value of angles under 180deg ~ elevation angle
-    if abs(nu(3)) > pi
-        nu(3) = nu(3) - 2*pi*sign(nu(3));
-    end      
-    
+    nu = y(:,i)-H*x_;
+ 
     %% Equation 5: Kalman gain
     K = P_*H'*S^-1;   
     %% Equation 6: State update
@@ -99,29 +92,10 @@ for i = 1:length(t)-1
     sigma_Pp(:,i+1) = sqrt(diag(Pp)); 
     %% storing Kalman gain for ploting
     K_store(i) = norm(K);
+    
 end
 
-
-%% h(X): Nonlinear measurement eq
-function h = fn_hx(xr,yr,zr,x_)
-x = x_(1);
-y = x_(4);
-z = x_(7);
-h = [
-    sqrt((x-xr)^2+(y-yr)^2+(z-zr)^2);
-    atan2(y-yr,x-xr);
-    atan2(z-zr,sqrt((x-xr)^2+(y-yr)^2));
-    ];
-end
-%% partial_h/partial_X: Jacobian of measurement eq
-function H = fn_JH(xr,yr,zr,x_)
-x = x_(1);
-y = x_(4);
-z = x_(7);
-
-H = [
-    (x-xr)/sqrt((x-xr)^2+(y-yr)^2+(z-zr)^2), 0, 0, (y-yr)/sqrt((x-xr)^2+(y-yr)^2+(z-zr)^2), 0, 0, (z-zr)/sqrt((x-xr)^2+(y-yr)^2+(z-zr)^2),0,0;
-    -(cos(atan2(y-yr,x-xr)))^2*(y-yr)/(x-xr)^2, 0, 0, (cos(atan2(y-yr,x-xr)))^2/(x-xr), 0, 0, 0,0,0;
-    -(cos(atan2(z-zr,sqrt((x-xr)^2+(y-yr)^2))))^2*(z-zr)*(x-xr)/((x-xr)^2+(y-yr)^2)^(3/2), 0, 0, -(cos(atan2(z-zr,sqrt((x-xr)^2+(y-yr)^2))))^2*(z-zr)*(y-yr)/((x-xr)^2+(y-yr)^2)^(3/2), 0, 0, (cos(atan2(z-zr,sqrt((x-xr)^2+(y-yr)^2))))^2/((x-xr)^2+(y-yr)^2)^(1/2), 0, 0;
-    ];
-end
+figure; clf; hold on;
+plot(t, x(2,:),'-b');                  % plot the real plant behavior
+plot(t,xp(2,:),'.-r');                 % plot the Kalman filter prediction over the plant;
+legend('real','KF')
