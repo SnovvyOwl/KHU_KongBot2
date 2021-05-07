@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7a14d319-cfd0-4895-a9d5-9c39883172a4" name="Default Changelist" comment="" />
+    <list default="true" id="7a14d319-cfd0-4895-a9d5-9c39883172a4" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/KHU_KongBot2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/KHU_KongBot2.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/Lagrange_to_AB.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/Lagrange_to_AB.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/largrangian_2d_straight.py" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/largrangian_2d_straight.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dynamics_Modeling/rootlocus.m" beforeDir="false" afterPath="$PROJECT_DIR$/Dynamics_Modeling/rootlocus.m" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,6 +41,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="D:/struct2depth" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="PyConsoleOptionsProvider">
@@ -44,7 +52,28 @@
       </console-settings>
     </option>
   </component>
-  <component name="RunManager" selected="Python.jj">
+  <component name="RunManager" selected="Python.largrangian_2d_straight">
+    <configuration name="Lagrange_to_AB" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="KHU_KongBot2" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Dynamics_Modeling" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Dynamics_Modeling/Lagrange_to_AB.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="SRIVC_MULTI" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="KHU_KongBot2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -108,8 +137,31 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="largrangian_2d_straight" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="KHU_KongBot2" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Dynamics_Modeling" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Dynamics_Modeling/largrangian_2d_straight.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.largrangian_2d_straight" />
+        <item itemvalue="Python.Lagrange_to_AB" />
         <item itemvalue="Python.jj" />
         <item itemvalue="Python.YIC_R_T2" />
         <item itemvalue="Python.SRIVC_MULTI" />

@@ -16,3 +16,6 @@ G = B*T+A*B*T^2/2+A^2*B*T^3/6
 
 sys=ss(A,B,C,D);
 sys_discrete=c2d(sys,T)
+
+eig(A)
+eig(F)
