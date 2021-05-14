@@ -31,7 +31,7 @@ Jp=3.4*10**-4*2
 g=9.81
 lp=0.1
 
-z=np.array([[1,0,0,0,0,0],[-mp*lp*Rs, Ji+Jp+Js+mi*Rs**2+ms*Rs**2+mp*Rs*(Rs+lp),0,Ji+Jp,0,Jp],[0,0,1,0,0,0],[ 0,Ji+Jp+mp*lp*Rs+mp*lp**2,0,Ji+Jp+mp*lp**2,0,Jp+mp*lp**2],[0,0,0,0,1,0],[0,Jp+mp*lp*Rs+mp*lp**2,0,Jp+mp*lp**2,0,Jp+mp*lp**2]])
+z=np.array([[1,0,0,0,0,0],[-mp*lp*Rs, Ji+Jp+Js+mi*Rs**2+ms*Rs**2+mp*Rs*(Rs+lp)+mp*lp*(Rs+lp),0,Ji+Jp+mp*lp*(Rs+lp),0,Jp+mp*lp*(Rs+lp)],[0,0,1,0,0,0],[ 0,Ji+Jp+mp*lp*Rs+mp*lp**2,0,Ji+Jp+mp*lp**2,0,Jp+mp*lp**2],[0,0,0,0,1,0],[0,Jp+mp*lp*Rs+mp*lp**2,0,Jp+mp*lp**2,0,Jp+mp*lp**2]])
 k=np.array([[0,1,0,0,0,0],[-mp*lp*g,0,-mp*lp*g,0,-mp*lp*g,0],[0,0,0,1,0,0],[-mp*lp*g,0,-mp*lp*g,0,-mp*lp*g,0],[0,0,0,0,0,1],[-mp*lp*g,0,-mp*lp*g,0,-mp*lp*g,0]])
 T=np.array([[0,0],[-1,0],[0,0],[1,-1],[0,0],[0,1]])
 
@@ -39,7 +39,7 @@ B=np.matmul(np.linalg.inv(z),T)
 A=np.matmul(np.linalg.inv(z),k)
 C=np.array([[0,1,0,0,0,0],[1,0,1,0,0,0],[1,0,1,0,1,0]])
 D=0
-tfsys=control.ss2tf(A,B,C,D)
+#tfsys=control.ss2tf(A,B,C,D)
 sssys=control.ss(A,B,C,D)
 
-print(tfsys)
+print(sssys)

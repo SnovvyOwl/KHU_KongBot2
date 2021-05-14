@@ -1,0 +1,6 @@
+cmake_minimum_required (VERSION 2.8) 
+project(KF_test)
+set(CMAKE_MODULE_PATH "/usr/local/lib/cmake/${CMAKE_MODULE_PATH}") 
+include_directories(${PROJECT_SOURCE_DIR})
+set(SOURCES Matrix.h KF_Test_SW.cpp )
+add_executable (KF_test ${SOURCES})
