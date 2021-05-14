@@ -3,7 +3,7 @@
 #include<vector>
 #include<fstream>
 using namespace std;
-void KF_filter(Matrix &m,double state, double ex_state);
+double KF_filter(Matrix<double>& m,double state, double ex_state);
 int main(){
     ofstream fout;
     fout.open("data.txt");
@@ -20,7 +20,7 @@ int main(){
     
     return 0;
 }
-double KF_filter(Matrix &m,double state, double ex_state){
+double KF_filter(Matrix<double> &m,double state, double ex_state){
     double filtered_state=0;
     return filtered_state;
 }
