@@ -1,19 +1,17 @@
-#include<Matrix.h>
 #include<iostream>
-#include<vector>
 #include<fstream>
 #include<math.h>
 #include<random>
 #include<opencv2/opencv.hpp>
 #define DEG2RAD M_PI/180
 #define RAD2DEG 180/M_PI
-#define SIGMA_W 100
-#define SIGMA_V 10
+#define SIGMA_W 100 //System Noise
+#define SIGMA_V 10 //Measurement Noise 
 using namespace std;
 using namespace cv;
-double KF_filter(Matrix<double> &F,Matrix<double> &G,Matrix<double> &H,Matrix<double> &X, Matrix<double> &x_hat,Matrix<double>& GAMMA);
+double KF_filter(Mat &F,Mat &G,Mat &H,Mat &X, Mat &x_hat,Mat &GAMMA);
 int main(){
-    std::ofstream fout;
+    ofstream fout;
     fout.open("data.txt");
     //Matrix Define
     Mat F=(Mat_<double>(4,4)<<1,0.1,0,0,0,1,0,0,0,0,1,0.1,0,0, -0.00009637185, 0, -24.65561834,0);
@@ -23,33 +21,19 @@ int main(){
     float T= 0.1;
     //Initial Conditions
     Mat X_true=(Mat_<double>(4,1)<<0,0,1*DEG2RAD,0);
-    std::cout<<X_true;
+    Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
+    //Noise
     Mat Gamma=(Mat_<double>(4,1)<<pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE
-    
-    /*
-    vector<vector<double>>gamma{{pow(T,4)/24},{pow(T,3)/6},{pow(T,2)/2},{T}};
-    Matrix<double>GAMMA(4,1,gamma);
-  
-    double Q = 2* SIGMA_W*SIGMA_V*GAMMA.columns(); // 2를 곱하는 이유는 뭐지??
+    double Q = 2* SIGMA_W*SIGMA_V*Gamma.cols; // 2를 곱하는 이유는 뭐지??
     double R= SIGMA_V*SIGMA_V;
-*/
+    Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;//WHAT IS P?
+    Mat sigma_P=P.diag();
+    sqrt(sigma_P,sigma_P);
+    Mat u=(Mat_<double>(1,1)<<0);
+    Mat y;
+    KF_filter(F,G,H,X_true,X_hat,Gamma);
     //Gamma*randn(size(Gamma,2),1)
-    /*
-   
-
-
-%% Initial Conditions
-xp(:,1) = [0;0;0;0]; % guess of initial posteriori estimation
-nx = length(xp(:,1)); % number of state
-Pp = 1e3*eye(nx); % guess of initial error covariance
-sigma_Pp(:,1) = sqrt(diag(Pp));
-u(:,1)=[0]';
-%% Noise
-sigma_w = 100;        % system noise (std of acceleration)
-sigma_v = 10;       % measurement noise (std of position sensor)
-Q = 2*sigma_w^2*eye(size(Gamma,2));      % system noise covariance matrix
-R = sigma_v^2;     % measurement noise covariance matrix
-
+/*
 y=[];
 %% KF Routine
 t = 0:T:100;
@@ -71,12 +55,10 @@ for i = 1:length(t)-1
     %% ====================================================
     %% measurement generation
     y(:,i) = H*x(:,i+1) + diag(randn(size(sigma_v,1),1))*sigma_v;   
-
     %% Equation 3: Innovation Covariance
     S = H*P_*H'+R; 
     %% Equation 4: Residual
     nu = y(:,i)-H*x_;
- 
     %% Equation 5: Kalman gain
     K = P_*H'*S^-1;   
     %% Equation 6: State update
@@ -88,15 +70,10 @@ for i = 1:length(t)-1
     sigma_Pp(:,i+1) = sqrt(diag(Pp)); 
     %% storing Kalman gain for ploting
     K_store(i) = norm(K);
-    
-end
-
-
-
 */
     return 0;
 }
-double KF_filter(Matrix<double> &F,Matrix<double> &G,Matrix<double> &H,Matrix<double> &X, Matrix<double> &x_hat,Matrix<double>& GAMMA){
+double KF_filter(Mat &F,Mat &G,Mat &H,Mat &X, Mat &x_hat,Mat &GAMMA){
     default_random_engine generator;
     normal_distribution<double> distribution(5.0,2.0);
 
