@@ -196,7 +196,7 @@ class Matrix{
             Matrix<T>E(row,col,e);
             this->Gaussian_Elimination(E);
             return *this;
-        }   
+        }
     };
 
 // correct
