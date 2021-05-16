@@ -3,39 +3,42 @@
 #include<vector>
 #include<fstream>
 #include<math.h>
+#include<random>
+#include<opencv2/opencv.hpp>
 #define DEG2RAD M_PI/180
 #define RAD2DEG 180/M_PI
+#define SIGMA_W 100
+#define SIGMA_V 10
 using namespace std;
-double KF_filter(Matrix<double>& m,double state, double ex_state);
+using namespace cv;
+double KF_filter(Matrix<double> &F,Matrix<double> &G,Matrix<double> &H,Matrix<double> &X, Matrix<double> &x_hat,Matrix<double>& GAMMA);
 int main(){
-    ofstream fout;
-    double state=0;
-    double ex_state=0;
+    std::ofstream fout;
     fout.open("data.txt");
     //Matrix Define
-    vector<vector<double>> f  
-    {
-        {1,0.1,0,0},
-        {0,1,0,0},        
-        {0,0,1,0.1},        
-        {0,0, -0.00009637185, 0, -24.65561834,0}
-    };
-    vector<vector<double>>g{{-0.0244}, {-0.4888},{7.3529} ,{147.0588}};
-    vector<vector<double>>h{{0, 1, 0, 0}}; 
-    Matrix<double>F(4,4,f);
-    Matrix<double>G(4,1,g);
-    Matrix<double>H(1,4,h);
-    double D=0; 
-    
-    //Initial Conditions
+    Mat F=(Mat_<double>(4,4)<<1,0.1,0,0,0,1,0,0,0,0,1,0.1,0,0, -0.00009637185, 0, -24.65561834,0);
+    Mat G=(Mat_<double>(4,1)<<-0.0244, -0.4888,7.3529 ,147.0588);
+    Mat H=(Mat_<double>(1,4)<<0,1,0,0);
+    float D=0;
     float T= 0.1;
-    vector<vector<double>>x{{0},{0},{1*DEG2RAD},{0}};
-    Matrix<double>X(4, 1,x);
+    //Initial Conditions
+    Mat X_true=(Mat_<double>(4,1)<<0,0,1*DEG2RAD,0);
+    std::cout<<X_true;
+    Mat Gamma=(Mat_<double>(4,1)<<pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE
+    
     /*
-    Gamma = [T^4/24; T^3/6; T^2/2; T]; % Gamma (related to system noise)
+    vector<vector<double>>gamma{{pow(T,4)/24},{pow(T,3)/6},{pow(T,2)/2},{T}};
+    Matrix<double>GAMMA(4,1,gamma);
+  
+    double Q = 2* SIGMA_W*SIGMA_V*GAMMA.columns(); // 2를 곱하는 이유는 뭐지??
+    double R= SIGMA_V*SIGMA_V;
+*/
+    //Gamma*randn(size(Gamma,2),1)
+    /*
+   
+
 
 %% Initial Conditions
-x(:,1) = [0;0;1*d2r;0]; % true initial state
 xp(:,1) = [0;0;0;0]; % guess of initial posteriori estimation
 nx = length(xp(:,1)); % number of state
 Pp = 1e3*eye(nx); % guess of initial error covariance
@@ -93,7 +96,10 @@ end
 */
     return 0;
 }
-double KF_filter(Matrix<double> &m,double state, double ex_state){
+double KF_filter(Matrix<double> &F,Matrix<double> &G,Matrix<double> &H,Matrix<double> &X, Matrix<double> &x_hat,Matrix<double>& GAMMA){
+    default_random_engine generator;
+    normal_distribution<double> distribution(5.0,2.0);
+
     double filtered_state=0;
     return filtered_state;
 }
