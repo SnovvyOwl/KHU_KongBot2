@@ -9,36 +9,56 @@
 #define SIGMA_V 10 //Measurement Noise 
 using namespace std;
 using namespace cv;
-double KF_filter(Mat &F,Mat &G,Mat &H,Mat &X, Mat &x_hat,Mat &GAMMA);
+double KF_filter(Matx44d &F,Matx41d&G,Matx14d &H,Mat &X_true, Mat &X_hat,Mat &U,Matx41d &G_w,double &W, double &V);//KF
+//NORMAL DISTRIBUTION RANDOM NUMBER GENERATOR
+default_random_engine generator;
+normal_distribution<double> dist_W(0,1.0);
+normal_distribution<double> dist_V(0,1.0);
+double W=0;//SYSTEM NOISE
+double V=0;//SENSOR NOISE
 int main(){
     ofstream fout;
     fout.open("data.txt");
     //Matrix Define
-    Mat F=(Mat_<double>(4,4)<<1,0.1,0,0,0,1,0,0,0,0,1,0.1,0,0, -0.00009637185, 0, -24.65561834,0);
-    Mat G=(Mat_<double>(4,1)<<-0.0244, -0.4888,7.3529 ,147.0588);
-    Mat H=(Mat_<double>(1,4)<<0,1,0,0);
+    Matx44d F(1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
+    Matx41d G(-0.0244, -0.4888,7.3529 ,147.0588);
+    Matx14d H(0,1,0,0);
     float D=0;
     float T= 0.1;
     //Initial Conditions
     Mat X_true=(Mat_<double>(4,1)<<0,0,1*DEG2RAD,0);
     Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
     //Noise
-    Mat Gamma=(Mat_<double>(4,1)<<pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE
-    double Q = 2* SIGMA_W*SIGMA_V*Gamma.cols; // 2를 곱하는 이유는 뭐지??
+    Matx41d G_w(pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE 이걸 근데 이렇게 쓰는이유가 뭐지?
+    double Q = 2* SIGMA_W*SIGMA_W*G_w.cols; // 2를 곱하는 이유는 뭐지??
     double R= SIGMA_V*SIGMA_V;
     Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;//WHAT IS P?
     Mat sigma_P=P.diag();
     sqrt(sigma_P,sigma_P);
     Mat u=(Mat_<double>(1,1)<<0);
-    Mat y;
-    KF_filter(F,G,H,X_true,X_hat,Gamma);
-    //Gamma*randn(size(Gamma,2),1)
+    Mat Z;
+    
+    W=dist_W(generator);
+    KF_filter(F,G,H,X_true,X_hat,u,G_w,W,V);
+    
 /*
-y=[];
+
 %% KF Routine
 t = 0:T:100;
 for i = 1:length(t)-1
-    %% True dynamics    
+*/
+    return 0;
+}
+double KF_filter(Matx44d &F,Matx41d&G,Matx14d &H,Mat &X_true, Mat &X_hat,Mat &U,Matx41d &G_w, double &W, double &V){
+    
+ 
+
+   
+    X_true=F*X_true+G*U+G_w*W;
+    cout<<X_true;
+    /*
+    //True dynamics
+    
     %x(:,i+1) = F*x(:,i)+G*u(:,i)+Gamma*randn(size(Gamma,2),1)*sigma_w; % system dynamics
     x(:,i+1) = F*x(:,i)+Gamma*randn(size(Gamma,2),1)*sigma_w;
     %% ====================================================
@@ -70,13 +90,10 @@ for i = 1:length(t)-1
     sigma_Pp(:,i+1) = sqrt(diag(Pp)); 
     %% storing Kalman gain for ploting
     K_store(i) = norm(K);
-*/
-    return 0;
-}
-double KF_filter(Mat &F,Mat &G,Mat &H,Mat &X, Mat &x_hat,Mat &GAMMA){
+
     default_random_engine generator;
     normal_distribution<double> distribution(5.0,2.0);
-
+*/
     double filtered_state=0;
     return filtered_state;
 }
