@@ -24,14 +24,10 @@ Matx14d H(0,1,0,0);
 int main(){
     ofstream fout;
     fout.open("data.txt");
-    //Matrix Defin
-
     float D=0;
     //Initial Conditions
-    
     Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
-    Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;//WHAT IS P?
-    cout<<P;
+    Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
     Mat X_bar=(Mat_<double>(4,1)<<0,0,1*DEG2RAD,0);
     sqrt(P,P);
     X_bar=X_bar+P;
@@ -71,5 +67,4 @@ void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_bar,Mat &z_hat, Ma
     p_bar=F*p_hat*F.t()+Qf;
     sqrt(Q,Q);
     X=F*X+G*U+Q*dist_W(generator);
-
 }
