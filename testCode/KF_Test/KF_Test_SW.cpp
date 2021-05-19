@@ -31,7 +31,7 @@ int main(){
     Mat X_bar=(Mat_<double>(4,1)<<0,0,1*DEG2RAD,0);
     sqrt(P,P);
     cout<<P;
-    //X_bar=X_bar+P*(double)dist_W(generator);
+    //X_bar=X_bar+P*(double)dist_W(generator); 구현 실패.....
     P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
     Mat p_bar = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
     Mat p_hat = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
