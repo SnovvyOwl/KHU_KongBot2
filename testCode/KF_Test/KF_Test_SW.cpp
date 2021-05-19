@@ -30,14 +30,15 @@ int main(){
     Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
     Mat X_bar=(Mat_<double>(4,1)<<0,0,1*DEG2RAD,0);
     sqrt(P,P);
-    X_bar=X_bar+P;
     cout<<P;
+    //X_bar=X_bar+P*(double)dist_W(generator);
+    P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
+    Mat p_bar = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
+    Mat p_hat = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
+    cout<<P.type();
     //Noise
-    Matx41d G_w(pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE 이걸 근데 이렇게 쓰는이유가 뭐지?
-    double Q = 2* SIGMA_W*SIGMA_W*G_w.cols; // 2를 곱하는 이유는 뭐지??
+    Matx44d Q(pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE 바꿀 필요가 있어보임
     double R= SIGMA_V*SIGMA_V;
-    Mat sigma_P=P.diag();
-    sqrt(sigma_P,sigma_P);
     Mat u=(Mat_<double>(1,1)<<0);
     Mat Z;
     //KF_filter(F,G,H,X_true,X_hat,u,Z,G_w,W,V);
@@ -49,9 +50,8 @@ int main(){
     */
     return 0;
 }
-void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_bar,Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat Q, Mat R, Mat &Qf){
-    sqrt(R,R);
-    Z=H*X+R*dist_V(generator); //MESUREMENT MODEL
+void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_bar,Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat Q, double R, Mat &Qf){
+    Z=H*X+sqrt(R)*dist_V(generator); //MESUREMENT MODEL
     //==================
     //MESUREMENT UPDATE
     //==================
