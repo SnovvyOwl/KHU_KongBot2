@@ -46,13 +46,10 @@ int main(){
     Mat Z;
     Mat K;
     Mat S;
-    
-    
     for(float i=0;i<100;i=i+T){
         fout<<X.t()<<endl;
         KF_filter(X_bar,X_hat,X,u,z_hat,Z,p_bar,p_hat,S,Q,R,Qf,K);
     }
-    
     return 0;
 }
 void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S,Matx44d Q, double R, Matx44d &Qf,Mat &K){
