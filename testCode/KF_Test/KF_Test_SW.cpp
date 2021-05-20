@@ -10,7 +10,7 @@
 #define T 0.1
 using namespace std;
 using namespace cv;
-void KF_filter(Matx44d &F,Matx41d&G, Matx14d &H, Mat &X_bar, Mat &X_hat, Mat &x, Mat &U, Mat &Z,Matx41d &G_w, double &W, double &R);//KF
+void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat S_bar,Matx44d Q, double R, Matx44d &Qf,Mat &KK);//KF
 //GLOBAL VARIABLE
 //NORMAL DISTRIBUTION RANDOM NUMBER GENERATOR
 default_random_engine generator;
@@ -26,22 +26,26 @@ int main(){
     fout.open("data.txt");
     float D=0;
     //Initial Conditions
+    Mat X=(Mat_<double>(4,1)<<0,0,0,0);
     Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
     Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
     Mat X_bar=(Mat_<double>(4,1)<<0,0,1*DEG2RAD,0);
     sqrt(P,P);
-    cout<<P;
-    //X_bar=X_bar+P*(double)dist_W(generator); 구현 실패.....
+    double W=dist_W(generator);
+    //X_bar=X+P*W; 문제의 줄 diag???
     P = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
     Mat p_bar = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
     Mat p_hat = Mat::eye(X_hat.rows, X_hat.rows, CV_32F)*1000;
-    cout<<P.type();
     //Noise
     Matx44d Q(pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE 바꿀 필요가 있어보임
     double R= SIGMA_V*SIGMA_V;
     Mat u=(Mat_<double>(1,1)<<0);
+    Matx44d Qf=Q;
+    Mat z_hat;
     Mat Z;
-    //KF_filter(F,G,H,X_true,X_hat,u,Z,G_w,W,V);
+    Mat KK;
+    Mat S_bar;
+    //KF_filter(X_bar,X_hat,X,u,z_hat,Z,p_bar,p_hat,S_bar,Q,R,Qf,KK);
     /*
     for(float i=0;i<100;i=i+T){
         fout<<X_true<<endl;
@@ -50,8 +54,9 @@ int main(){
     */
     return 0;
 }
-void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_bar,Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat Q, double R, Mat &Qf){
-    Z=H*X+sqrt(R)*dist_V(generator); //MESUREMENT MODEL
+void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat S_bar,Matx44d Q, double R, Matx44d &Qf,Mat &KK){
+    double V= dist_V(generator);
+    Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
     //==================
     //MESUREMENT UPDATE
     //==================
@@ -65,6 +70,10 @@ void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_bar,Mat &z_hat, Ma
     // =================
     x_bar=F*x_hat+G*U;
     p_bar=F*p_hat*F.t()+Qf;
+    //==================
+    //System Dynamics
+    //==================
     sqrt(Q,Q);
-    X=F*X+G*U+Q*dist_W(generator);
+    double W=dist_W(generator);
+    X=F*X+G*U+Q*W;
 }
