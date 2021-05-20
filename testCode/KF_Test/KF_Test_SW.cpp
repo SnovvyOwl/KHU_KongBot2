@@ -21,11 +21,12 @@ Matx44d F(1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.0000
 Matx41d G(-0.0244, -0.4888,7.3529 ,147.0588);
 Matx14d H(0,1,0,0);
 int main(){
-    ofstream fout;
-    fout.open("data.txt");
+    ofstream fout1;
+    fout1.open("real.txt");
+    ofstream fout2;
+    fout2.open("prediction.txt");
     float D=0;
     //Initial Conditions
-    //Matx41d X(0,0,0,0);
     Mat X=(Mat_<double>(4,1)<<0,0,0,0);
     Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
     Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
@@ -47,7 +48,8 @@ int main(){
     Mat K;
     Mat S;
     for(float i=0;i<100;i=i+T){
-        fout<<X.t()<<endl;
+        fout1<<X.t()<<endl;
+        fout2<<X_hat.t()<<endl;
         KF_filter(X_bar,X_hat,X,u,z_hat,Z,p_bar,p_hat,S,Q,R,Qf,K);
     }
     return 0;
