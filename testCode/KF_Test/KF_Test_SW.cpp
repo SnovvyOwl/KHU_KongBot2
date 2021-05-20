@@ -5,12 +5,11 @@
 #include<opencv2/opencv.hpp>
 #define DEG2RAD M_PI/180
 #define RAD2DEG 180/M_PI
-#define SIGMA_W 100 //System Noise
 #define SIGMA_V 10 //Measurement Noise
 #define T 0.1
 using namespace std;
 using namespace cv;
-void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S_bar,Matx44d Q, double R, Matx44d &Qf,Mat &KK);//KF
+void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S,Matx44d Q, double R, Matx44d &Qf,Mat &K);//KF
 //GLOBAL VARIABLE
 //NORMAL DISTRIBUTION RANDOM NUMBER GENERATOR
 default_random_engine generator;
@@ -45,27 +44,27 @@ int main(){
     Matx44d Qf=Q;
     Mat z_hat;
     Mat Z;
-    Mat KK;
-    Mat S_bar;
+    Mat K;
+    Mat S;
     
     
     for(float i=0;i<100;i=i+T){
-        fout<<X<<endl;
-        KF_filter(X_bar,X_hat,X,u,z_hat,Z,p_bar,p_hat,S_bar,Q,R,Qf,KK);
+        fout<<X.t()<<endl;
+        KF_filter(X_bar,X_hat,X,u,z_hat,Z,p_bar,p_hat,S,Q,R,Qf,K);
     }
     
     return 0;
 }
-void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S_bar,Matx44d Q, double R, Matx44d &Qf,Mat &KK){
+void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S,Matx44d Q, double R, Matx44d &Qf,Mat &K){
     double V= dist_V(generator);
     Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
     //==================
     //MESUREMENT UPDATE
     //=================
     z_hat=H*x_bar;
-    Mat S=H*p_bar*H.t()+R;
+    S=H*p_bar*H.t()+R;
     p_hat=p_bar-p_bar*H.t()*S.inv()*H*p_bar;
-    Mat K=p_bar*H.t()*S.inv();
+    K=p_bar*H.t()*S.inv();
     x_hat=x_bar+K*(Z-z_hat);
     //==================
     // TIME UPDATE
@@ -77,5 +76,5 @@ void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p
     //==================
     sqrt(Q,Q);
     double W=dist_W(generator);
-    X=F*X+G*U+Q*W;
+    X=F*X+G*U+Q.diag()*W;
 }
