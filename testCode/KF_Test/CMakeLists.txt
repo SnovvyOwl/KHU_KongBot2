@@ -3,7 +3,7 @@ project(KF_test)
 set(CMAKE_MODULE_PATH "/usr/local/lib/cmake/${CMAKE_MODULE_PATH}") 
 
 include_directories(${PROJECT_SOURCE_DIR})
-set(SOURCES KF_Test_SW.cpp )
+set(SOURCES KF_Test.cpp )
 find_package(OpenCV)
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 IF (OpenCV_FOUND)
