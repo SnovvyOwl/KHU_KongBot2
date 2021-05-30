@@ -22,7 +22,7 @@ Autonomics E50S8-3600-3-T-5\
 \
 \
 [Dependency]\
-OpenCV 3.4.4 required\
+OpenCV 3.4.13 required\
 Raspicam 0.1.6 required\
 Thread LIBS\
 wiringPi LIBS\
