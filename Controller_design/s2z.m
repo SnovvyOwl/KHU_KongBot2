@@ -1,0 +1,13 @@
+%property
+ms=0.51;
+mi=1.00;
+mp=0.36*2;
+Rs=0.15;
+Js=3.89*10^-3;
+Ji=4.42*10^-3;
+Jp=3.4*10^-4*2;
+g=9.81;
+lp=0.1;
+%transferFunction
+G_speed=tf([-Js+Rs*Rs*mi+Rs*Rs*mp+Rs*Rs*ms],[Jp,0,g*lp*mp])
+G_sp_d=c2d(G_speed,0.1)

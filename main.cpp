@@ -375,6 +375,11 @@ void initNano(const int &fd){
 
 //SPEED CONTROL
 void change_Vel(float desire_speed,float real_speed){
+    /*
+        0.1308 z + 0.1308
+        -----------------
+        z^2 + 1.993 z + 1
+    */
     float error=0;
     float kp=0;
     float ki=0;
