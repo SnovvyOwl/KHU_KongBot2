@@ -374,24 +374,36 @@ void initNano(const int &fd){
 
 
 //SPEED CONTROL
-void change_Vel(float desire_speed,float real_speed){
+void change_Vel(float &desire_speed,float real_speed,float time){
     /*
-        0.1308 z + 0.1308           0.1308 z^-1 + 0.1308z^-2
-        -----------------     =     ------------------------- 
-        z^2 + 1.993 z + 1           1 + 1.993 z^-1 + Z^-2
+        PID CONTROLLER
+                     Tz      z-1
+        PID(z)=Kp+Ki---- +Kd-----
+                     z-1     Tz
+    */
+    /*
+
+               0.1308 z + 0.1308           0.1308 z^-1 + 0.1308z^-2
+        G(Z)= -----------------     =     ------------------------- 
+              z^2 + 1.993 z + 1           1 + 1.993 z^-1 + Z^-2
+    */
+    /*
+        0.1308*(z + 1)*(Kd*(z - 1)**2 + Ki*T**2*z**2 + Kp*T*z*(z - 1))/(T*z*(z - 1)*(z**2 + 1.993*z + 1))
     */
     float error=0;
     float kp=0;
     float ki=0;
     float kd=0;
     float preErr=0;
-
-    float curErr 0;
+    float curErr=0;
+    float gain=0;
+    float control=0;
     preErr=curErr;
     curErr=desire_speed-real_speed;
+
     
-    float gain=0;
-    gain=Kp*curErr+ki*(curErr+preErr)+kd*preErr;
+    gain=Kp*curErr+ki*(curErr*time)+kd*(curErr-preErr);
+
     
     cout<<real_speed<<endl;
 }
