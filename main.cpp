@@ -46,10 +46,10 @@ Matx14d H(0,1,0,0);
 
 //Robot
 void initNano(const int &fd);
-void change2Vel(float desire_speed,float real_speed);
+float change_Vel(float desire_speed,float real_speed,float time);
 void change2Yaw(float desire_yaw, float real_yaw);
 void change2Roll(float desire_roll, float real_roll);
-void run (float desire_roll, float real_roll, float desire_speed, float real_speed);
+void run (float desire_roll, float real_roll, float desire_speed, float real_speed,float time);
 
 
 
@@ -162,7 +162,7 @@ int main(int argc,char **argv){
                 //CMD=w
                 cout<< "go\n";
                 desiredspeed+=10;
-                change_Vel(desiredspeed,angularVel)
+                change_Vel(desiredspeed,angularVel,1.0);
                 
                 break;
 
@@ -380,7 +380,7 @@ void initNano(const int &fd){
 
 
 //SPEED CONTROL
-flaot change_Vel(float &desire_speed,float real_speed,float time){
+float change_Vel(float &desire_speed,float real_speed,float time){
     /*
         PID CONTROLLER
                      Tz      z-1
@@ -405,7 +405,8 @@ flaot change_Vel(float &desire_speed,float real_speed,float time){
     float G=0;
     pre_err_shellspeed=err_shellspeed;
     err_shellspeed=desire_speed-real_speed;
-    pre_gain=gain;
+    d2_gain=d_gain;
+    d_gain=gain;
     gain=kp*err_shellspeed+ki*(err_shellspeed*time)+kd*(err_shellspeed-pre_err_shellspeed);
     G=-1.993*d_theta_s-d2_theta_s+0.1308*d_gain+0.1308*d2_gain;
     return G;
@@ -427,10 +428,10 @@ void change_Roll(float desire_roll, float real_roll){
 }
 
 //CURVE 
-void run (float desire_roll, float real_roll, float desire_speed, float real_speed){
+void run (float desire_roll, float real_roll, float desire_speed, float real_speed,float time){
 
-    change_Roll(desire_roll,real_roll);
-    change_Vel(desire_speed,real_speed);
+    //change_Roll(desire_roll,real_roll);
+    //change_Vel(desire_speed,real_speed,time);
 }
 
 //KALMAN FILTER
