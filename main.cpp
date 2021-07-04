@@ -423,7 +423,9 @@ void change_Roll(float desire_roll, float real_roll){
     float kp=0;
     float ki=0;
     float kd=0;
+    float G=0;
     error=desire_roll-real_roll;
+    G= kp*error +ki*(error*time)+kd*err-preerror
     cout<<desire_roll<<endl;
 }
 
