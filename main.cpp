@@ -67,12 +67,16 @@ float angle = 0;
 int encoder_pos = 0;
 bool State_A = 0;
 bool State_B = 0;
-
+float d_theta_s=0;
+float d2_theta_s=0;
+float err_shellspeed=0;
+float pre_err_shellspeed=0;
 
 int main(int argc,char **argv){
     if(wiringPiSetup()==-1){
         return 1;
     }
+    int desiredspeed=0;
     int AHRS;//Serial
     int NanoCMD; //NANO
     char CMD; //CMD
@@ -157,6 +161,8 @@ int main(int argc,char **argv){
             case 119 :
                 //CMD=w
                 cout<< "go\n";
+                desiredspeed+=10;
+                change_Vel(desiredspeed,angularVel)
                 
                 break;
 
@@ -374,7 +380,7 @@ void initNano(const int &fd){
 
 
 //SPEED CONTROL
-void change_Vel(float &desire_speed,float real_speed,float time){
+flaot change_Vel(float &desire_speed,float real_speed,float time){
     /*
         PID CONTROLLER
                      Tz      z-1
@@ -390,22 +396,19 @@ void change_Vel(float &desire_speed,float real_speed,float time){
     /*
         0.1308*(z + 1)*(Kd*(z - 1)**2 + Ki*T**2*z**2 + Kp*T*z*(z - 1))/(T*z*(z - 1)*(z**2 + 1.993*z + 1))
     */
-    float error=0;
     float kp=0;
     float ki=0;
     float kd=0;
-    float preErr=0;
-    float curErr=0;
     float gain=0;
-    float control=0;
-    preErr=curErr;
-    curErr=desire_speed-real_speed;
-
-    
-    gain=Kp*curErr+ki*(curErr*time)+kd*(curErr-preErr);
-
-    
-    cout<<real_speed<<endl;
+    float d_gain=gain;
+    float d2_gain=d_gain;
+    float G=0;
+    pre_err_shellspeed=err_shellspeed;
+    err_shellspeed=desire_speed-real_speed;
+    pre_gain=gain;
+    gain=kp*err_shellspeed+ki*(err_shellspeed*time)+kd*(err_shellspeed-pre_err_shellspeed);
+    G=-1.993*d_theta_s-d2_theta_s+0.1308*d_gain+0.1308*d2_gain;
+    return G;
 }
 
 //CHANGE YAW
