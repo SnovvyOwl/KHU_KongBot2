@@ -460,3 +460,8 @@ void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p
     double W=dist_W(generator);
     X=F*X+G*U+Q.diag()*W;
 }
+///0.3199 z^3 + 0.5695 z^2 + 0.1791 z - 0.07042
+//--------------------------------------------
+  //  z^3 - 0.1121 z^2 + 0.1891 z - 0.08002
+
+//dt = 0.1
