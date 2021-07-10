@@ -8,6 +8,7 @@
 #include<opencv2/imgproc.hpp>
 #include<opencv2/opencv.hpp>
 #include<math.h>
+#include<state.h>
 #include<random>
 using namespace std;
 using namespace cv;
@@ -42,7 +43,9 @@ double V=0;//SENSOR NOISE
 Matx44d F(1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
 Matx41d G(-0.0244, -0.4888,7.3529 ,147.0588);
 Matx14d H(0,1,0,0);
-
+//penL=Pendulum(0.0);
+//penR=Pendulum(0.0);
+pen=Pendulum(0.0);
 
 //Robot
 void initNano(const int &fd);
@@ -50,8 +53,6 @@ float change_Vel(float desire_speed,float real_speed,float time);
 void change2Yaw(float desire_yaw, float real_yaw);
 void change2Roll(float desire_roll, float real_roll);
 void run (float desire_roll, float real_roll, float desire_speed, float real_speed,float time);
-
-
 
 //Thread
 void input(char &CMD);
@@ -67,8 +68,6 @@ float angle = 0;
 int encoder_pos = 0;
 bool State_A = 0;
 bool State_B = 0;
-float d_theta_s=0;
-float d2_theta_s=0;
 float err_shellspeed=0;
 float pre_err_shellspeed=0;
 
@@ -396,19 +395,15 @@ float change_Vel(float &desire_speed,float real_speed,float time){
     /*
         0.1308*(z + 1)*(Kd*(z - 1)**2 + Ki*T**2*z**2 + Kp*T*z*(z - 1))/(T*z*(z - 1)*(z**2 + 1.993*z + 1))
     */
-    float kp=0;
-    float ki=0;
-    float kd=0;
+    float kp=20;
+    float ki=10;
+    float kd=5;
     float gain=0;
-    float d_gain=gain;
-    float d2_gain=d_gain;
     float G=0;
     pre_err_shellspeed=err_shellspeed;
     err_shellspeed=desire_speed-real_speed;
-    d2_gain=d_gain;
-    d_gain=gain;
     gain=kp*err_shellspeed+ki*(err_shellspeed*time)+kd*(err_shellspeed-pre_err_shellspeed);
-    G=-1.993*d_theta_s-d2_theta_s+0.1308*d_gain+0.1308*d2_gain;
+    G=pen.observe(gain);
     return G;
 }
 
@@ -460,8 +455,3 @@ void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p
     double W=dist_W(generator);
     X=F*X+G*U+Q.diag()*W;
 }
-///0.3199 z^3 + 0.5695 z^2 + 0.1791 z - 0.07042
-//--------------------------------------------
-  //  z^3 - 0.1121 z^2 + 0.1891 z - 0.08002
-
-//dt = 0.1
