@@ -9,7 +9,7 @@ MESSAGE(STATUS "COMPILING KHU KONG BOT 2 Main")
 endif()
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-add_executable (main main.cpp)
+add_executable (main main.cpp state.h)
 
 if(THREADS_HAVE_PTHREAD_ARG)
 	target_compile_options(main PUBLIC "-pthread")
