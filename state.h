@@ -24,7 +24,7 @@ class Pendulum{
         }
 
         
-        int observe(float curInput){
+        int shell2pen(float curInput){
             //Pendulum Transfer Funtion  
             /*             452.2 s + 5781                                   theta_s
                 --------------------------------                =    --------------------------------

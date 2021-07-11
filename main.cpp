@@ -403,7 +403,7 @@ float change_Vel(float &desire_speed,float real_speed,float time){
     pre_err_shellspeed=err_shellspeed;
     err_shellspeed=desire_speed-real_speed;
     gain=kp*err_shellspeed+ki*(err_shellspeed*time)+kd*(err_shellspeed-pre_err_shellspeed);
-    G=pen.observe(gain);
+    G=pen.shell2pen(gain);
     return G;
 }
 
