@@ -46,3 +46,6 @@ class Pendulum{
             return pendulumTheta[0];
         }
 };
+//??어떤코드를 더넣을것인가? 어떤 메서드를 더 정의해줄것인가?
+
+//C
