@@ -353,7 +353,7 @@ void Interrupt_B() {
 	}
 }
 
-//ROBOT MOVE
+//ROBOT MOVEe
 //CONNECT ARDUINO [INIT..]
 void initNano(const int &fd){
     int rawdata;
@@ -377,7 +377,11 @@ void initNano(const int &fd){
     cout<<data<<endl; //"KHU KongBot2 is Ready@"
 }
 
+struct state{
 
+    int input[4]={0,0,0,0};
+    float pendulumTheta[4]={0,0,0,0};
+}
 //SPEED CONTROL
 float change_Vel(float &desire_speed,float real_speed,float time){
     /*
@@ -401,8 +405,11 @@ float change_Vel(float &desire_speed,float real_speed,float time){
     float gain=0;
     float G=0;
     pre_err_shellspeed=err_shellspeed;
+    int input[4]={0,0,0,0};
+    float pendulumTheta[4]={0,0,0,0};
     err_shellspeed=desire_speed-real_speed;
     gain=kp*err_shellspeed+ki*(err_shellspeed*time)+kd*(err_shellspeed-pre_err_shellspeed);
+   
     G=pen.shell2pen(gain);
     return G;
 }
@@ -410,6 +417,8 @@ float change_Vel(float &desire_speed,float real_speed,float time){
 //CHANGE YAW
 void change_Yaw(float desire_yaw, float real_yaw){
     cout<<desire_yaw<<endl;
+    //G=penL.shell2pen(gain);
+    //
 }
 
 // CHANGE ROLL
@@ -420,7 +429,7 @@ void change_Roll(float desire_roll, float real_roll){
     float kd=0;
     float G=0;
     error=desire_roll-real_roll;
-    G= kp*error +ki*(error*time)+kd*err-preerror
+    G= kp*error +ki*(error*time)+kd*err-preerror;
     cout<<desire_roll<<endl;
 }
 
