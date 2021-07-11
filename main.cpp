@@ -433,6 +433,7 @@ void run (float desire_roll, float real_roll, float desire_speed, float real_spe
 
 //KALMAN FILTER
 void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S,Matx44d Q, double R, Matx44d &Qf,Mat &K){
+    //Shell 속도 추정 -> class pendulum
     double V= dist_V(generator);
     Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
     //==================

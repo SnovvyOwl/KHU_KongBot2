@@ -45,7 +45,45 @@ class Pendulum{
             pendulumTheta[0]= 0.1121*pendulumTheta[1]- 0.1891*pendulumTheta[2]+0.08002*pendulumTheta[3]+0.3199*input[0]+ 0.5695*input[1] + 0.1791 *input[2] - 0.07042*input[3]; 
             return pendulumTheta[0];
         }
+        float getPenTheta(){
+            return pendulumTheta[0];
+        }
 };
-//??어떤코드를 더넣을것인가? 어떤 메서드를 더 정의해줄것인가?
 
-//C
+class Shell{
+    private:
+        float shellTheta[4]={0,0,0,0};
+    public:
+        Shell(){}
+        void clear(){
+            shellTheta[0]=0;//Current
+            shellTheta[1]=0;//K-1
+            shellTheta[2]=0;//K-2
+            shellTheta[3]=0;//K-3
+        }
+        void KF()   
+}
+
+class Tilt{
+    private:
+    
+        float RCM=0;
+    public:
+        //생성자
+        void pentheta2Rcm(){
+            //수식
+            //RCM=nuber
+        }
+}
+
+class Idu{
+    private: 
+        float idutheta=0;
+        float err=0;
+        float pre_err=0;
+    public:
+        //생성자
+        int control(){
+            return gain;
+        }
+}
