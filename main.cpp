@@ -128,7 +128,7 @@ int main(int argc,char **argv){
                 //CMD=w
                 cout<< "go\n";
                 desiredspeed+=10;
-		
+                shell.calAngularVelocity(pitch,angle,pen);
                 penmot=shell.speedControl(pen,desiredspeed);
                 break;
 

@@ -248,21 +248,39 @@ class Idu{
     private: 
         float iduTheta[4]={0.0,0.0,0.0,0.0};
         float err[2]={0.0,0.0};
+        //IDU STABLE PID GAIN
+        float kp=20;
+        float ki=10;
+        float kd=5;
+        float pTerm=0;
+        float iTerm=0;
+        float dTerm=0;
+        double shellTheta[2]={0,0};
+        float err[2]={0.0,0.0};
+        float gain=0;
     public:
-        //생성자
         Idu idu(){}
-        int control(){
-            return 0;
+        int stableControl(float pitch){
+            err[1]=err[0];
+            err[0]=-pitch;
+            pTerm=kp*err[0];
+            iTerm+=ki*err[0]*T;
+            dTerm=kd*(err[0]-err[1])/T;
+            gain=pTerm+iTerm-dTerm;
+
         }
-        int idu2motor(){
-            int motor=0;
-            if (iduTheta[0]>90){  
-                iduTheta[0]=90.0;
+        int motor(){
+            if (gain>90){  
+                gain=90.0;
             }
-            else if(iduTheta[0]<-90){
-                iduTheta[0]=-90.0;
+            else if(gain<-90){
+                gain=-90.0;
             }
-            motor= floor(1500+iduTheta[0]*8.888889+0.5);
-            return motor;
+            return floor(1500+gain*8.888889+0.5);
+        }
+        void PIDtermClear(){
+            pTerm=0;
+            iTerm=0;
+            dTerm=0;
         }
 };
