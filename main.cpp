@@ -26,8 +26,8 @@ lp=0.1
 //SENSOR
 #define PhaseA 21 //Encoder A
 #define PhaseB 22 //Encoder B
-#define DEG2RAD M_PI/180
-#define RAD2DEG 180/M_PI
+//#define DEG2RAD M_PI/180
+//#define RAD2DEG 180/M_PI
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
 
 //Robot
@@ -50,6 +50,8 @@ float angle = 0;
 int encoder_pos = 0;
 bool State_A = 0;
 bool State_B = 0;
+normal_distribution<double> dist_W(0,1.0);
+normal_distribution<double> dist_V(0,1.0);
 
 int main(int argc,char **argv){
     if(wiringPiSetup()==-1){
@@ -62,8 +64,8 @@ int main(int argc,char **argv){
     
     //penL=Pendulum(0.0);
     //penR=Pendulum(0.0);
-    pen=Pendulum(0.0);
-    shell=Shell();
+    Pendulum pen(0.0);
+    Shell shell(dist_W,dist_V);
     thread inputCMD(&input, ref(CMD));//INPUT command Thread.....
     thread camera(&CAM,ref(CMD));
     camera.detach();
@@ -81,6 +83,7 @@ int main(int argc,char **argv){
 	      return 1;
     }
     //INIT ROBOT
+    int penmot=0; //motor pendulum
     float roll =0;
     float pitch = 0;
     float yaw = 0;
@@ -125,8 +128,8 @@ int main(int argc,char **argv){
                 //CMD=w
                 cout<< "go\n";
                 desiredspeed+=10;
-                cout<<shell.speedControl(pen,desiredspeed);
-                
+		
+                penmot=shell.speedControl(pen,desiredspeed);
                 break;
 
             case 115 :
@@ -353,7 +356,7 @@ void change_Roll(float desire_roll, float real_roll){
     float kd=0;
     float G=0;
     error=desire_roll-real_roll;
-    G= kp*error +ki*(error*time)+kd*err-preerror;
+   //G= kp*error +ki*(error*time)+kd*err-preerror;
     cout<<desire_roll<<endl;
 }
 

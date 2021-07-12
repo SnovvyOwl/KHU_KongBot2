@@ -8,8 +8,8 @@
 using namespace std;
 using namespace cv;
 default_random_engine generator;
-normal_distribution<double> dist_W(0,1.0);
-normal_distribution<double> dist_V(0,1.0);
+//normal_distribution<double> dist_W(0,1.0);
+//normal_distribution<double> dist_V(0,1.0);
 class Pendulum{
     private:
         int shellTheta[4]={0,0,0,0};
@@ -76,28 +76,21 @@ class Pendulum{
 class Shell{
     private:
         //KF FILTER VARIABLE
-      
-        double W=0;//SYSTEM NOISE
-        double V=0;//SENSOR NOISE
         Mat F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
         Mat G=(Mat_<double>(4,1)<<-0.0244, -0.4888,7.3529 ,147.0588);
         Mat H=(Mat_<double>(1,4)<<0,1,0,0);
         Mat X=(Mat_<double>(4,1)<<0,0,0,0);
         Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
         Mat P=(Mat_<double>(4,4)<<1.0, 0.0, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.0,0.0,0.0,0.0,1.0);
-        cv::sqrt(P,P);
-        W=dist_W(generator);
         Mat X_bar;
-        X_bar.copySize(P.mul(W).diag());
-        X_bar=X+P.mul(W).diag();
-        P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
         Mat p_bar = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
         Mat p_hat = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
         //KF Noise
-        Matx44d Q(pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,(double)T,pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,T,pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,(double)T,pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,(double)T); //SYSYTEM NOISE 바꿀 필요가 있어보임
+        Matx44d Q(0.0001/24,0.001/6,0.001/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1); //SYSYTEM NOISE 바꿀 필요가 있어보임
+        //Matx44d Q(pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); 
         double R= SIGMA_V*SIGMA_V;
         Mat U=(Mat_<double>(1,1)<<0);
-        Matx44d Qf=Q;
+        Matx44d Qf;
         Mat z_hat;
         Mat Z;
         Mat K;
@@ -113,9 +106,20 @@ class Shell{
         float errShellVel[2]={0.0,0.0};
         float preDesireVel=0;
         float gain=0;
+        normal_distribution<double>dist_W;//SYSTEM NOISE
+        normal_distribution<double>dist_V;//SENSOR NOISE
+        double W=0;
+        double V=0;
     public:
-        Shell(){
-            //pen=pendulum;
+        //cv::sqrt(P,P);
+        Shell(normal_distribution<double>w,normal_distribution<double> v){
+            dist_W=w;
+            dist_V=v;
+            W=dist_W(generator);
+            X_bar.copySize(P.mul(W).diag());
+            X_bar=X+P.mul(W).diag();
+            P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
+            Qf=Q;
         }
         void clear(){
             shellTheta[0]=0;
