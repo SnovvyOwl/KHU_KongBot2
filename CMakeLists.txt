@@ -1,6 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 project(KHU_KONGBOT2)
 set(CMAKE_MODULE_PATH "/usr/local/lib/cmake/${CMAKE_MODULE_PATH}")
+include_directories(${PROJECT_SOURCE_DIR})
 find_package(raspicam REQUIRED)
 find_package(OpenCV)
 find_library(wiringPi_LIB wiringPi)

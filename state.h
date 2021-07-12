@@ -3,12 +3,13 @@
 #include<opencv2/opencv.hpp>
 #include<math.h>
 #include<random>
-#define DEG2RAD M_PI/180
-#define RAD2DEG 180/M_PI
 #define SIGMA_V 10 //Measurement Noise
-#define dT 0.1
+#define T 0.1
 using namespace std;
+using namespace cv;
 default_random_engine generator;
+normal_distribution<double> dist_W(0,1.0);
+normal_distribution<double> dist_V(0,1.0);
 class Pendulum{
     private:
         int shellTheta[4]={0,0,0,0};
@@ -57,7 +58,7 @@ class Pendulum{
             return pendulumTheta[0];
         }
         float getPenVel(){
-            return (pendulumTheta[0]-pendulumTheta[1])/dT;
+            return (pendulumTheta[0]-pendulumTheta[1])/T;
         }
         int pen2motor(){
             int motor=0;
@@ -75,8 +76,7 @@ class Pendulum{
 class Shell{
     private:
         //KF FILTER VARIABLE
-        normal_distribution<double> dist_W(0,1.0);
-        normal_distribution<double> dist_V(0,1.0);
+      
         double W=0;//SYSTEM NOISE
         double V=0;//SENSOR NOISE
         Mat F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
@@ -84,19 +84,19 @@ class Shell{
         Mat H=(Mat_<double>(1,4)<<0,1,0,0);
         Mat X=(Mat_<double>(4,1)<<0,0,0,0);
         Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
-        Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-        sqrt(P,P);
-        double W=dist_W(generator);
+        Mat P=(Mat_<double>(4,4)<<1.0, 0.0, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.0,0.0,0.0,0.0,1.0);
+        cv::sqrt(P,P);
+        W=dist_W(generator);
         Mat X_bar;
         X_bar.copySize(P.mul(W).diag());
         X_bar=X+P.mul(W).diag();
         P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-        Mat p_bar = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-        Mat p_hat = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
+        Mat p_bar = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
+        Mat p_hat = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
         //KF Noise
-        Matx44d Q(pow(dT,4)/24,pow(dT,3)/6,pow(dT,2)/2,dT,pow(dT,4)/24,pow(dT,3)/6,pow(dT,2)/2,dT,pow(dT,4)/24,pow(dT,3)/6,pow(dT,2)/2,dT,pow(dT,4)/24,pow(dT,3)/6,pow(dT,2)/2,dT); //SYSYTEM NOISE 바꿀 필요가 있어보임
+        Matx44d Q(pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,(double)T,pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,T,pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,(double)T,pow((double)T,4)/24,pow((double)T,3)/6,pow((double)T,2)/2,(double)T); //SYSYTEM NOISE 바꿀 필요가 있어보임
         double R= SIGMA_V*SIGMA_V;
-        Mat u=(Mat_<double>(1,1)<<0);
+        Mat U=(Mat_<double>(1,1)<<0);
         Matx44d Qf=Q;
         Mat z_hat;
         Mat Z;
@@ -112,6 +112,7 @@ class Shell{
         float shellTheta[2]={0,0};
         float errShellVel[2]={0.0,0.0};
         float preDesireVel=0;
+        float gain=0;
     public:
         Shell(){
             //pen=pendulum;
@@ -127,7 +128,7 @@ class Shell{
         void calAngularVelocity(float AHRStheta,float encodertheta,Pendulum &pen){
             shellTheta[1]=shellTheta[0];
             shellTheta[0]= AHRStheta-encodertheta;
-            float shellvel=(shellTheta[0]-shellTheta[1])/dT;
+            float shellvel=(shellTheta[0]-shellTheta[1])/T;
             X[0][0]=shellTheta;
             X[0][1]=shellvel;
             X[0][2]=pen.getPenTheta();
@@ -137,27 +138,27 @@ class Shell{
             //return X_hat[0][1];
         }
         void KF(){
-            double V= dist_V(generator);
+            V= dist_V(generator);
             Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
             //==================
             //MESUREMENT UPDATE
             //=================
-            z_hat=H*x_bar;
+            z_hat=H*X_bar;
             S=H*p_bar*H.t()+R;
             p_hat=p_bar-p_bar*H.t()*S.inv()*H*p_bar;
             K=p_bar*H.t()*S.inv();
-            x_hat=x_bar+K*(Z-z_hat);
+            X_hat=X_bar+K*(Z-z_hat);
             //==================
             // TIME UPDATE
             // =================
             calJacobian();// Change F
-            x_bar=F*x_hat+G*U;
+            X_bar=F*X_hat+G*U;
             p_bar=F*p_hat*F.t()+Qf;
             //==================
             //System Dynamics
             //==================
-            sqrt(Q,Q);
-            double W=dist_W(generator);
+            cv::sqrt(Q,Q);
+            W=dist_W(generator);
             X=F*X+G*U+Q.diag()*W;
         }
         int speedControl(Pendulum &pen,float desireVel){
@@ -167,10 +168,10 @@ class Shell{
             }
             preDesireVel=desireVel;
             errShellVel[1]=errShellVel[0];
-            errShellVel[0]=desireVel-X[0][1];
+            errShellVel[0]=desireVel-(int)X[0][1];
             pTerm=kp*errShellVel[0];
-            iTerm+=ki*errShellVel[0]*dT;
-            dTerm=kd*(errShellVel[0]-errShellVel[1])/dT;
+            iTerm+=ki*errShellVel[0]*T;
+            dTerm=kd*(errShellVel[0]-errShellVel[1])/T;
             gain=pTerm+iTerm-dTerm;
             pen.shell2pen(gain);
             return pen.pen2motor();
@@ -199,7 +200,9 @@ class Tilt{
         float preDesireTheta=0;
     public:
         //생성자
-        Tilt tilt(){}
+        Tilt tilt(){
+                dTerm=0;
+        }
         void pentheta2Rcm(Pendulum &pen){
             pen.getPenTheta();
             //RCM=nuber
@@ -229,14 +232,14 @@ class Tilt{
             motor= floor(1500+tiltTheta[0]*8.888889+0.5);
             return motor;
         }
-        void rollControl(Pendulum &pen,float desireTheta){
+        int rollControl(Pendulum &pen,float desireTheta){
              if (desireTheta!=preDesireTheta){
                 PIDtermClear();
             }
             preDesireTheta=desireTheta;
             pentheta2Rcm(Pendulum &pen);
             idu2tilt();
-            return tilt2motor()
+            return tilt2motor();
         }
         void PIDtermClear(){
             pTerm=0;
@@ -251,9 +254,11 @@ class Idu{
         float err[2]={0.0,0.0};
     public:
         //생성자
-        Idu idu(){}
+        Idu idu(){
+            err[0]=0;
+        }
         int control(){
-            
+            return 0;
         }
         int idu2motor(){
             int motor=0;
