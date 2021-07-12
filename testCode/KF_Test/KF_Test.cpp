@@ -50,7 +50,7 @@ int main(){
     for(float i=0;i<100;i=i+T){
         fout1<<X.t()<<endl;
         fout2<<X_hat.t()<<endl;
-        KF_filter(X_bar,X_hat,X,u,z_hat,Z,p_bar,p_hat,S,Q,R,Qf,K);
+        KF_filter(X_bar,X_hat,X,U,z_hat,Z,p_bar,p_hat,S,Q,R,Qf,K);
     }
     return 0;
 }
