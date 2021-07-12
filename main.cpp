@@ -28,28 +28,10 @@ lp=0.1
 #define PhaseB 22 //Encoder B
 #define DEG2RAD M_PI/180
 #define RAD2DEG 180/M_PI
-#define SIGMA_V 10 //Measurement Noise
-#define T 0.1
 void AHRSread(float &ROLL,float &PITCH,float &YAW,const int &fd);
-
-void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S,Matx44d Q, double R, Matx44d &Qf,Mat &K);//KF
-//GLOBAL VARIABLE
-//NORMAL DISTRIBUTION RANDOM NUMBER GENERATOR
-default_random_engine generator;
-normal_distribution<double> dist_W(0,1.0);
-normal_distribution<double> dist_V(0,1.0);
-double W=0;//SYSTEM NOISE
-double V=0;//SENSOR NOISE
-Matx44d F(1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
-Matx41d G(-0.0244, -0.4888,7.3529 ,147.0588);
-Matx14d H(0,1,0,0);
-//penL=Pendulum(0.0);
-//penR=Pendulum(0.0);
-pen=Pendulum(0.0);
 
 //Robot
 void initNano(const int &fd);
-float change_Vel(float desire_speed,float real_speed,float time);
 void change2Yaw(float desire_yaw, float real_yaw);
 void change2Roll(float desire_roll, float real_roll);
 void run (float desire_roll, float real_roll, float desire_speed, float real_speed,float time);
@@ -68,8 +50,6 @@ float angle = 0;
 int encoder_pos = 0;
 bool State_A = 0;
 bool State_B = 0;
-float err_shellspeed=0;
-float pre_err_shellspeed=0;
 
 int main(int argc,char **argv){
     if(wiringPiSetup()==-1){
@@ -79,6 +59,11 @@ int main(int argc,char **argv){
     int AHRS;//Serial
     int NanoCMD; //NANO
     char CMD; //CMD
+    
+    //penL=Pendulum(0.0);
+    //penR=Pendulum(0.0);
+    pen=Pendulum(0.0);
+    shell=Shell();
     thread inputCMD(&input, ref(CMD));//INPUT command Thread.....
     thread camera(&CAM,ref(CMD));
     camera.detach();
@@ -102,47 +87,26 @@ int main(int argc,char **argv){
     uint32_t past = 0;
     uint32_t now = 0;
     uint32_t controlPeriod = 20; //20ms
+    uint32_t time= now-past;
     float angularVel = 0;
     encoder_pulse = (float)360 / (3600 * 4)*1000; //3600 PPR	
-
     initNano(NanoCMD);
     now = past = millis();
 	float anglePast = angle;
-	float angleNow = angle;         
-    // INIT KALMAN FILTER
-    //Initial Conditions
-    Mat X=(Mat_<double>(4,1)<<0,0,0,0);
-    Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
-    Mat P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-    sqrt(P,P);
-    double W=dist_W(generator);
-    Mat X_bar;
-    X_bar.copySize(P.mul(W).diag());
-    X_bar=X+P.mul(W).diag();
-    P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-    Mat p_bar = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-    Mat p_hat = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-    //Noise
-    Matx44d Q(pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE 바꿀 필요가 있어보임
-    double R= SIGMA_V*SIGMA_V;
-    Mat u=(Mat_<double>(1,1)<<0);
-    Matx44d Qf=Q;
-    Mat z_hat;
-    Mat Z;
-    Mat K;
-    Mat S;  
+	float angleNow = angle;
     //fout<<roll<<"\t"<<pitch<<"\t"<<yaw<<angle<<angleVel<<endl;
     do{
         AHRSread(roll,pitch,yaw,AHRS);
-        if((now-past)>controlPeriod){
+        if((time)>controlPeriod){
 			angleNow = angle;
-			angularVel = (angleNow-anglePast)/(now-past) * 1000;
+			angularVel = (angleNow-anglePast)/(time) * 1000;
 			past=millis();
+            time= now-past;
 			anglePast=angle;
 		}
 		now=millis();//FUNCTION SENSOR NEED
         cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\t Vel : " << angularVel << "\n";
-        cout <<roll<<"\t"<<pitch<<"\t"<<yaw<<"\n";
+        cout <<roll<<"\t"<<pitch<<"\t"<<yaw<<"\t"<<time/1000<<"\n";
         switch (int(CMD)){
         //CMD to NANO
         // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
@@ -161,7 +125,7 @@ int main(int argc,char **argv){
                 //CMD=w
                 cout<< "go\n";
                 desiredspeed+=10;
-                change_Vel(desiredspeed,angularVel,1.0);
+                cout<<shell.speedControl(pen,desiredspeed);
                 
                 break;
 
@@ -353,7 +317,7 @@ void Interrupt_B() {
 	}
 }
 
-//ROBOT MOVEe
+//ROBOT MOVE
 //CONNECT ARDUINO [INIT..]
 void initNano(const int &fd){
     int rawdata;
@@ -376,49 +340,9 @@ void initNano(const int &fd){
     }while(rawdata!=64);
     cout<<data<<endl; //"KHU KongBot2 is Ready@"
 }
-
-struct state{
-
-    int input[4]={0,0,0,0};
-    float pendulumTheta[4]={0,0,0,0};
-}
-//SPEED CONTROL
-float change_Vel(float &desire_speed,float real_speed,float time){
-    /*
-        PID CONTROLLER
-                     Tz      z-1
-        PID(z)=Kp+Ki---- +Kd-----
-                     z-1     Tz
-    */
-    /*
-
-               0.1308 z + 0.1308           0.1308 z^-1 + 0.1308z^-2
-        G(Z)= -----------------     =     ------------------------- 
-              z^2 + 1.993 z + 1           1 + 1.993 z^-1 + Z^-2
-    */
-    /*
-        0.1308*(z + 1)*(Kd*(z - 1)**2 + Ki*T**2*z**2 + Kp*T*z*(z - 1))/(T*z*(z - 1)*(z**2 + 1.993*z + 1))
-    */
-    float kp=20;
-    float ki=10;
-    float kd=5;
-    float gain=0;
-    float G=0;
-    pre_err_shellspeed=err_shellspeed;
-    int input[4]={0,0,0,0};
-    float pendulumTheta[4]={0,0,0,0};
-    err_shellspeed=desire_speed-real_speed;
-    gain=kp*err_shellspeed+ki*(err_shellspeed*time)+kd*(err_shellspeed-pre_err_shellspeed);
-   
-    G=pen.shell2pen(gain);
-    return G;
-}
-
 //CHANGE YAW
 void change_Yaw(float desire_yaw, float real_yaw){
     cout<<desire_yaw<<endl;
-    //G=penL.shell2pen(gain);
-    //
 }
 
 // CHANGE ROLL
@@ -438,30 +362,4 @@ void run (float desire_roll, float real_roll, float desire_speed, float real_spe
 
     //change_Roll(desire_roll,real_roll);
     //change_Vel(desire_speed,real_speed,time);
-}
-
-//KALMAN FILTER
-void KF_filter(Mat &x_bar, Mat &x_hat, Mat &X, Mat &U, Mat &z_hat, Mat &Z,Mat &p_bar,Mat &p_hat,Mat &S,Matx44d Q, double R, Matx44d &Qf,Mat &K){
-    //Shell 속도 추정 -> class pendulum
-    double V= dist_V(generator);
-    Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
-    //==================
-    //MESUREMENT UPDATE
-    //=================
-    z_hat=H*x_bar;
-    S=H*p_bar*H.t()+R;
-    p_hat=p_bar-p_bar*H.t()*S.inv()*H*p_bar;
-    K=p_bar*H.t()*S.inv();
-    x_hat=x_bar+K*(Z-z_hat);
-    //==================
-    // TIME UPDATE
-    // =================
-    x_bar=F*x_hat+G*U;
-    p_bar=F*p_hat*F.t()+Qf;
-    //==================
-    //System Dynamics
-    //==================
-    sqrt(Q,Q);
-    double W=dist_W(generator);
-    X=F*X+G*U+Q.diag()*W;
 }
