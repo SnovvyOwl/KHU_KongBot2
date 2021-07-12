@@ -165,6 +165,7 @@ class Shell{
             if (desireVel!=preDesireVel){
                 PIDtermClear();
             }
+            preDesireVel=desireVel;
             errShellVel[1]=errShellVel[0];
             errShellVel[0]=desireVel-X[0][1];
             pTerm=kp*errShellVel[0];
@@ -183,24 +184,86 @@ class Shell{
 
 class Tilt{
     private:
-    
+        float tiltTheta[4]={0.0,0.0,0.0,0.0};
         float RCM=0;
+        float err[2]={0.0,0.0};
+         //SHELL SPEED PID GAIN
+        float kp=20;
+        float ki=10;
+        float kd=5;
+        float pTerm=0;
+        float iTerm=0;
+        float dTerm=0;
+        float iduTheta[2]={0,0};
+        float desireTheta[2]={0.0,0.0};
+        float preDesireTheta=0;
     public:
         //생성자
-        void pentheta2Rcm(){
-            //수식
+        Tilt tilt(){}
+        void pentheta2Rcm(Pendulum &pen){
+            pen.getPenTheta();
             //RCM=nuber
+        }
+        void clear(){
+            //tiltTheta[4]={0.0,0.0,0.0,0.0};
+            RCM=0;
+            //err[2]={0.0,0.0};
+        }
+        void idu2tilt(){
+
+        }
+        void calJacobian(){
+
+        }
+        void KF(){
+
+        }
+        int tilt2motor(){
+            int motor=0;
+            if (tiltTheta[0]>90){  
+                tiltTheta[0]=90.0;
+            }
+            else if(tiltTheta[0]<-90){
+                tiltTheta[0]=-90.0;
+            }
+            motor= floor(1500+tiltTheta[0]*8.888889+0.5);
+            return motor;
+        }
+        void rollControl(Pendulum &pen,float desireTheta){
+             if (desireTheta!=preDesireTheta){
+                PIDtermClear();
+            }
+            preDesireTheta=desireTheta;
+            pentheta2Rcm(Pendulum &pen);
+            idu2tilt();
+            return tilt2motor()
+        }
+        void PIDtermClear(){
+            pTerm=0;
+            iTerm=0;
+            dTerm=0;
         }
 };
 
 class Idu{
     private: 
-        float idutheta=0;
-        float err=0;
-        float pre_err=0;
+        float iduTheta[4]={0.0,0.0,0.0,0.0};
+        float err[2]={0.0,0.0};
     public:
         //생성자
+        Idu idu(){}
         int control(){
-            return gain;
+            
+        }
+        int idu2motor(){
+            int motor=0;
+            if (iduTheta[0]>90){  
+                iduTheta[0]=90.0;
+            }
+            else if(iduTheta[0]<-90){
+                iduTheta[0]=-90.0;
+            }
+            motor= floor(1500+iduTheta[0]*8.888889+0.5);
+            return motor;
         }
 };
