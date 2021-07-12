@@ -1,3 +1,4 @@
+#pragma once
 #include<iostream>
 #include<opencv2/opencv.hpp>
 #include<math.h>
@@ -11,7 +12,7 @@ default_random_engine generator;
 class Pendulum{
     private:
         int shellTheta[4]={0,0,0,0};
-        float pendulumTheta[4]={0,0,0,0};
+        float pendulumTheta[4]={0.0,0.0,0.0,0.0};
     public:
         Pendulum(float state){
             pendulumTheta[0]=state;//Current
@@ -59,7 +60,14 @@ class Pendulum{
             return (pendulumTheta[0]-pendulumTheta[1])/dT;
         }
         int pen2motor(){
-
+            int motor=0;
+            if (pendulumTheta[0]>90){  
+                pendulumTheta[0]=90.0;
+            }
+            else if(pendulumTheta[0]<-90){
+                pendulumTheta[0]=-90.0;
+            }
+            motor= floor(1500+pendulumTheta[0]*8.888889+0.5);
             return motor;
         }
 };
@@ -152,7 +160,7 @@ class Shell{
             double W=dist_W(generator);
             X=F*X+G*U+Q.diag()*W;
         }
-        float speedControl(Pendulum &pen,float desireVel){
+        int speedControl(Pendulum &pen,float desireVel){
             //PID CONTROLLER
             if (desireVel!=preDesireVel){
                 PIDtermClear();
@@ -163,7 +171,8 @@ class Shell{
             iTerm+=ki*errShellVel[0]*dT;
             dTerm=kd*(errShellVel[0]-errShellVel[1])/dT;
             gain=pTerm+iTerm-dTerm;
-            return pen.shell2pen(gain);
+            pen.shell2pen(gain);
+            return pen.pen2motor();
         }
         void PIDtermClear(){
             pTerm=0;
