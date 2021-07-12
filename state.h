@@ -247,7 +247,6 @@ class Tilt{
 class Idu{
     private: 
         float iduTheta[4]={0.0,0.0,0.0,0.0};
-        float err[2]={0.0,0.0};
         //IDU STABLE PID GAIN
         float kp=20;
         float ki=10;
