@@ -8,8 +8,6 @@
 using namespace std;
 using namespace cv;
 default_random_engine generator;
-//normal_distribution<double> dist_W(0,1.0);
-//normal_distribution<double> dist_V(0,1.0);
 class Pendulum{
     private:
         int shellTheta[4]={0,0,0,0};
@@ -32,7 +30,7 @@ class Pendulum{
             pendulumTheta[3]=0;
         }
         int shell2pen(float curshellTheta){
-            //Pendulum Transfer Funtion  
+            //Pendulum Transfer Funtion  shell-> PENDULUMS
             /*             452.2 s + 5781                                   theta_p
                 --------------------------------                =    --------------------------------
                     s^3 + 38.85 s^2 + 851.1 s + 5774                        theta_s
@@ -61,6 +59,7 @@ class Pendulum{
             return (pendulumTheta[0]-pendulumTheta[1])/T;
         }
         int pen2motor(){
+            //INPUT PENDULUMS DEG 2 SERVO motor INPUT
             int motor=0;
             if (pendulumTheta[0]>90){  
                 pendulumTheta[0]=90.0;
@@ -70,6 +69,10 @@ class Pendulum{
             }
             motor= floor(1500+pendulumTheta[0]*8.888889+0.5);
             return motor;
+        }
+        double pen2Rcm(){
+            //CAL RCM
+            return 0;
         }
 };
 
@@ -85,7 +88,6 @@ class Shell{
         Mat X_bar;
         Mat p_bar = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
         Mat p_hat = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-        //KF Noise
         //Mat Q=(Mat_<double>(4,4)<<0.0001/24,0.001/6,0.001/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1); //SYSYTEM NOISE Need2Change
         Mat Q=(Mat_<double>(4,4)<<pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); 
         double R= SIGMA_V*SIGMA_V;
@@ -130,14 +132,11 @@ class Shell{
             
         }
         void calAngularVelocity(float AHRStheta,float encodertheta,Pendulum &pen){
+            //Calculate AngularVelocity 
             shellTheta[1]=shellTheta[0];
             shellTheta[0]= AHRStheta-encodertheta;
             double shellvel=(shellTheta[0]-shellTheta[1])/T;
             X=(Mat_<double>(4,1)<<shellTheta[0],shellvel,pen.getPenTheta(),pen.getPenVel());
-            //X(0,0)=shellTheta;
-            //X(0,1)=shellvel;
-            //X(0,2)=pen.getPenTheta();
-            //X(0,3)=pen.getPenVel();
             KF();
             //return X(0,1);
             //return X_hat(0,1);
@@ -167,13 +166,13 @@ class Shell{
             X=F*X+G*U+Q.diag()*W;
         }
         int speedControl(Pendulum& pen,float desireVel){
-            //PID CONTROLLER
+            //PID CONTROLLER FOR SHELL SPEED
             if (desireVel!=preDesireVel){
                 PIDtermClear();
             }
             preDesireVel=desireVel;
             errShellVel[1]=errShellVel[0];
-            errShellVel[0]=desireVel-X.at(0,1);
+            errShellVel[0]=desireVel-X.at<double>(1);
             pTerm=kp*errShellVel[0];
             iTerm+=ki*errShellVel[0]*T;
             dTerm=kd*(errShellVel[0]-errShellVel[1])/T;
@@ -204,14 +203,7 @@ class Tilt{
         float desireTheta[2]={0.0,0.0};
         float preDesireTheta=0;
     public:
-        //생성자
-        Tilt tilt(){
-                dTerm=0;
-        }
-        void pentheta2Rcm(Pendulum &pen){
-            pen.getPenTheta();
-            //RCM=nuber
-        }
+        Tilt tilt(){}      
         void clear(){
             //tiltTheta[4]={0.0,0.0,0.0,0.0};
             RCM=0;
@@ -242,7 +234,6 @@ class Tilt{
                 PIDtermClear();
             }
             preDesireTheta=desireTheta;
-            //pentheta2Rcm(Pendulum &pen);
             idu2tilt();
             return tilt2motor();
         }
@@ -259,9 +250,7 @@ class Idu{
         float err[2]={0.0,0.0};
     public:
         //생성자
-        Idu idu(){
-            err[0]=0;
-        }
+        Idu idu(){}
         int control(){
             return 0;
         }
