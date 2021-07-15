@@ -58,7 +58,7 @@ class Pendulum{
         double getPenVel(){
             return (pendulumTheta[0]-pendulumTheta[1])/T;
         }
-        int pen2motor(){
+        int motor(){
             //INPUT PENDULUMS DEG 2 SERVO motor INPUT
             int motor=0;
             if (pendulumTheta[0]>90){  
@@ -212,21 +212,21 @@ class Tilt{
         void idu2tilt(){
 
         }
-        void calJacobian(){
-
+        void calJacobian() {
+            
         }
         void KF(){
-
+            
         }
-        int tilt2motor(){
+        int motor(){
             int motor=0;
-            if (tiltTheta[0]>90){  
-                tiltTheta[0]=90.0;
+            if (tiltTheta[0]>120){  
+                tiltTheta[0]=120.0;
             }
-            else if(tiltTheta[0]<-90){
-                tiltTheta[0]=-90.0;
+            else if(tiltTheta[0]<-120){
+                tiltTheta[0]=-120.0;
             }
-            motor= floor(1500+tiltTheta[0]*8.888889+0.5);
+            motor= floor(1500+tiltTheta[0]* 6.66667+0.5);
             return motor;
         }
         int rollControl(Pendulum &pen,float desireTheta){
@@ -246,7 +246,7 @@ class Tilt{
 
 class Idu{
     private: 
-        float iduTheta[4]={0.0,0.0,0.0,0.0};
+        float iduTheta[4]={0.0,0.0,0.0,0.0}; //array resized is reqired
         //IDU STABLE PID GAIN
         float kp=20;
         float ki=10;
@@ -266,14 +266,15 @@ class Idu{
             iTerm+=ki*err[0]*T;
             dTerm=kd*(err[0]-err[1])/T;
             gain=pTerm+iTerm-dTerm;
-
+            return gain;
         }
         int motor(){
+            //????
             if (gain>90){  
                 gain=90.0;
             }
             else if(gain<-90){
-                gain=-90.0;
+                gain=-90.0;  // anguler Velocity  cal   max speed ;;;
             }
             return floor(1500+gain*8.888889+0.5);
         }
