@@ -8,7 +8,7 @@ Therefore, We redesign KHU_KongBot1. and It called KHU_KongBot2.\
 \
 \
 [Team Member]\
-[Seongwon Lee](https://snovvyowl.github.io), Myenghyen Kim, Hyungju Choi\
+[Seongwon Lee](https://snovvyowl.github.io), [Myenghyen Kim](https://github.com/kmh8667), Hyungju Choi\
 \
 \
 [HardWare]\
