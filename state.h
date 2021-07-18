@@ -7,6 +7,17 @@
 #define T 0.1
 using namespace std;
 using namespace cv;
+/*
+ms=0.51
+mi=1.00
+mp=0.36*2
+Rs=0.15
+Js=3.89*10**-3
+Ji=4.42*10**-3
+Jp=3.4*10**-4*2
+g=9.81
+lp=0.1
+*/
 default_random_engine generator;
 class Pendulum{
     private:
@@ -60,14 +71,14 @@ class Pendulum{
         }
         int motor(){
             //INPUT PENDULUMS DEG 2 SERVO motor INPUT
-            int motor=0;
+            int motorinput=0;
             if (pendulumTheta[0]>90){  
                 pendulumTheta[0]=90.0;
             }
             else if(pendulumTheta[0]<-90){
                 pendulumTheta[0]=-90.0;
             }
-            motor= floor(1500+pendulumTheta[0]*8.888889+0.5);
+            motorinput= floor(1500+pendulumTheta[0]*8.888889+0.5);
             return motor;
         }
         double pen2Rcm(){
@@ -178,7 +189,7 @@ class Shell{
             dTerm=kd*(errShellVel[0]-errShellVel[1])/T;
             gain=pTerm+iTerm-dTerm;
             pen.shell2pen(gain);
-            return pen.pen2motor();
+            return pen.motor();
         }
         void PIDtermClear(){
             pTerm=0;
@@ -219,15 +230,15 @@ class Tilt{
             
         }
         int motor(){
-            int motor=0;
+            int motorinput=0;
             if (tiltTheta[0]>120){  
                 tiltTheta[0]=120.0;
             }
             else if(tiltTheta[0]<-120){
                 tiltTheta[0]=-120.0;
             }
-            motor= floor(1500+tiltTheta[0]* 6.66667+0.5);
-            return motor;
+            motorinput= floor(1500+tiltTheta[0]* 6.66667+0.5);
+            return motorinput;
         }
         int rollControl(Pendulum &pen,float desireTheta){
              if (desireTheta!=preDesireTheta){
@@ -235,7 +246,7 @@ class Tilt{
             }
             preDesireTheta=desireTheta;
             idu2tilt();
-            return tilt2motor();
+            return motor();
         }
         void PIDtermClear(){
             pTerm=0;
