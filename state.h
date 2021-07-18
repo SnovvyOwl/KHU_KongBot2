@@ -63,10 +63,10 @@ class Pendulum{
             pendulumTheta[0]= 0.1121*pendulumTheta[1]- 0.1891*pendulumTheta[2]+0.08002*pendulumTheta[3]+0.3199*shellTheta[0]+ 0.5695*shellTheta[1] + 0.1791 *shellTheta[2] - 0.07042*shellTheta[3]; 
             return pendulumTheta[0];
         }
-        double getPenTheta(){
+        double getTheta(){
             return pendulumTheta[0];
         }
-        double getPenVel(){
+        double getVel(){
             return (pendulumTheta[0]-pendulumTheta[1])/T;
         }
         int motor(){
@@ -139,42 +139,48 @@ class Shell{
             shellTheta[1]=0;
             //X.clear();
         }
-        void calJacobian(){
-            
+        void calJacobian(double cosThetaP){
+            F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0, 0.0,0.0,1 - 5.1882353*cosThetaP,0.1 - 0.1729412*cosThetaP,0.0,0.0, 179.451903*cosThetaP*cosThetaP-103.764706*cosThetaP,1 - 5.188235*cosThetaP);
+            G=(Mat_<double>(4,1)<<−0.024439,−0.488782,7.352941,147.058824-254.325260*cosThetaP);
         }
         void calAngularVelocity(float AHRStheta,float encodertheta,Pendulum &pen){
             //Calculate AngularVelocity 
             shellTheta[1]=shellTheta[0];
             shellTheta[0]= AHRStheta-encodertheta;
             double shellvel=(shellTheta[0]-shellTheta[1])/T;
-            X=(Mat_<double>(4,1)<<shellTheta[0],shellvel,pen.getPenTheta(),pen.getPenVel());
+            X=(Mat_<double>(4,1)<<shellTheta[0],shellvel,pen.getTheta(),pen.getVel());
             KF();
             //return X(0,1);
             //return X_hat(0,1);
         }
-        void KF(){
-            V= dist_V(generator);
-            Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
-            //==================
-            //MESUREMENT UPDATE
-            //=================
-            z_hat=H*X_bar;
-            S=H*p_bar*H.t()+R;
-            p_hat=p_bar-p_bar*H.t()*S.inv()*H*p_bar;
-            K=p_bar*H.t()*S.inv();
-            X_hat=X_bar+K*(Z-z_hat);
-            //==================
-            // TIME UPDATE
-            // =================
-            calJacobian();// Change F
-            X_bar=F*X_hat+G*U;
-            p_bar=F*p_hat*F.t()+Qf;
+        void KF(Pendulum &pen){
+            cosThetaP=cos(pen.getTheta())
+            calJacobian();// Change F G
             //==================
             //System Dynamics
             //==================
-            cv::sqrt(Q,Q);
+            //여기서는 F, H 가 자코비안 행렬이 맞는거가 아닌것 같다 확인 바람
             W=dist_W(generator);
-            X=F*X+G*U+Q.diag()*W;
+            V= dist_V(generator);
+            X=F*X+G*U+Q.diag()*W; //Dynamics MODEL
+            Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
+            //==================
+            // TIME UPDATE
+            // =================
+            //X_hat+=F*X_hat+G*U;
+            //p_hat=F*p_hat*F.t()+Q_hat
+            X_bar=F*X_hat+G*U;
+            p_bar=F*p_hat*F.t()+Qf;
+            //==================
+            //MESUREMENT UPDATE
+            //=================
+            X_hat=X_bar+K*(Z-z_hat);
+            z_hat=H*X_bar;
+            K=p_bar*H.t()*S.inv();
+            S=H*p_bar*H.t()+R;
+            p_hat=p_bar-p_bar*H.t()*S.inv()*H*p_bar;
+            cv::sqrt(Q,Q);
+         
         }
         int speedControl(Pendulum& pen,float desireVel){
             //PID CONTROLLER FOR SHELL SPEED
