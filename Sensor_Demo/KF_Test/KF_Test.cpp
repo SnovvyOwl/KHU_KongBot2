@@ -41,7 +41,7 @@ int main(){
     //Noise
     Matx44d Q(pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); //SYSYTEM NOISE 바꿀 필요가 있어보임
     double R= SIGMA_V*SIGMA_V;
-    Mat u=(Mat_<double>(1,1)<<0);
+    Mat U=(Mat_<double>(1,1)<<0);
     Matx44d Qf=Q;
     Mat z_hat;
     Mat Z;
@@ -50,7 +50,7 @@ int main(){
     for(float i=0;i<100;i=i+T){
         fout1<<X.t()<<endl;
         fout2<<X_hat.t()<<endl;
-        KF_filter(X_bar,X_hat,X,u,z_hat,Z,p_bar,p_hat,S,Q,R,Qf,K);
+        KF_filter(X_bar,X_hat,X,U,z_hat,Z,p_bar,p_hat,S,Q,R,Qf,K);
     }
     return 0;
 }

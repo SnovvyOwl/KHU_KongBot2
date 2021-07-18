@@ -8,7 +8,7 @@ Therefore, We redesign KHU_KongBot1. and It called KHU_KongBot2.\
 \
 \
 [Team Member]\
-Seongwon Lee, Myenghyen Kim, Hyungju Choi\
+[Seongwon Lee](https://snovvyowl.github.io), [Myenghyen Kim](https://github.com/kmh8667), [Hyungju Choi](https://github.com/mino4408)\
 \
 \
 [HardWare]\
@@ -22,7 +22,7 @@ Autonomics E50S8-3600-3-T-5\
 \
 \
 [Dependency]\
-OpenCV 3.4.4 required\
+OpenCV 3.4.13 required\
 Raspicam 0.1.6 required\
 Thread LIBS\
 wiringPi LIBS\
