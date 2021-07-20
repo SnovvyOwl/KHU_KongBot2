@@ -91,7 +91,9 @@ class Shell{
     private:
         //KF FILTER VARIABLE
         Mat F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
+        Mat F_hat=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
         Mat G=(Mat_<double>(4,1)<<-0.0244, -0.4888,7.3529 ,147.0588);
+        Mat G_hat=(Mat_<double>(4,1)<<-0.0244, -0.4888,7.3529 ,147.0588);
         Mat H=(Mat_<double>(1,4)<<0,1,0,0);
         Mat X=(Mat_<double>(4,1)<<0,0,0,0);
         Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
@@ -140,8 +142,8 @@ class Shell{
             //X.clear();
         }
         void calJacobian(double cosThetaP){
-            F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0, 0.0,0.0,1 - 5.1882353*cosThetaP,0.1 - 0.1729412*cosThetaP,0.0,0.0, 179.451903*cosThetaP*cosThetaP-103.764706*cosThetaP,1 - 5.188235*cosThetaP);
-            G=(Mat_<double>(4,1)<<−0.024439,−0.488782,7.352941,147.058824-254.325260*cosThetaP);
+            F_hat=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0, 0.0,0.0,1 - 5.1882353*cosThetaP,0.1 - 0.1729412*cosThetaP,0.0,0.0, 179.451903*cosThetaP*cosThetaP-103.764706*cosThetaP,1 - 5.188235*cosThetaP);
+            G_hat=(Mat_<double>(4,1)<<−0.024439,−0.488782,7.352941,147.058824-254.325260*cosThetaP);
         }
         void calAngularVelocity(float AHRStheta,float encodertheta,Pendulum &pen){
             //Calculate AngularVelocity 
@@ -154,22 +156,21 @@ class Shell{
             //return X_hat(0,1);
         }
         void KF(Pendulum &pen){
-            cosThetaP=cos(pen.getTheta())
-            calJacobian();// Change F G
+            cosThetaP=cos(pen.getTheta());
+            W=dist_W(generator);
+            V= dist_V(generator);
             //==================
             //System Dynamics
             //==================
-            //여기서는 F, H 가 자코비안 행렬이 맞는거가 아닌것 같다 확인 바람
-            W=dist_W(generator);
-            V= dist_V(generator);
-            X=F*X+G*U+Q.diag()*W; //Dynamics MODEL
-            Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
+            calJacobian(cosThetaP);// Change F G        
+            //X=F*X+G*U+Q.diag()*W; //Dynamics MODEL
+            //Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
             //==================
             // TIME UPDATE
             // =================
             //X_hat+=F*X_hat+G*U;
             //p_hat=F*p_hat*F.t()+Q_hat
-            X_bar=F*X_hat+G*U;
+            X_bar=F*X+G*U;
             p_bar=F*p_hat*F.t()+Qf;
             //==================
             //MESUREMENT UPDATE
