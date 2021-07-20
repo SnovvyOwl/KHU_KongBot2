@@ -168,9 +168,9 @@ class Shell{
             //==================
             // TIME UPDATE
             // =================
-            //X_hat+=F*X_hat+G*U;
+            //X_hat+=F*X_hat+G*U;-
             //p_hat=F*p_hat*F.t()+Q_hat
-            X_bar=F*X+G*U;
+            X_bar=F*X+G*U+F_hat*(X-X_ha;
             p_bar=F*p_hat*F.t()+Qf;
             //==================
             //MESUREMENT UPDATE
