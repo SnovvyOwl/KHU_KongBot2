@@ -3,6 +3,8 @@
 #include<opencv2/opencv.hpp>
 #include<math.h>
 #include<random>
+#define D2R 0.017453293
+#define R2D 57.295779513
 #define SIGMA_V 10 //Measurement Noise
 #define T 0.1
 using namespace std;
@@ -91,22 +93,18 @@ class Shell{
     private:
         //KF FILTER VARIABLE
         Mat F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
-        Mat F_hat=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
-        Mat G=(Mat_<double>(4,1)<<-0.0244, -0.4888,7.3529 ,147.0588);
-        Mat G_hat=(Mat_<double>(4,1)<<-0.0244, -0.4888,7.3529 ,147.0588);
         Mat H=(Mat_<double>(1,4)<<0,1,0,0);
         Mat X=(Mat_<double>(4,1)<<0,0,0,0);
         Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
         Mat P=(Mat_<double>(4,4)<<1.0, 0.0, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.0,0.0,0.0,0.0,1.0);
-        Mat X_bar;
-        Mat p_bar = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
-        Mat p_hat = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
+        Mat I=(Mat_<double>(4,4)<<1.0, 0.0, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.0,0.0,0.0,0.0,1.0);
+        Mat P_hat = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
         //Mat Q=(Mat_<double>(4,4)<<0.0001/24,0.001/6,0.001/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1); //SYSYTEM NOISE Need2Change
         Mat Q=(Mat_<double>(4,4)<<pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); 
         double R= SIGMA_V*SIGMA_V;
         Mat U=(Mat_<double>(1,1)<<0);
         Matx44d Qf;
-        Mat z_hat;
+        Mat Z_hat;
         Mat Z;
         Mat K;
         Mat S;
@@ -126,7 +124,6 @@ class Shell{
         double W=0;
         double V=0;
     public:
-        //cv::sqrt(P,P);
         Shell(normal_distribution<double>w,normal_distribution<double> v){
             dist_W=w;
             dist_V=v;
@@ -141,9 +138,15 @@ class Shell{
             shellTheta[1]=0;
             //X.clear();
         }
-        void calJacobian(double cosThetaP){
-            F_hat=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0, 0.0,0.0,1 - 5.1882353*cosThetaP,0.1 - 0.1729412*cosThetaP,0.0,0.0, 179.451903*cosThetaP*cosThetaP-103.764706*cosThetaP,1 - 5.188235*cosThetaP);
-            G_hat=(Mat_<double>(4,1)<<−0.024439,−0.488782,7.352941,147.058824-254.325260*cosThetaP);
+        void calSystem(double ThetaP){
+            //modeling
+            X_bar.at<double>(0)=X.at<double>(0)+X.at<double>(1)*T;
+            X_bar.at<double>(1)=X.at<double>(1)-U.at<double>(0)*T;
+            X_bar.at<double>(2)=X.at<double>(2)+X.at<double>(3)*T;
+            X_bar.at<double>(3)=X.at<double>(3)-1037.647058824*sin(ThetaP)*T+1470.588235294*U.at<double>(0)*T;
+            //Jacobian
+            cosThetaP=cos(ThetaP);
+            F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0, 0.0,0.0,1 - 5.1882353*cosThetaP,0.1 - 0.1729412*cosThetaP,0.0,0.0, 179.451903*cosThetaP*cosThetaP-103.764706*cosThetaP,1 - 5.188235*cosThetaP);
         }
         void calAngularVelocity(float AHRStheta,float encodertheta,Pendulum &pen){
             //Calculate AngularVelocity 
@@ -151,37 +154,26 @@ class Shell{
             shellTheta[0]= AHRStheta-encodertheta;
             double shellvel=(shellTheta[0]-shellTheta[1])/T;
             X=(Mat_<double>(4,1)<<shellTheta[0],shellvel,pen.getTheta(),pen.getVel());
-            KF();
+            EKF();
             //return X(0,1);
             //return X_hat(0,1);
         }
-        void KF(Pendulum &pen){
-            cosThetaP=cos(pen.getTheta());
+        void EKF(Pendulum &pen){
             W=dist_W(generator);
             V= dist_V(generator);
             //==================
-            //System Dynamics
-            //==================
-            calJacobian(cosThetaP);// Change F G        
-            //X=F*X+G*U+Q.diag()*W; //Dynamics MODEL
-            //Z=H*X+sqrt(R)*V; //MESUREMENT MODEL
-            //==================
             // TIME UPDATE
             // =================
-            //X_hat+=F*X_hat+G*U;-
-            //p_hat=F*p_hat*F.t()+Q_hat
-            X_bar=F*X+G*U+F_hat*(X-X_ha;
-            p_bar=F*p_hat*F.t()+Qf;
+            calSystem(pen.getTheta()*D2R)   
+            P_hat=F*P*F.t()+Qf; //Qf가 K에 대한 함수가 아닌가?
             //==================
             //MESUREMENT UPDATE
             //=================
-            X_hat=X_bar+K*(Z-z_hat);
-            z_hat=H*X_bar;
-            K=p_bar*H.t()*S.inv();
-            S=H*p_bar*H.t()+R;
-            p_hat=p_bar-p_bar*H.t()*S.inv()*H*p_bar;
-            cv::sqrt(Q,Q);
-         
+            S=H*P_hat*H.t()+R;//R가 K에 대한 함수가 아닌가?
+            K=P_hat*H.t()*S.inv();
+            Z_hat=H*X_hat;
+            X=X_hat+K*(Z-Z_hat);
+            P=(I-K*H)*P_hat;
         }
         int speedControl(Pendulum& pen,float desireVel){
             //PID CONTROLLER FOR SHELL SPEED
