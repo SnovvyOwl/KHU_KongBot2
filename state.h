@@ -73,19 +73,18 @@ class Pendulum{
         }
         int motor(){
             //INPUT PENDULUMS DEG 2 SERVO motor INPUT
-            int motorinput=0;
+           
             if (pendulumTheta[0]>90){  
                 pendulumTheta[0]=90.0;
             }
             else if(pendulumTheta[0]<-90){
                 pendulumTheta[0]=-90.0;
             }
-            motorinput= floor(1500+pendulumTheta[0]*8.888889+0.5);
-            return motor;
+            return floor(1500+pendulumTheta[0]*8.888889+0.5);
         }
         double pen2Rcm(){
-            //CAL RCM
-            return 0;
+            //calculate RCM;
+            return (−0.001927186-0.072*cos(pendulumTheta[0])+0.382*0.063823319)/2.4614;
         }
 };
 
