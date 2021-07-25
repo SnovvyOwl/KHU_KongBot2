@@ -23,8 +23,9 @@ lp=0.1
 default_random_engine generator;
 class Pendulum{
     private:
-        int shellTheta[4]={0,0,0,0};
+        int shellTheta[3]={0,0,0};
         double pendulumTheta[4]={0.0,0.0,0.0,0.0};
+        int motorinput[4]={0,0,0,0};
     public:
         Pendulum(float state){
             pendulumTheta[0]=state;//Current
@@ -36,17 +37,22 @@ class Pendulum{
             shellTheta[0]=0;//Current
             shellTheta[1]=0;//K-1
             shellTheta[2]=0;//K-2
-            shellTheta[3]=0;//K-3
             pendulumTheta[0]=0;
             pendulumTheta[1]=0;
             pendulumTheta[2]=0;
             pendulumTheta[3]=0;
+            motorinput[0]=0;
+            motorinput[1]=0;
+            motorinput[2]=0;
+            motorinput[3]=0;
+
         }
-        int shell2pen(float curshellTheta){
+        void calTheta(int input){
+            /*
             //Pendulum Transfer Funtion  shell-> PENDULUMS
-            /*             452.2 s + 5781                                   theta_p
+                         452.2 s + 5781                                   theta_p_real
                 --------------------------------                =    --------------------------------
-                    s^3 + 38.85 s^2 + 851.1 s + 5774                        theta_s
+                    s^3 + 38.85 s^2 + 851.1 s + 5774                        theta_p_input
             
             
                 0.3199 z^3 + 0.5695 z^2 + 0.1791 z - 0.07042 
@@ -58,12 +64,25 @@ class Pendulum{
             pendulumTheta[3]=pendulumTheta[2];
             pendulumTheta[2]=pendulumTheta[1];
             pendulumTheta[1]=pendulumTheta[0];
-            shellTheta[3]=shellTheta[2];
-            shellTheta[2]=shellTheta[1];
-            shellTheta[1]=shellTheta[0];
-            shellTheta[0]=(int)curshellTheta;            
-            pendulumTheta[0]= 0.1121*pendulumTheta[1]- 0.1891*pendulumTheta[2]+0.08002*pendulumTheta[3]+0.3199*shellTheta[0]+ 0.5695*shellTheta[1] + 0.1791 *shellTheta[2] - 0.07042*shellTheta[3]; 
-            return pendulumTheta[0];
+            motorinput[3]=shellTheta[2];
+            motorinput[2]=shellTheta[1];
+            motorinput[1]=shellTheta[0];
+            motorinput[0]=(int)input;            
+            pendulumTheta[0]= 0.1121*pendulumTheta[1]- 0.1891*pendulumTheta[2]+0.08002*pendulumTheta[3]+0.3199*motorinput[0]+ 0.5695*motorinput[1] + 0.1791 *motorinput[2] - 0.07042*motorinput[3]; 
+        }
+        int shell2pen(float curshellTheta){
+            /*
+            -(Js+Rs^2*mi+Rs^2*mp+R^2*ms)S^2                    -0.054064999999999995*S^2
+            -------------------------------         =   -------------------------------
+            jp*S^2+mp*lp*g                                0.00068*S^2+ 0.70632
+
+            0.2004 z - 0.2004               theta_p
+            -----------------       =   -------------   
+            z^2 + 1.993 z + 1               s* theta_s
+
+            dt = 0.1
+            */
+            return 0;
         }
         double getTheta(){
             return pendulumTheta[0];
@@ -71,9 +90,9 @@ class Pendulum{
         double getVel(){
             return (pendulumTheta[0]-pendulumTheta[1])/T;
         }
-        int motor(){
+        int motor(double gain){
             //INPUT PENDULUMS DEG 2 SERVO motor INPUT
-           
+            calTheta();
             if (pendulumTheta[0]>90){  
                 pendulumTheta[0]=90.0;
             }
@@ -82,7 +101,7 @@ class Pendulum{
             }
             return floor(1500+pendulumTheta[0]*8.888889+0.5);
         }
-        double pen2Rcm(){
+        double massCenter(){
             //calculate RCM;
             return (−0.001927186-0.072*cos(pendulumTheta[0])+0.382*0.063823319)/2.4614;
         }
