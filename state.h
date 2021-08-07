@@ -79,7 +79,7 @@ class Pendulum{
         }
         int motor(double gain){
             //INPUT PENDULUMS DEG 2 SERVO motor INPUT
-            calTheta();
+            calTheta(gain);
             if (pendulumTheta[0]>90){  
                 pendulumTheta[0]=90.0;
             }
@@ -90,7 +90,7 @@ class Pendulum{
         }
         double massCenter(){
             //calculate RCM;
-            return (−0.001927186-0.072*cos(pendulumTheta[0])+0.382*0.063823319)/2.4614;
+            return (0.001927186+0.072*cos(pendulumTheta[0])-0.382*0.063823319)/-2.4614;
         }
 };
 
@@ -136,8 +136,8 @@ class Shell{
             dist_W=w;
             dist_V=v;
             W=dist_W(generator);
-            X_bar.copySize(P.mul(W).diag());
-            X_bar=X+P.mul(W).diag();
+            X_hat.copySize(P.mul(W).diag());
+            X_hat=X+P.mul(W).diag();
             P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
             Qf=Q;
         }
@@ -148,12 +148,12 @@ class Shell{
         }
         void calSystem(double ThetaP){
             //modeling
-            X_bar.at<double>(0)=X.at<double>(0)+X.at<double>(1)*T;
-            X_bar.at<double>(1)=X.at<double>(1)-U.at<double>(0)*T;
-            X_bar.at<double>(2)=X.at<double>(2)+X.at<double>(3)*T;
-            X_bar.at<double>(3)=X.at<double>(3)-1037.647058824*sin(ThetaP)*T+1470.588235294*U.at<double>(0)*T;
+            X_hat.at<double>(0)=X.at<double>(0)+X.at<double>(1)*T;
+            X_hat.at<double>(1)=X.at<double>(1)-U.at<double>(0)*T;
+            X_hat.at<double>(2)=X.at<double>(2)+X.at<double>(3)*T;
+            X_hat.at<double>(3)=X.at<double>(3)-1037.647058824*sin(ThetaP)*T+1470.588235294*U.at<double>(0)*T;
             //Jacobian
-            cosThetaP=cos(ThetaP);
+            double cosThetaP=cos(ThetaP);
             F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0, 0.0,0.0,1 - 5.1882353*cosThetaP,0.1 - 0.1729412*cosThetaP,0.0,0.0, 179.451903*cosThetaP*cosThetaP-103.764706*cosThetaP,1 - 5.188235*cosThetaP);
         }
         void calAngularVelocity(float AHRStheta,float encodertheta,Pendulum &pen){
@@ -164,7 +164,7 @@ class Shell{
             //shellSpeed[1]=shellSpeed[0];
             shellSpeed=(shellTheta[0]-shellTheta[1])/T;
             X=(Mat_<double>(4,1)<<shellTheta[0],shellSpeed,pen.getTheta(),pen.getVel());
-            EKF();
+            EKF(pen);
         }
         double shell2pen(){
             /*
@@ -188,7 +188,7 @@ class Shell{
             //==================
             // TIME UPDATE
             // =================
-            calSystem(pen.getTheta()*D2R)   
+            calSystem(pen.getTheta()*D2R);   
             P_hat=F*P*F.t()+Qf; //Qf가 K에 대한 함수가 아닌가?
             //==================
             //MESUREMENT UPDATE
@@ -198,7 +198,7 @@ class Shell{
             Z_hat=H*X_hat;
             X=X_hat+K*(Z-Z_hat);
             P=(I-K*H)*P_hat;
-            shellSpeed[0]=X.at<double>(1);
+            shellSpeed=X.at<double>(1);
         }
         int speedControl(Pendulum& pen,float desireVel){
             //PID CONTROLLER FOR SHELL SPEED
@@ -214,8 +214,7 @@ class Shell{
             iTerm+=ki*errShellVel[0]*T;
             dTerm=kd*(errShellVel[0]-errShellVel[1])/T;
             gain[0]=pTerm+iTerm-dTerm;
-            pen.shell2pen(gain);
-            return pen.motor();
+            return pen.motor(shell2pen());
         }
         void PIDtermClear(){
             pTerm=0;
