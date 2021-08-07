@@ -166,7 +166,7 @@ class Shell{
             X=(Mat_<double>(4,1)<<shellTheta[0],shellSpeed,pen.getTheta(),pen.getVel());
             EKF();
         }
-        void shell2pen(){
+        double shell2pen(){
             /*
             -(Js+Rs^2*mi+Rs^2*mp+R^2*ms)S^2                    -0.054064999999999995*S^2
             -------------------------------         =   -------------------------------
@@ -180,6 +180,7 @@ class Shell{
             penInput[2]=penInput[1];
             penInput[1]=penInput[0];
             penInput[0]=-22.11*gain[0]+44.21*gain[1]-22.11*gain[2]-0.8879*penInput[1]-penInput[2];
+            return penInput[0];
         }
         void EKF(Pendulum &pen){
             W=dist_W(generator);
@@ -245,6 +246,9 @@ class Tilt{
             RCM=0;
             //err[2]={0.0,0.0};
         }
+        void setRCM(Pendulum &pen){
+            RCM=pen.massCenter();
+        }
         void idu2tilt(){
 
         }
@@ -255,15 +259,15 @@ class Tilt{
             
         }
         int motor(){
-            int motorinput=0;
+            int motorInput=0;
             if (tiltTheta[0]>120){  
                 tiltTheta[0]=120.0;
             }
             else if(tiltTheta[0]<-120){
                 tiltTheta[0]=-120.0;
             }
-            motorinput= floor(1500+tiltTheta[0]* 6.66667+0.5);
-            return motorinput;
+            motorInput= floor(1500+tiltTheta[0]* 6.66667+0.5);
+            return motorInput;
         }
         int rollControl(Pendulum &pen,float desireTheta){
              if (desireTheta!=preDesireTheta){
