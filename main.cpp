@@ -12,17 +12,6 @@
 #include<random>
 using namespace std;
 using namespace cv;
-/*
-ms=0.51
-mi=1.00
-mp=0.36*2
-Rs=0.15
-Js=3.89*10**-3
-Ji=4.42*10**-3
-Jp=3.4*10**-4*2
-g=9.81
-lp=0.1
-*/
 //SENSOR
 #define PhaseA 21 //Encoder A
 #define PhaseB 22 //Encoder B
@@ -299,22 +288,22 @@ void Interrupt_B() {
 	if (State_B == 1) {
 
 		if (State_A == 1) {
-			encoder_pos++;                    // 회전방향 : CW
+			encoder_pos++;                    // rotate direction : CW
 			angle += encoder_pulse;
 		}
 		else {
-			encoder_pos--;                    // 회전방향 : CCW
+			encoder_pos--;                    // rotate direction : CCW
 			angle -= encoder_pulse;
 		}
 	}
 
 	else {
 		if (State_A == 0) {
-			encoder_pos++;                    // 회전방향 : CW
+			encoder_pos++;                    // rotate direction : CW
 			angle +=  encoder_pulse;
 		}
 		else {
-			encoder_pos--;                    // 회전방향 : CCW
+			encoder_pos--;                    // rotate direction : CCW
 			angle -=  encoder_pulse;
 		}
 	}
