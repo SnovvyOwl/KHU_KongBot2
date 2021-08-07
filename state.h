@@ -18,8 +18,14 @@ Js=3.89*10**-3
 Ji=4.42*10**-3
 Jp=3.4*10**-4*2
 Jr=0.024072249572891516
+Jt=1.78703861879045e-003
 g=9.81 
 lp=0.1
+rpin=0.0175
+mt=0.38197
+Mr=2.64589817207665;
+a=6.382e-002
+Rcm=0.06436548193923931
 */
 default_random_engine generator;
 class Pendulum{
@@ -70,6 +76,7 @@ class Pendulum{
             motorinput[1]=shellTheta[0];
             motorinput[0]=(int)input;            
             pendulumTheta[0]= 0.1121*pendulumTheta[1]- 0.1891*pendulumTheta[2]+0.08002*pendulumTheta[3]+0.3199*motorinput[0]+ 0.5695*motorinput[1] + 0.1791 *motorinput[2] - 0.07042*motorinput[3]; 
+            //pendulumTheta[0]=pendulumTheta[0]*D2R;
         }
        
         double getTheta(){
@@ -81,17 +88,17 @@ class Pendulum{
         int motor(double gain){
             //INPUT PENDULUMS DEG 2 SERVO motor INPUT
             calTheta(gain);
-            if (pendulumTheta[0]>90){  
-                pendulumTheta[0]=90.0;
+            double input=0;
+            if (pendulumTheta[0]>1.57079632679){  
+                input=90.0;
             }
-            else if(pendulumTheta[0]<-90){
-                pendulumTheta[0]=-90.0;
+            else if(pendulumTheta[0]<-1.57079632679){
+                input=-90.0;
             }
-            return floor(1500+pendulumTheta[0]*8.888889+0.5);
-        }
-        double massCenter(){
-            //calculate RCM;
-            return (0.001927186+0.072*cos(pendulumTheta[0])-0.382*0.063823319)/-2.4614;
+            else{
+                input=pendulumTheta[0]*R2D;
+            }
+            return floor(1500+input*8.888889+0.5);
         }
 };
 
@@ -239,6 +246,22 @@ class Tilt{
         float iduTheta[2]={0,0};
         float desireTheta[2]={0.0,0.0};
         float preDesireTheta=0;
+        Mat F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.1,0.0,0.0, -0.00009637185,1);
+        Mat H=(Mat_<double>(1,4)<<0,1,0,0);
+        Mat X=(Mat_<double>(4,1)<<0,0,0,0);
+        Mat X_hat=(Mat_<double>(4,1)<<0,0,0,0);
+        Mat P=(Mat_<double>(4,4)<<1.0, 0.0, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.0,0.0,0.0,0.0,1.0);
+        Mat I=(Mat_<double>(4,4)<<1.0, 0.0, 0.0, 0.0, 0.0 ,1.0,0.0,0.0,0.0,0.0 ,1.0,0.0,0.0,0.0,0.0,1.0);
+        Mat P_hat = cv::Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1)*1000;
+        //Mat Q=(Mat_<double>(4,4)<<0.0001/24,0.001/6,0.001/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1,0.0001/24,0.001/6,0.01/2,0.1); //SYSYTEM NOISE Need2Change
+        Mat Q=(Mat_<double>(4,4)<<pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T,pow(T,4)/24,pow(T,3)/6,pow(T,2)/2,T); 
+        double R= SIGMA_V*SIGMA_V;
+        Mat U=(Mat_<double>(1,1)<<0);
+        Matx44d Qf;
+        Mat Z_hat;
+        Mat Z;
+        Mat K;
+        Mat S;
     public:
         Tilt tilt(){}      
         void clear(){
@@ -252,10 +275,28 @@ class Tilt{
         void idu2tilt(){
 
         }
-        void calJacobian() {
+        void calSystem(float AHRStheta) {
+
             
-        }
-        void KF(){
+            //modeling
+            X_hat.at<double>(0)=X.at<double>(0)+X.at<double>(1)*T;
+            X_hat.at<double>(1)=X.at<double>(1)-U.at<double>(0)*T;
+            X_hat.at<double>(2)=X.at<double>(2)+X.at<double>(3)*T;
+            X_hat.at<double>(3)=X.at<double>(3)-1037.647058824*sin(ThetaP)*T+1470.588235294*U.at<double>(0)*T;
+            //Jacobian
+
+            // F =
+            //x1=th_t
+            //x3=th_x
+            // [1,  0.1, 0.000858375*cos(x3), 0]
+            // [0, 1, 0.0171675*cos(x3), 0.000858375*cos(x3)]
+            // [0.000129285*x3*sin(x1), 0, 1 - 0.0083534*cos(x3) - 1.29285*e^-4cos(x1), 0.1]
+            // [0.0025857*x3*sin(x1), 0.000129285*x3*sin(x1), -0.0025857*cos(x1) -0.1670687*cos(x3), 1 - 0.0083534*cos(x3) -1.29285*e^-4*cos(x1)]
+            double cosThetaX=cos(AHRStheta*D2R);
+            double cosThetaT=cos(tiltTheta[0]*D2R);
+            double sinThetaT=sin(tiltTheta[0]*D2R);
+            F=(Mat_<double>(4,4)<<1,  0.1, 0.000858375*cosThetaX, 0,0, 1, 0.0171675*cosThetaX, 0.000858375*cosThetaX,0.000129285*AHRStheta*D2R*sinThetaT, 0, 1 - 0.0083534*cosThetaX - 0.000129285*cosThetaT, 0.1,0.0025857*AHRStheta*D2R*sinThetaT, 0.000129285*AHRStheta*D2R*sinThetaT, -0.0025857*cosThetaT -0.1670687*cosThetaX, 1 - 0.0083534*cosThetaX -0.000129285*cosThetaT);
+        void EKF(){
             
         }
         int motor(){
