@@ -179,7 +179,7 @@ class Shell{
             */
             penInput[2]=penInput[1];
             penInput[1]=penInput[0];
-            penInput[0]=-22.11*gain[0]+44.21*gain[1]-gain[2]-0.8879*penInput[1]-penInput[2];
+            penInput[0]=-22.11*gain[0]+44.21*gain[1]-22.11*gain[2]-0.8879*penInput[1]-penInput[2];
         }
         void EKF(Pendulum &pen){
             W=dist_W(generator);
