@@ -70,20 +70,7 @@ class Pendulum{
             motorinput[0]=(int)input;            
             pendulumTheta[0]= 0.1121*pendulumTheta[1]- 0.1891*pendulumTheta[2]+0.08002*pendulumTheta[3]+0.3199*motorinput[0]+ 0.5695*motorinput[1] + 0.1791 *motorinput[2] - 0.07042*motorinput[3]; 
         }
-        int shell2pen(float curshellTheta){
-            /*
-            -(Js+Rs^2*mi+Rs^2*mp+R^2*ms)S^2                    -0.054064999999999995*S^2
-            -------------------------------         =   -------------------------------
-            jp*S^2+mp*lp*g                                0.00068*S^2+ 0.70632
-
-            0.2004 z - 0.2004               theta_p
-            -----------------       =   -------------   
-            z^2 + 1.993 z + 1               s* theta_s
-
-            dt = 0.1
-            */
-            return 0;
-        }
+       
         double getTheta(){
             return pendulumTheta[0];
         }
@@ -134,9 +121,12 @@ class Shell{
         float iTerm=0;
         float dTerm=0;
         double shellTheta[2]={0,0};
-        float errShellVel[2]={0.0,0.0};
+        //double shellSpeed[3]={0,0,0};
+        double shellSpeed=0;
+        double penInput[3]={0,0,0};
+        float errShellVel[3]={0.0,0.0,0.0};
         float preDesireVel=0;
-        float gain=0;
+        double gain[3]={0.0,0.0,0.0};
         normal_distribution<double>dist_W;//SYSTEM NOISE
         normal_distribution<double>dist_V;//SENSOR NOISE
         double W=0;
@@ -170,11 +160,26 @@ class Shell{
             //Calculate AngularVelocity 
             shellTheta[1]=shellTheta[0];
             shellTheta[0]= AHRStheta-encodertheta;
-            double shellvel=(shellTheta[0]-shellTheta[1])/T;
-            X=(Mat_<double>(4,1)<<shellTheta[0],shellvel,pen.getTheta(),pen.getVel());
+            //shellSpeed[2]=shellSpeed[1];
+            //shellSpeed[1]=shellSpeed[0];
+            shellSpeed=(shellTheta[0]-shellTheta[1])/T;
+            X=(Mat_<double>(4,1)<<shellTheta[0],shellSpeed,pen.getTheta(),pen.getVel());
             EKF();
-            //return X(0,1);
-            //return X_hat(0,1);
+        }
+        void shell2pen(){
+            /*
+            -(Js+Rs^2*mi+Rs^2*mp+R^2*ms)S^2                    -0.054064999999999995*S^2
+            -------------------------------         =   -------------------------------
+            jp*S^2+mp*lp*g                                0.00068*S^2+ 0.70632
+
+            -22.11 z^2 + 44.21 z - 22.11                theta_p
+            ----------------------------   =        -------------
+                z^2 + 0.8879 z + 1                      s*theta_s
+            dt = 0.1
+            */
+            penInput[2]=penInput[1];
+            penInput[1]=penInput[0];
+            penInput[0]=-22.11*gain[0]+44.21*gain[1]-gain[2]-0.8879*penInput[1]-penInput[2];
         }
         void EKF(Pendulum &pen){
             W=dist_W(generator);
@@ -192,19 +197,22 @@ class Shell{
             Z_hat=H*X_hat;
             X=X_hat+K*(Z-Z_hat);
             P=(I-K*H)*P_hat;
+            shellSpeed[0]=X.at<double>(1);
         }
         int speedControl(Pendulum& pen,float desireVel){
             //PID CONTROLLER FOR SHELL SPEED
             if (desireVel!=preDesireVel){
                 PIDtermClear();
             }
+            gain[2]=gain[1];
+            gain[1]=gain[0];
             preDesireVel=desireVel;
             errShellVel[1]=errShellVel[0];
             errShellVel[0]=desireVel-X.at<double>(1);
             pTerm=kp*errShellVel[0];
             iTerm+=ki*errShellVel[0]*T;
             dTerm=kd*(errShellVel[0]-errShellVel[1])/T;
-            gain=pTerm+iTerm-dTerm;
+            gain[0]=pTerm+iTerm-dTerm;
             pen.shell2pen(gain);
             return pen.motor();
         }
