@@ -30,9 +30,9 @@ Rcm=0.06436548193923931
 default_random_engine generator;
 class Pendulum{
     private:
-        int shellTheta[3]={0,0,0};
-        double pendulumTheta[4]={0.0,0.0,0.0,0.0};
-        int motorinput[4]={0,0,0,0};
+        int shellTheta[3]={0,0,0};//DEGREE
+        double pendulumTheta[4]={0.0,0.0,0.0,0.0};//RADIAN
+        int motorinput[4]={0,0,0,0};//PULSE WIDTH 700~2300
     public:
         Pendulum(float state){
             pendulumTheta[0]=state;//Current
@@ -52,11 +52,12 @@ class Pendulum{
             motorinput[1]=0;
             motorinput[2]=0;
             motorinput[3]=0;
-
         }
-        void calTheta(int input){
+        void calTheta(){
             /*
-            //Pendulum Transfer Funtion  shell-> PENDULUMS
+            #############################################################################
+                Pendulum Transfer Funtion  input(pulse width)-> Pendulums Theta (Rad)
+            #############################################################################
                          452.2 s + 5781                                   theta_p_real
                 --------------------------------                =    --------------------------------
                     s^3 + 38.85 s^2 + 851.1 s + 5774                        theta_p_input
@@ -66,17 +67,12 @@ class Pendulum{
                 --------------------------------------------      
                  z^3 - 0.1121 z^2 + 0.1891 z - 0.08002                 
 
-                //dt = 0.1
+                dt = 0.1
             */
             pendulumTheta[3]=pendulumTheta[2];
             pendulumTheta[2]=pendulumTheta[1];
-            pendulumTheta[1]=pendulumTheta[0];
-            motorinput[3]=shellTheta[2];
-            motorinput[2]=shellTheta[1];
-            motorinput[1]=shellTheta[0];
-            motorinput[0]=(int)input;            
+            pendulumTheta[1]=pendulumTheta[0];        
             pendulumTheta[0]= 0.1121*pendulumTheta[1]- 0.1891*pendulumTheta[2]+0.08002*pendulumTheta[3]+0.3199*motorinput[0]+ 0.5695*motorinput[1] + 0.1791 *motorinput[2] - 0.07042*motorinput[3]; 
-            //pendulumTheta[0]=pendulumTheta[0]*D2R;
         }
        
         double getTheta(){
@@ -86,19 +82,22 @@ class Pendulum{
             return (pendulumTheta[0]-pendulumTheta[1])/T;
         }
         int motor(double gain){
-            //INPUT PENDULUMS DEG 2 SERVO motor INPUT
-            calTheta(gain);
-            double input=0;
-            if (pendulumTheta[0]>1.57079632679){  
-                input=90.0;
+            //#####################################
+            //INPUT GAIN -> SERVO motor INPUT
+            //arg    : gain {PID GAIN FOR SHELL SPEED CONTROL}
+            //return : motorinput[0]  {PENDULUMS SERVO MOTOR INPUT}
+            //#####################################
+            motorinput[3]=motorinput[2];
+            motorinput[2]=motorinput[1];
+            motorinput[1]=motorinput[0];
+            if (gain>1.57079632679){  
+                gain=90.0;
             }
-            else if(pendulumTheta[0]<-1.57079632679){
-                input=-90.0;
+            else if(gain<-1.57079632679){
+                gain=-90.0;
             }
-            else{
-                input=pendulumTheta[0]*R2D;
-            }
-            return floor(1500+input*8.888889+0.5);
+            motorinput[0]=floor(1500+gain*8.888889+0.5);
+            return motorinput[0];
         }
 };
 
@@ -130,7 +129,7 @@ class Shell{
         float dTerm=0;
         double shellTheta[2]={0,0};
         //double shellSpeed[3]={0,0,0};
-        double shellSpeed=0;
+        double shellSpeed[2]={0,0};
         double penInput[3]={0,0,0};
         float errShellVel[3]={0.0,0.0,0.0};
         float preDesireVel=0;
@@ -155,6 +154,10 @@ class Shell{
             //X.clear();
         }
         void calSystem(double ThetaP){
+            //##############################################
+            //Calculate F matrix For EKF
+            //arg   : ThetaP {Pendulums Current Theta [rad]}
+            //##############################################
             //modeling
             X_hat.at<double>(0)=X.at<double>(0)+X.at<double>(1)*T;
             X_hat.at<double>(1)=X.at<double>(1)-U.at<double>(0)*T;
@@ -165,17 +168,22 @@ class Shell{
             F=(Mat_<double>(4,4)<<1.0, 0.1, 0.0, 0.0, 0.0 ,1.0,0.0,0.0, 0.0,0.0,1 - 5.1882353*cosThetaP,0.1 - 0.1729412*cosThetaP,0.0,0.0, 179.451903*cosThetaP*cosThetaP-103.764706*cosThetaP,1 - 5.188235*cosThetaP);
         }
         void calAngularVelocity(float AHRStheta,float encodertheta,Pendulum &pen){
-            //Calculate AngularVelocity 
+            //##################################################
+            //Calculate AngularVelocity for Shell
+            //arg: AHRStheta{AHRS read pitch angle}, encodertheta {encoder theta} , pen {Pedulum Object}
+            //##################################################
             shellTheta[1]=shellTheta[0];
             shellTheta[0]= AHRStheta-encodertheta;
-            //shellSpeed[2]=shellSpeed[1];
-            //shellSpeed[1]=shellSpeed[0];
-            shellSpeed=(shellTheta[0]-shellTheta[1])/T;
-            X=(Mat_<double>(4,1)<<shellTheta[0],shellSpeed,pen.getTheta(),pen.getVel());
-            EKF(pen);
+            shellSpeed[1]=shellSpeed[0];
+            shellSpeed[0]=(shellTheta[0]-shellTheta[1])/T;
+            X=(Mat_<double>(4,1)<<shellTheta[0],shellSpeed[0],pen.getTheta(),pen.getVel());
+            EKF(pen);//for speed  maybe I think not PEN OBJECT double pentheta; 
         }
         double shell2pen(){
             /*
+            ################################################################################
+                Shell's Angular VElOCITY PID GAIN-> PENULUM THETA
+            ################################################################################
             -(Js+Rs^2*mi+Rs^2*mp+R^2*ms)S^2                    -0.054064999999999995*S^2
             -------------------------------         =   -------------------------------
             jp*S^2+mp*lp*g                                0.00068*S^2+ 0.70632
@@ -191,6 +199,10 @@ class Shell{
             return penInput[0];
         }
         void EKF(Pendulum &pen){
+            //######################################
+            //EXTENDED KALMAN FILTER
+            // arg: pen {pendulum Object}
+            // #####################################
             W=dist_W(generator);
             V= dist_V(generator);
             //==================
