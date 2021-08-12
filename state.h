@@ -99,8 +99,8 @@ class Pendulum{
             else{
                 gain=gain*R2D;
             }
-            motorinput[0]=floor(1500+gain*8.888889+0.5);
-            return motorinput[0];
+            motorinput[0] = gain;
+            return floor(1500 + gain * 8.888889 + 0.5);
         }
 };
 
