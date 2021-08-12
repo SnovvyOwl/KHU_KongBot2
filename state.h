@@ -31,7 +31,7 @@ default_random_engine generator;
 class Pendulum{
     private:
         int shellTheta[3]={0,0,0};//DEGREE
-        double pendulumTheta[4]={0.0,0.0,0.0,0.0};//RADIAN
+        double pendulumTheta[4]={0.0,0.0,0.0,0.0};//DEG
         int motorinput[4]={0,0,0,0};//PULSE WIDTH 700~2300
     public:
         Pendulum(float state){
@@ -56,7 +56,7 @@ class Pendulum{
         void calTheta(){
             /* OBSERVER 
             #############################################################################
-                Pendulum Transfer Funtion  input(pulse width)-> Pendulums Theta (Rad)
+                Pendulum Transfer Funtion  input(deg)-> Pendulums Theta (deg)
             #############################################################################
                          452.2 s + 5781                                   theta_p_real
                 --------------------------------                =    --------------------------------
@@ -156,7 +156,7 @@ class Shell{
         void calAngularVelocity(float AHRStheta,float encodertheta,double penTheta, double penVel){
             //##################################################
             //Calculate AngularVelocity for Shell
-            //arg: AHRStheta{AHRS read pitch angle[DEG]}, encodertheta {encoder theta[DEG]} , penTheta{Pendulum theta [RAD]} , penVel{pendulum Velcoty[RAD/s]}
+            //arg: AHRStheta{AHRS read pitch angle[DEG]}, encodertheta {encoder theta[DEG]} , penTheta{Pendulum theta [DEG]} , penVel{pendulum Velcoty[DEG/s]}
             //##################################################
             shellTheta[1]=shellTheta[0];
             shellTheta[0]= AHRStheta-encodertheta;
@@ -164,7 +164,7 @@ class Shell{
             shellSpeed[0]=(shellTheta[0]-shellTheta[1])/T; //SENSOR READ SHELL VELOCITY
             //X=(Mat_<double>(4,1)<<shellTheta[0]*D2R,shellSpeed[0]*D2R,penTheta,penVel);
             Z=(Mat_double>(1,1)<<shellSpeed[0]*D2R);
-            EKF(penTheta);
+            EKF(penTheta*D2R);
         }
         void EKF(double penTheta){
             //######################################
@@ -191,7 +191,7 @@ class Shell{
         void calSystem(double penTheta){
             //##############################################
             //Calculate F matrix For EKF
-            //arg   : penTheta {Pendulums Current Theta [rad]}
+            //arg   : penTheta {Pendulums Current Theta [RAD]}
             //##############################################
             //modeling
             X_hat.at<double>(0)=X.at<double>(0)+X.at<double>(1)*T;
