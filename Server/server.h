@@ -9,7 +9,6 @@
 #include<thread>
 #include<netdb.h>
 #include<state.h>
-#include<string>
 #define BUFF_SIZE 8
 using namespace std;
 default_random_engine generator;
@@ -25,8 +24,8 @@ class Server{
         struct sockaddr_in server_addr;
         char CMD;
         socklen_t client_addr_len=sizeof(client_addr);
-        string sock_receive="";
-        string sock_send="";
+        string msgReceive="";
+        string msgSend="";
         Pendulum pen();
         Shell shell(dist_W,dist_V);
         Idu idu();
@@ -40,7 +39,10 @@ class Server{
         int penRM;
         int iduM;
         int tiltM;
-        string message;
+        float desireVel=0;
+        float desireRoll=0;
+        float desireYaw=0;
+        
     public:
         Server(const char *_ip,int _port){
             ip=(char*)_ip;
@@ -75,17 +77,20 @@ class Server{
             printf("Connection from: %s\n",inet_ntoa(client_addr.sin_addr));   
             char buffer[BUFF_SIZE]={0};
             read(client,buffer,BUFF_SIZE);
-            sock_receive=buffer;
-            cout<<sock_receive<<endl;
+            msgReceive=buffer;
+            cout<<msgReceive<<endl;
             runServer();
         }
         void runServer(){
             cout<<"Starting robot\n";
-            thread inputCMD([&](){keyboardInput();});//INPUT command Thread.....
+            thread inputCMD([&](){keyboardInput();});
+            thread sockReceive([&](){receiving();});
+            thread sockSend([&](){sending();});
+            thread stable([&](){iduStable();});
+            sockReceive.detach();
             inputCMD.detach();
-            thread receive_thread([&](){receiving();});
-            receive_thread.detach();
-            thread send_thread([&](){sending();});
+            sockSend.detach();
+            stable.detach();
             do{
                 switch (int(CMD)){
                     //CMD to NANO
@@ -104,32 +109,38 @@ class Server{
                     case 119 :
                         //CMD=w
                         cout<< "go\n";
+                        desireVel=1;
 
                         break;
 
                     case 115 :
                         //CMD=s
                         cout<<"back\n";
+                        desireVel=-1;
                         break;
 
                     case 87:
                         //CMD=W
                         cout<< "GO\n";
+                        desireVel=2;
                         break;
             
                     case 83:
                         //CMD=S
                         cout<< "BACK\n";
+                        desireVel=-2;
                         break;
             
                     case 97:
                         //CMD=a
                         cout<< "chage roll - direction \n";
+                        desireRoll=-1;
                         break;
 
                     case 100:
                         //CMD=d
                         cout<< "chage roll + direction \n";
+                        desireRoll=1;
                         break;
 
                     case 106:
@@ -156,23 +167,27 @@ class Server{
         void receiving(){
             char buffer[BUFF_SIZE]={0};
             stringstream ss;
-            while(1){
+            do{
                 read(client,buffer,BUFF_SIZE);
-                sock_receive=buffer;
-                if (sock_receive.size()){
+                msgReceive=buffer;
+                if (msgReceive.size()){
                    //*roll[AHRS], pitch[AHRS],yaw[AHRS],theta[encoder],theta[tilt]
-                
-                }
-				
-            }
+                   ss<<msgReceive;
+                   ss>>roll;
+                   ss>>pitch;
+                   ss>>yaw;
+                   ss>>theta;
+                   ss>>tilt;
+                   ss.clear();
+                }	
+            }while(CMD !="q");
+            exit(1);
         }
         void sending(){
-            stringstream ss;
             do{
                 //penR,penL,IDU,tilt
-                ss<<"*"<<penLM<<","<<penRM<<','<<iduM<<','<<tiltM<<'\n';
-                ss>>message;
-                send(client,message.c_str(),message.size(),0); 
+                msgSend="*"+to_string(penLM)+" "+to_string(penRM)+" "+to_string(iduM)+" "+to_string(tiltM)+"\n";
+                send(client,msgSend.c_str(),msgSend.size(),0); 
             }while(CMD !="q");
             exit(1);
         }
@@ -184,13 +199,17 @@ class Server{
             } while (CMD != 'q');
             exit(1);
         }
-        void calIdu(){
-
+        void iduStable(){
+            do {
+                iduM=idu.stableControl();
+            } while (CMD != 'q');
+            exit(1);
         }
-        void calPen(){
-
-        }
-        void calTilt(){
-
+        void stopServer(){
+            cout<<"[stop server]\n";
+            close(client);
+            close(server);
+            cout<<"OFF";
+			exit(1);
         }
 };
