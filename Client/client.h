@@ -5,6 +5,10 @@
 #include<wiringSerial.h>
 #include<sstream>
 #include<thread>
+#include<unistd.h>
+#include<arpa/inet.h>
+#include<sys/socket.h>
+#include<netdb.h>
 #include<raspicam/raspicam_cv.h>
 #include<opencv2/imgproc.hpp>
 #include<opencv2/opencv.hpp>
@@ -16,7 +20,7 @@ using namespace cv;
 #define PhaseB 22 //Encoder B
 #define  BUFF_SIZE 8
 
-float encoder_pulse = 0;
+float encoder_pulse = (float)360 / (3600 * 4)*1000;;
 float angle = 0;
 int encoder_pos = 0;
 bool State_A = 0;
@@ -89,10 +93,6 @@ class Client{
         string msgReceive="";
         string msgSend="";
         struct hostent *he;
-        string AHRSport;
-        int AHRSbaud;
-        int NanoBaud;
-        string NanoPort;
         float tiltAngle=0;
         string RPY="";
         uint32_t past = 0;
@@ -100,7 +100,6 @@ class Client{
         uint32_t controlPeriod = 20; //20ms
         uint32_t time= now-past;
         float angularVel = 0;
-        encoder_pulse = (float)360 / (3600 * 4)*1000; //3600 PPR	
         float anglePast = angle;
 	    float angleNow = angle;
         int penL;
@@ -110,12 +109,8 @@ class Client{
         string CMD="";
 
     public:
-        Client(const char *hostname, const int _port, const char *_AHRSport,int _AHRSbaud, const char *_NanoPort,int _NanoBaud)
+        Client(const char *hostname, const int _port)
         {   
-            AHRSport=_AHRSport;
-            AHRSbaud=_AHRSbaud;
-            NanoPort=_NanoPort;
-            NanoBaud=_NanoBaud;
             he=gethostbyname(hostname); // server url
             client = socket( AF_INET, SOCK_STREAM, 0);
             server_addr.sin_family = AF_INET;
@@ -123,27 +118,26 @@ class Client{
             server_addr.sin_addr.s_addr=*(long*)(he->h_addr_list[0]);
             if(client==-1){
                 cerr<< "\n Socket creation error \n";
-                sock_receive="quit";
-				exit(1);
+                msgReceive="quit";
+		exit(1);
             }
             if (connect(client, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){    
                 cerr<<"\nConnection Failed \n"; 
-                sock_receive="quit";
-				exit(1);
+                msgReceive="quit";
+		exit(1);
             }
-            startClient();
         }
-        void startClient(){
+        void startClient(const char *_AHRSport,int _AHRSbaud, const char *_NanoPort,int _NanoBaud){
             //Client RPI Start
             pinMode(PhaseA, INPUT);
 	        pinMode(PhaseB, INPUT);
 	        wiringPiISR(PhaseA, INT_EDGE_BOTH, &Interrupt_A);
 	        wiringPiISR(PhaseB, INT_EDGE_BOTH, &Interrupt_B);
-            if((AHRS = serialOpen(AHRSport,AHRSbaud))<0){
+            if((AHRS = serialOpen(_AHRSport,_AHRSbaud))<0){
                 cerr<<"Unable to open AHRS"<<endl;
 	            exit(1);
             }
-            if((Nano=serialOpen(NanoPort,NanoBaud))<0){
+            if((Nano=serialOpen(_NanoPort,_NanoBaud))<0){
                 cerr<<"Unable to open Arduino"<<endl;
 	            exit(1);
             }
@@ -237,13 +231,13 @@ class Client{
                 //cout <<roll<<"\t"<<pitch<<"\t"<<yaw<<"\t"<<time/1000<<"\n";
                 msgSend=RPY+","+to_string(angle)+","+to_string(tiltAngle)+"\n";
                 send(client,msgSend.c_str(),msgSend.size(),0);
-            } while (CMD != 'q');
+            } while (CMD[0] != 'q');
             //cout << "quit" << endl;  
             quitClient();
         }
         void quitClient(){
             cout<<"Close.."<<endl;
-            serialClose(NanoCMD);
+            serialClose(Nano);
             serialClose(AHRS);
             close(client);
             cout<<"OFF"<<endl;
