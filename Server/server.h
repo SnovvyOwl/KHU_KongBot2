@@ -26,10 +26,10 @@ class Server{
         socklen_t client_addr_len=sizeof(client_addr);
         string msgReceive="";
         string msgSend="";
-        Pendulum pen();
-        IDU idu();
-        Shell shell();
-        Tilt tilt();
+        Pendulum pen;
+        IDU idu;
+        Shell shell;
+        Tilt tilt;
         float roll;
         float pitch;
         float yaw;
