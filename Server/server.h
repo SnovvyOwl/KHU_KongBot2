@@ -154,6 +154,8 @@ class Server{
                         break;
 
                     case 113:
+                        msgSend="*1500,1500,1500,1500\n";//stop Motor
+                        send(client,msgSend.c_str(),msgSend.size(),0); 
                         break;
                 
                     default:
@@ -179,6 +181,7 @@ class Server{
                    ss>>theta;
                    ss>>tilt;
                    ss.clear();
+                   buffer[0]={0,};
                 }	
             }while(CMD !="q");
             exit(1);
@@ -206,6 +209,8 @@ class Server{
             exit(1);
         }
         void stopServer(){
+            msgSend="q";
+            send(client,msgSend.c_str(),msgSend.size(),0); 
             cout<<"[stop server]\n";
             close(client);
             close(server);
