@@ -34,12 +34,7 @@ private:
     double pendulumTheta[4] = { 0.0,0.0,0.0,0.0 };//DEG
     int motorinput[4] = { 0,0,0,0 };//PULSE WIDTH 700~2300
 public:
-    Pendulum(float state) {
-        pendulumTheta[0] = state;//Current
-        pendulumTheta[1] = state;//K-1
-        pendulumTheta[2] = state;//K-2
-        pendulumTheta[3] = state;//K-3
-    }
+    Pendulum(){}
     void clear() {
         shellTheta[0] = 0;//Current
         shellTheta[1] = 0;//K-1
@@ -432,12 +427,7 @@ public:
         float err[2] = { 0.0,0.0 };
         float gain = 0;
     public:
-        IDU(float state){
-            iduTheta[0]=state;
-            iduTheta[1]=state; 
-            iduTheta[2]=state; 
-            iduTheta[3]=state; 
-        }
+        IDU(){}
         int stableControl(float pitch) {
             err[1] = err[0];
             err[0] = -pitch;

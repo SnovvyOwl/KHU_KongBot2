@@ -206,7 +206,7 @@ class Server{
         }
         void iduStable(){
             do {
-                iduM=idu().stableControl(pitch);
+                iduM=idu.stableControl(pitch);
             } while (CMD != 'q');
             exit(1);
         }
