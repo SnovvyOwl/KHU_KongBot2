@@ -62,7 +62,7 @@ class Server{
             cout<<"[Start Server]\n";
             cout<<"Server ip -> "<<ip<<endl;
             cout<<"Server port -> "<<port<<endl;
-            if(bind(server,(struct sockaddr*)&server_addr,sizeof(server_addr)<0)){
+            if(bind(server,(struct sockaddr*)&server_addr,sizeof(server_addr))<0){
                 cerr<<"Bind ERROR"<<endl;
                 //sock_receive="Quit";
                 exit(1);
