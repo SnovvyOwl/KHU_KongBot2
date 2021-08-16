@@ -12,6 +12,7 @@
 #include<state.h>
 #define BUFF_SIZE 8
 using namespace std;
+
 normal_distribution<double> dist_W(0,1.0);
 normal_distribution<double> dist_V(0,1.0);
 class Server{
