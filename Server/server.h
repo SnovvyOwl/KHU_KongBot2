@@ -8,10 +8,10 @@
 #include<sys/socket.h>
 #include<thread>
 #include<netdb.h>
+#include<math.h>
 #include<state.h>
 #define BUFF_SIZE 8
 using namespace std;
-default_random_engine generator;
 normal_distribution<double> dist_W(0,1.0);
 normal_distribution<double> dist_V(0,1.0);
 class Server{
@@ -27,8 +27,8 @@ class Server{
         string msgReceive="";
         string msgSend="";
         Pendulum pen();
-        Shell shell(dist_W,dist_V);
-        Idu idu();
+        IDU idu();
+        Shell shell();
         Tilt tilt();
         float roll;
         float pitch;
@@ -82,6 +82,8 @@ class Server{
             runServer();
         }
         void runServer(){
+            tilt.setDist(dist_W,dist_V);
+            shell.setDist(dist_W,dist_V);
             cout<<"Starting robot\n";
             thread inputCMD([&](){keyboardInput();});
             thread sockReceive([&](){receiving();});
@@ -178,12 +180,12 @@ class Server{
                    ss>>roll;
                    ss>>pitch;
                    ss>>yaw;
-                   ss>>theta;
-                   ss>>tilt;
+                   ss>>encoder;
+                   ss>>tiltTheta;
                    ss.clear();
                    buffer[0]={0,};
                 }	
-            }while(CMD !="q");
+            }while(CMD !='q');
             exit(1);
         }
         void sending(){
@@ -191,7 +193,7 @@ class Server{
                 //penR,penL,IDU,tilt
                 msgSend="*"+to_string(penLM)+" "+to_string(penRM)+" "+to_string(iduM)+" "+to_string(tiltM)+"\n";
                 send(client,msgSend.c_str(),msgSend.size(),0); 
-            }while(CMD !="q");
+            }while(CMD!='q');
             exit(1);
         }
 
@@ -204,7 +206,7 @@ class Server{
         }
         void iduStable(){
             do {
-                iduM=idu.stableControl();
+                iduM=idu().stableControl(pitch);
             } while (CMD != 'q');
             exit(1);
         }

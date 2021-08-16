@@ -139,13 +139,15 @@ private:
     double gain[3] = { 0.0,0.0,0.0 };
 
 public:
-    Shell(normal_distribution<double>w, normal_distribution<double> v) {
-        dist_W = w;
-        dist_V = v;
-        W = dist_W(generator);
+    Shell() {
         X_hat.copySize(P.mul(W).diag());
         X_hat = X + P.mul(W).diag();
         P = Mat::eye(X_hat.rows, X_hat.rows, CV_64FC1) * 1000;
+    }
+    void setDist(normal_distribution<double>&w, normal_distribution<double> &v){
+        dist_W = w;
+        dist_V = v;
+        W = dist_W(generator);
     }
     void clear() {
         shellTheta[0] = 0;
@@ -162,7 +164,7 @@ public:
         shellSpeed[1] = shellSpeed[0];
         shellSpeed[0] = (shellTheta[0] - shellTheta[1]) / T; //SENSOR READ SHELL VELOCITY
         //X=(Mat_<double>(4,1)<<shellTheta[0]*D2R,shellSpeed[0]*D2R,penTheta,penVel);
-        Z = (Mat_double > (1, 1) << shellSpeed[0] * D2R);
+        Z = (Mat_<double > (1, 1) << shellSpeed[0] * D2R);
         EKF(penTheta * D2R);
     }
     void EKF(double penTheta) {
@@ -222,7 +224,7 @@ public:
         dTerm = kd * (errShellVel[0] - errShellVel[1]) / T;
         gain[0] = pTerm + iTerm - dTerm;
         return  shell2pen();
-
+        }
         double shell2pen() {
             /*
             ################################################################################
@@ -255,7 +257,7 @@ public:
 
     class Tilt {
     private:
-        float tiltTheta[4] = { 0.0,0.0,0.0,0.0 }; ]//rad
+        float tiltTheta[4] = { 0.0,0.0,0.0,0.0 };//rad
         double iduTheta[2] = { 0.0,0.0 };//deg
         float RCM = 0;
         double gain[4] = { 0.0,0.0,0.0,0.0 };
@@ -285,13 +287,25 @@ public:
         Mat Z;
         Mat K;
         Mat S;
+        normal_distribution<double>dist_W;//SYSTEM NOISE
+        normal_distribution<double>dist_V;//SENSOR NOISE
+        double W = 0;
+        double V = 0;
     public:
-        Tilt tilt() {}
+        Tilt() {}
+        void setDist(normal_distribution<double>&w, normal_distribution<double> &v){
+            dist_W = w;
+            dist_V = v;
+            W = dist_W(generator);
+        }
         void clear() {
-            tiltTheta[4] = { 0.0,0.0,0.0,0.0 };
+            tiltTheta[0]=0;
+            tiltTheta[1]=0;
+            tiltTheta[2]=0;
+            tiltTheta[3]=0;
             RCM = 0;
-            err[0] = 0;
-            err[1] = 0;
+            errTiltAngle[0] = 0;
+            errTiltAngle[1] = 0;
         }
         void setRCM(double massCenter) {
             //############################################
@@ -305,7 +319,7 @@ public:
             //Calculate Roll angle of Robot
             //arg: AHRStheta{AHRS read roll angle[DEG]}}
             //##################################################
-            Z = (Mat_double > (1, 1) << AHRSTheta * D2R);
+            Z = (Mat_<double> (1,1) << AHRSTheta * D2R);
             EKF(AHRSTheta * D2R);
         }
 
@@ -352,7 +366,7 @@ public:
             double cosThetaX = cos(rollTheta * D2R);
             double cosThetaT = cos(tiltTheta[0] * D2R);
             double sinThetaT = sin(tiltTheta[0] * D2R);
-            F = (Mat_<double>(4, 4) << 1, 0.1, 0.000858375 * cosThetaX, 0, 0, 1, 0.0171675 * cosThetaX, 0.000858375 * cosThetaX, 0.000129285 * AHRStheta * D2R * sinThetaT, 0, 1 - 0.0083534 * cosThetaX - 0.000129285 * cosThetaT, 0.1, 0.0025857 * AHRStheta * D2R * sinThetaT, 0.000129285 * AHRStheta * D2R * sinThetaT, -0.0025857 * cosThetaT - 0.1670687 * cosThetaX, 1 - 0.0083534 * cosThetaX - 0.000129285 * cosThetaT);
+            F = (Mat_<double>(4, 4) << 1, 0.1, 0.000858375 * cosThetaX, 0, 0, 1, 0.0171675 * cosThetaX, 0.000858375 * cosThetaX, 0.000129285 * rollTheta * D2R * sinThetaT, 0, 1 - 0.0083534 * cosThetaX - 0.000129285 * cosThetaT, 0.1, 0.0025857 * rollTheta * D2R * sinThetaT, 0.000129285 * rollTheta * D2R * sinThetaT, -0.0025857 * cosThetaT - 0.1670687 * cosThetaX, 1 - 0.0083534 * cosThetaX - 0.000129285 * cosThetaT);
         }
         int rollControl(float desireTheta) {
             //##############################################
@@ -365,6 +379,13 @@ public:
             }
             gain[2] = gain[1];
             gain[1] = gain[0];
+            desireTheta = desireTheta * D2R;//Change RAD
+            if (desireTheta != preDesireTheta) {
+                PIDtermClear();
+            }
+            gain[2] = gain[1];
+            gain[1] = gain[0];
+            preDesireTheta = desireTheta;
             preDesireTheta = desireTheta;
             errTiltAngle[1] = errTiltAngle[0];
             errTiltAngle[0] = desireTheta - X.at<double>(1);
@@ -372,8 +393,8 @@ public:
             iTerm += ki * errTiltAngle[0] * T;
             dTerm = kd * (errTiltAngle[0] - errTiltAngle[1]) / T;
             gain[0] = pTerm + iTerm - dTerm;
-            Idu2tilt()
-                return motor();
+            Idu2tilt();
+            return motor();
         }
         void Idu2tilt() {
             //IDU 2 tilt
@@ -397,7 +418,7 @@ public:
         }
     };
 
-    class Idu {
+    class IDU {
     private:
         float iduTheta[4] = { 0.0,0.0,0.0,0.0 }; //array resized is reqired
         //IDU STABLE PID GAIN
@@ -411,8 +432,13 @@ public:
         float err[2] = { 0.0,0.0 };
         float gain = 0;
     public:
-        Idu idu() {}
-        int stableControl() {
+        IDU(float state){
+            iduTheta[0]=state;
+            iduTheta[1]=state; 
+            iduTheta[2]=state; 
+            iduTheta[3]=state; 
+        }
+        int stableControl(float pitch) {
             err[1] = err[0];
             err[0] = -pitch;
             pTerm = kp * err[0];
@@ -432,6 +458,7 @@ public:
             }
             return floor(1500 + gain * 8.888889 + 0.5);
         }
+
         void PIDtermClear() {
             pTerm = 0;
             iTerm = 0;
