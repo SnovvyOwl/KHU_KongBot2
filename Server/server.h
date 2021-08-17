@@ -1,3 +1,4 @@
+#pragma once
 #include<random>
 #include<sstream>
 #include<iostream>
@@ -218,6 +219,6 @@ class Server{
             close(client);
             close(server);
             cout<<"OFF";
-			exit(1);
+            exit(1);
         }
 };

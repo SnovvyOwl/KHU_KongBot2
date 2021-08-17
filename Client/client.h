@@ -101,7 +101,7 @@ class Client{
         uint32_t time= now-past;
         float angularVel = 0;
         float anglePast = angle;
-	    float angleNow = angle;
+        float angleNow = angle;
         int penL;
         int penR;
         int idu;
@@ -119,12 +119,12 @@ class Client{
             if(client==-1){
                 cerr<< "\n Socket creation error \n";
                 msgReceive="quit";
-		exit(1);
+		        exit(1);
             }
             if (connect(client, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){    
                 cerr<<"\nConnection Failed \n"; 
                 msgReceive="quit";
-		exit(1);
+		        exit(1);
             }
         }
         void startClient(const char *_AHRSport,int _AHRSbaud, const char *_NanoPort,int _NanoBaud){
@@ -135,11 +135,11 @@ class Client{
 	        wiringPiISR(PhaseB, INT_EDGE_BOTH, &Interrupt_B);
             if((AHRS = serialOpen(_AHRSport,_AHRSbaud))<0){
                 cerr<<"Unable to open AHRS"<<endl;
-	            exit(1);
+                exit(1);
             }
             if((Nano=serialOpen(_NanoPort,_NanoBaud))<0){
                 cerr<<"Unable to open Arduino"<<endl;
-	            exit(1);
+                exit(1);
             }
             initNano();
             runClient();
