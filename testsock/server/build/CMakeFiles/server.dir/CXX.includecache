@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../server.h
+iostream
+-
+stdio.h
+-
+string
+-
+unistd.h
+-
+arpa/inet.h
+-
+sys/socket.h
+-
+thread
+-
+netdb.h
+-
+
+/home/seongwonlee/DLSTUDY/server/main.cpp
+server.h
+-
+
