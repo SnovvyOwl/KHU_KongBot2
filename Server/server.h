@@ -163,7 +163,7 @@ class Server{
                         break;
                 
                     default:
-                        cout<< "Wrong OR EMPTY CMD\n";
+                        //cout<< "Wrong OR EMPTY CMD\n";
                         break;
                 }
 
