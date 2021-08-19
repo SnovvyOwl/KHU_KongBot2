@@ -92,12 +92,10 @@ class Server{
             shell.setDist(dist_W,dist_V);
             cout<<"Starting robot\n";
             thread inputCMD([&](){keyboardInput();});
-            thread sockReceive([&](){receiving();});
-            thread sockSend([&](){sending();});
+            thread sock([&](){recv_send();});
             thread stable([&](){iduStable();});
-            sockReceive.detach();
             inputCMD.detach();
-            sockSend.detach();
+            sock.detach();
             stable.detach();
             do{ 
                 cout<<msgSend<<endl;
@@ -105,6 +103,7 @@ class Server{
                     fout<<roll<<","<<pitch<<","<<yaw<<","<<encoder<<","<<tiltTheta<<endl;
                     sock_recv=0;
                 }
+                penLM++;
                 switch (int(CMD)){
                     
                     //CMD to NANO
@@ -180,9 +179,8 @@ class Server{
             } while (CMD != 'q');
             stopServer();
         }
-        void receiving(){
+        void recv_send(){
             char buffer[BUFF_SIZE]={0};
-            
             do{
                 read(client,buffer,BUFF_SIZE);
                 msgReceive=buffer;
@@ -199,15 +197,9 @@ class Server{
                     ss.clear();
                     sock_recv=1;
                 }
-            }while(CMD !='q');
-            exit(1);
-        }
-        void sending(){
-            do{
-                //penR,penL,IDU,tilt
                 msgSend="* "+to_string(penLM)+" "+to_string(penRM)+" "+to_string(iduM)+" "+to_string(tiltM)+"\n";
                 send(client,msgSend.c_str(),msgSend.size(),0); 
-            }while(CMD!='q');
+            }while(CMD !='q');
             exit(1);
         }
 
