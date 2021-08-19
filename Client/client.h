@@ -18,7 +18,7 @@ using namespace cv;
 //SENSOR
 #define PhaseA 21 //Encoder A
 #define PhaseB 22 //Encoder B
-#define  BUFF_SIZE 8
+#define  BUFF_SIZE 64
 
 float encoder_pulse = (float)360 / (3600 * 4)*1000;;
 float angle = 0;
@@ -87,10 +87,9 @@ void Interrupt_B() {
 class Client{
     private:
         int client=0;
-        int AHRS;//Serial
-        int Nano; //NANO
-        struct sockaddr_in server_addr;
-        string msgReceive="";
+        int AHRS=0;//Serial
+        int Nano=0; //NANO
+        struct sockaddr_in server_addr;//
         string msgSend="";
         struct hostent *he;
         float tiltAngle=0;
@@ -102,11 +101,12 @@ class Client{
         float angularVel = 0;
         float anglePast = angle;
         float angleNow = angle;
-        int penL;
-        int penR;
-        int idu;
-        int tilt;
+        int penL=0;
+        int penR=0;
+        int idu=0;
+        int tilt=0;
         string CMD="";
+	bool recv_sock=0;
 
     public:
         Client(const char *hostname, const int _port)
@@ -118,13 +118,13 @@ class Client{
             server_addr.sin_addr.s_addr=*(long*)(he->h_addr_list[0]);
             if(client==-1){
                 cerr<< "\n Socket creation error \n";
-                msgReceive="quit";
-		        exit(1);
+                CMD="q";
+		exit(1);
             }
             if (connect(client, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){    
                 cerr<<"\nConnection Failed \n"; 
-                msgReceive="quit";
-		        exit(1);
+                CMD="q";
+		exit(1);
             }
         }
         void startClient(const char *_AHRSport,int _AHRSbaud, const char *_NanoPort,int _NanoBaud){
@@ -153,6 +153,8 @@ class Client{
                 data+=(char)rawdata;
             }while(rawdata!=10);//init ASCII 42 == "*"
             RPY=data;
+	    RPY.pop_back();
+	    RPY.pop_back();
         }
         
         void initNano(){
@@ -208,10 +210,11 @@ class Client{
             Camera.release();
         }
         void runClient(){
+	    msgSend="Complte";
+	    send(client,msgSend.c_str(),msgSend.size(),0);
             now = past = millis();
-	        anglePast = angle;
-	        angleNow = angle;
-            string CMD; //CMD
+	    anglePast = angle;
+	    angleNow = angle;
             thread sockReceive([&](){receive_send();});
             thread camera([&](){CAM();});
             camera.detach();
@@ -220,18 +223,23 @@ class Client{
                 //fout<<roll<<"\t"<<pitch<<"\t"<<yaw<<angle<<angleVel<<endl
                 AHRSread();
                 if((time)>controlPeriod){
-			        angleNow = angle;
-			        angularVel = (angleNow-anglePast)/(time) * 1000;
-			        past=millis();
+		    angleNow = angle;
+		    angularVel = (angleNow-anglePast)/(time) * 1000;
+		    past=millis();
                     time= now-past;
-			        anglePast=angle;
-		        }
-		        now=millis();//FUNCTION SENSOR NEED
+		    anglePast=angle;
+		}
+		now=millis();//FUNCTION SENSOR NEED
                 //cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\t Vel : " << angularVel << "\n";
-                //cout <<roll<<"\t"<<pitch<<"\t"<<yaw<<"\t"<<time/1000<<"\n";
                 msgSend=RPY+","+to_string(angle)+","+to_string(tiltAngle)+"\n";
                 send(client,msgSend.c_str(),msgSend.size(),0);
-            } while (CMD[0] != 'q');
+		//cout<<msgSend<<endl;
+		if(recv_sock){
+		    cout<<CMD<<"time: "<<now<<endl;
+		    recv_sock=0;
+		}
+		
+            } while (CMD!= "q");
             //cout << "quit" << endl;  
             quitClient();
         }
@@ -250,8 +258,13 @@ class Client{
             do {
                 read(client,buffer,BUFF_SIZE);
                 CMD=buffer;
-                serialPuts(Nano,CMD.c_str());
-                buffer[0]={0,};
+		if(CMD.size()){
+		    CMD=CMD.substr(0,CMD.find('\n'));
+		    serialPuts(Nano,CMD.c_str());
+		    buffer[0]={0,};
+		    recv_sock=1;
+		}
+		//
             } while (CMD != "q");
         }
 };
