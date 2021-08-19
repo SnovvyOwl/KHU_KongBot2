@@ -15,7 +15,7 @@
 #include<math.h>
 using namespace std;
 using namespace cv;
-/
+#define BUFF_SIZE 8
 class Client{
     private:
         int client=0;
@@ -49,11 +49,12 @@ class Client{
        
         void runClient(){
             thread sockReceive([&](){receive_send();});
-
+            int i=0;
             sockReceive.detach();
             do{ 
+                msgSend=to_string(i)+"\n";
                 send(client,msgSend.c_str(),msgSend.size(),0); 
-                
+                i++;
             } while (CMD[0] != 'q');
             //cout << "quit" << endl;  
             quitClient();
