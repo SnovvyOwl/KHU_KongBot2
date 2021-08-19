@@ -9,6 +9,7 @@
 #include<sys/socket.h>
 #include<thread>
 #include<netdb.h>
+#include<fstream>
 #include<math.h>
 #include<state.h>
 #define BUFF_SIZE 64
@@ -44,7 +45,8 @@ class Server{
         float desireVel=0;
         float desireRoll=0;
         float desireYaw=0;
-        
+        int sock_recv=0;
+        ofstream fout;
     public:
         Server(const char *_ip,int _port){
             ip=(char*)_ip;
@@ -85,6 +87,7 @@ class Server{
             runServer();
         }
         void runServer(){
+            fout.open("sensor.txt");
             tilt.setDist(dist_W,dist_V);
             shell.setDist(dist_W,dist_V);
             cout<<"Starting robot\n";
@@ -97,8 +100,11 @@ class Server{
             sockSend.detach();
             stable.detach();
             do{ 
-                //cout<<msgReceive<<endl;
-                cout<<roll<<","<<pitch<<","<<yaw<<","<<encoder<<","<<tiltTheta<<endl;
+                cout<<msgSend<<endl;
+                if(sock_recv){
+                    fout<<roll<<","<<pitch<<","<<yaw<<","<<encoder<<","<<tiltTheta<<endl;
+                    sock_recv=0;
+                }
                 switch (int(CMD)){
                     
                     //CMD to NANO
@@ -180,16 +186,19 @@ class Server{
             do{
                 read(client,buffer,BUFF_SIZE);
                 msgReceive=buffer;
-                msgReceive=msgReceive.substr(1,msgReceive.find("\n")-1);
-                replace(msgReceive.begin(), msgReceive.end(), ',', ' ');
-                stringstream ss(msgReceive);
-                ss>>roll;
-                ss>>pitch;
-                ss>>yaw;
-                ss>>encoder;
-                ss>>tiltTheta;
-                buffer[0]={0,};
-                ss.clear();   
+                if(msgReceive.size()){
+                    msgReceive=msgReceive.substr(1,msgReceive.find("\n")-1);
+                    replace(msgReceive.begin(), msgReceive.end(), ',', ' ');
+                    stringstream ss(msgReceive);
+                    ss>>roll;
+                    ss>>pitch;
+                    ss>>yaw;
+                    ss>>encoder;
+                    ss>>tiltTheta;
+                    buffer[0]={0,};
+                    ss.clear();
+                    sock_recv=1;
+                }
             }while(CMD !='q');
             exit(1);
         }
@@ -217,6 +226,7 @@ class Server{
         }
         void stopServer(){
             msgSend="q";
+            fout.close();
             send(client,msgSend.c_str(),msgSend.size(),0); 
             cout<<"[stop server]\n";
             close(client);

@@ -417,9 +417,9 @@ public:
     private:
         float iduTheta[4] = { 0.0,0.0,0.0,0.0 }; //array resized is reqired
         //IDU STABLE PID GAIN
-        float kp = 20;
-        float ki = 10;
-        float kd = 5;
+        float kp = 500;
+        float ki = 200;
+        float kd = 1;
         float pTerm = 0;
         float iTerm = 0;
         float dTerm = 0;
