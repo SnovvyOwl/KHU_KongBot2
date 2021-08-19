@@ -98,12 +98,12 @@ class Server{
             sock.detach();
             stable.detach();
             do{ 
-                cout<<msgSend<<endl;
+                //cout<<msgSend<<endl;
                 if(sock_recv){
                     fout<<roll<<","<<pitch<<","<<yaw<<","<<encoder<<","<<tiltTheta<<endl;
                     sock_recv=0;
                 }
-                penLM++;
+        //penLM++;
                 switch (int(CMD)){
                     
                     //CMD to NANO
