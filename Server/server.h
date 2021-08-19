@@ -162,7 +162,7 @@ class Server{
                         break;
 
                     case 113:
-                        msgSend="*1500,1500,1500,1500\n";//stop Motor
+                        msgSend="* 1500 1500 1500 1500\n";//stop Motor
                         send(client,msgSend.c_str(),msgSend.size(),0); 
                         break;
                 
@@ -176,14 +176,13 @@ class Server{
         }
         void receiving(){
             char buffer[BUFF_SIZE]={0};
-            char* tok1;
-            stringstream ss;
+            
             do{
                 read(client,buffer,BUFF_SIZE);
                 msgReceive=buffer;
                 msgReceive=msgReceive.substr(1,msgReceive.find("\n")-1);
-                replace( msgReceive.begin(), msgReceive.end(), ',', ' ');
-                ss<<msgReceive;
+                replace(msgReceive.begin(), msgReceive.end(), ',', ' ');
+                stringstream ss(msgReceive);
                 ss>>roll;
                 ss>>pitch;
                 ss>>yaw;
@@ -197,7 +196,7 @@ class Server{
         void sending(){
             do{
                 //penR,penL,IDU,tilt
-                msgSend="*"+to_string(penLM)+" "+to_string(penRM)+" "+to_string(iduM)+" "+to_string(tiltM)+"\n";
+                msgSend="* "+to_string(penLM)+" "+to_string(penRM)+" "+to_string(iduM)+" "+to_string(tiltM)+"\n";
                 send(client,msgSend.c_str(),msgSend.size(),0); 
             }while(CMD!='q');
             exit(1);
