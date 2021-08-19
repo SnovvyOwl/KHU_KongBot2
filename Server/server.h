@@ -11,7 +11,7 @@
 #include<netdb.h>
 #include<math.h>
 #include<state.h>
-#define BUFF_SIZE 8
+#define BUFF_SIZE 64
 using namespace std;
 
 normal_distribution<double> dist_W(0,1.0);
@@ -19,7 +19,7 @@ normal_distribution<double> dist_V(0,1.0);
 class Server{
     private:
         char *ip;
-        int port=13000;
+        int port=0;
         int server=0;
         int client=0;
         struct sockaddr_in client_addr;
@@ -32,15 +32,15 @@ class Server{
         IDU idu;
         Shell shell;
         Tilt tilt;
-        float roll;
-        float pitch;
-        float yaw;
-        float encoder;
-        float tiltTheta;
-        int penLM;
-        int penRM;
-        int iduM;
-        int tiltM;
+        float roll=0;
+        float pitch=0;
+        float yaw=0;
+        float encoder=0;
+        float tiltTheta=0;
+        int penLM=0;
+        int penRM=0;
+        int iduM=0;
+        int tiltM=0;
         float desireVel=0;
         float desireRoll=0;
         float desireYaw=0;
@@ -48,6 +48,7 @@ class Server{
     public:
         Server(const char *_ip,int _port){
             ip=(char*)_ip;
+            port=_port;
             server=socket(AF_INET,SOCK_STREAM,0);
             if (server==-1){
                 cerr<<"\n Socket creation error \n";
@@ -95,8 +96,11 @@ class Server{
             inputCMD.detach();
             sockSend.detach();
             stable.detach();
-            do{
+            do{ 
+                //cout<<msgReceive<<endl;
+                cout<<roll<<","<<pitch<<","<<yaw<<","<<encoder<<","<<tiltTheta<<endl;
                 switch (int(CMD)){
+                    
                     //CMD to NANO
                     // * IDU MOTOR INPUT , PENDULUM RIGHT MOTOR INPUT , PENDDULUM LEFT MOTOR INPUT, CONTROLL ROLL MOTOR INPUT
                     //string CMD="* 1500 1500 1500 1500\n"; //fake CMD
@@ -172,21 +176,21 @@ class Server{
         }
         void receiving(){
             char buffer[BUFF_SIZE]={0};
+            char* tok1;
             stringstream ss;
             do{
                 read(client,buffer,BUFF_SIZE);
                 msgReceive=buffer;
-                if (msgReceive.size()){
-                   //*roll[AHRS], pitch[AHRS],yaw[AHRS],theta[encoder],theta[tilt]
-                   ss<<msgReceive;
-                   ss>>roll;
-                   ss>>pitch;
-                   ss>>yaw;
-                   ss>>encoder;
-                   ss>>tiltTheta;
-                   ss.clear();
-                   buffer[0]={0,};
-                }	
+                msgReceive=msgReceive.substr(1,msgReceive.find("\n")-1);
+                replace( msgReceive.begin(), msgReceive.end(), ',', ' ');
+                ss<<msgReceive;
+                ss>>roll;
+                ss>>pitch;
+                ss>>yaw;
+                ss>>encoder;
+                ss>>tiltTheta;
+                buffer[0]={0,};
+                ss.clear();   
             }while(CMD !='q');
             exit(1);
         }
