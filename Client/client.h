@@ -18,6 +18,7 @@ using namespace cv;
 //SENSOR
 #define PhaseA 21 //Encoder A
 #define PhaseB 22 //Encoder B
+#define TILTPIN 26
 #define  BUFF_SIZE 64
 
 float encoder_pulse = (float)360 / (3600 * 4)*1000;;
@@ -129,6 +130,7 @@ class Client{
         }
         void startClient(const char *_AHRSport,int _AHRSbaud, const char *_NanoPort,int _NanoBaud){
             //Client RPI Start
+            pinMode(TILTPIN,INPUT);
             pinMode(PhaseA, INPUT);
 	        pinMode(PhaseB, INPUT);
 	        wiringPiISR(PhaseA, INT_EDGE_BOTH, &Interrupt_A);
@@ -210,34 +212,35 @@ class Client{
             Camera.release();
         }
         void runClient(){
-	    msgSend="Complte";
-	    send(client,msgSend.c_str(),msgSend.size(),0);
+	        msgSend="Complte";
+	        send(client,msgSend.c_str(),msgSend.size(),0);
             now = past = millis();
-	    anglePast = angle;
-	    angleNow = angle;
+	        anglePast = angle;
+	        angleNow = angle;
             thread sockReceive([&](){receive_send();});
             thread camera([&](){CAM();});
             camera.detach();
             sockReceive.detach();
             do{ 
                 //fout<<roll<<"\t"<<pitch<<"\t"<<yaw<<angle<<angleVel<<endl
+                tiltAngle=
                 AHRSread();
                 if((time)>controlPeriod){
-		    angleNow = angle;
-		    angularVel = (angleNow-anglePast)/(time) * 1000;
-		    past=millis();
+		            angleNow = angle;
+		            angularVel = (angleNow-anglePast)/(time) * 1000;
+		            past=millis();
                     time= now-past;
-		    anglePast=angle;
-		}
-		now=millis();//FUNCTION SENSOR NEED
+		            anglePast=angle;
+	        	}
+		        now=millis();//FUNCTION SENSOR NEED
                 //cout << "Encoder Pos : " << encoder_pos << "\tAngle : " << angle << "\t Vel : " << angularVel << "\n";
                 msgSend=RPY+","+to_string(angle)+","+to_string(tiltAngle)+"\n";
                 send(client,msgSend.c_str(),msgSend.size(),0);
-		//cout<<msgSend<<endl;
-		if(recv_sock){
-		    cout<<CMD<<"time: "<<now<<endl;
-		    recv_sock=0;
-		}
+		        //cout<<msgSend<<endl;
+		        if(recv_sock){
+		            cout<<CMD<<"time: "<<now<<endl;
+		            recv_sock=0;
+		        }
 		
             } while (CMD!= "q");
             //cout << "quit" << endl;  
