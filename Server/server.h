@@ -47,6 +47,7 @@ class Server{
         float desireYaw=0;
         int sock_recv=0;
         ofstream fout;
+        //bool transpitch=0;
     public:
         Server(const char *_ip,int _port){
             ip=(char*)_ip;
@@ -98,10 +99,11 @@ class Server{
             sock.detach();
             stable.detach();
             do{ 
-                //cout<<msgSend<<endl;
+                cout<<msgSend<<endl;
                 if(sock_recv){
                     fout<<roll<<","<<pitch<<","<<yaw<<","<<encoder<<","<<tiltTheta<<endl;
                     sock_recv=0;
+            
                 }
         //penLM++;
                 switch (int(CMD)){
@@ -188,12 +190,13 @@ class Server{
                     msgReceive=msgReceive.substr(1,msgReceive.find("\n")-1);
                     replace(msgReceive.begin(), msgReceive.end(), ',', ' ');
                     stringstream ss(msgReceive);
-                    ss>>roll;
                     ss>>pitch;
+                    ss>>roll;
                     ss>>yaw;
                     ss>>encoder;
                     ss>>tiltTheta;
                     buffer[0]={0,};
+                    pitchNorm();
                     ss.clear();
                     sock_recv=1;
                 }
@@ -210,8 +213,22 @@ class Server{
             } while (CMD != 'q');
             exit(1);
         }
+        void pitchNorm(){
+            if (pitch>=0){
+                pitch=-(pitch-180);
+                return;
+            }
+            else if (pitch<0){
+                pitch=-(pitch+180);
+                return;
+            }
+            else if ((pitch==180)||pitch==-180){
+                pitch=0;
+            }
+        }
         void iduStable(){
             do {
+                //pitchNorm();
                 iduM=idu.stableControl(pitch);
             } while (CMD != 'q');
             exit(1);

@@ -417,9 +417,9 @@ public:
     private:
         float iduTheta[4] = { 0.0,0.0,0.0,0.0 }; //array resized is reqired
         //IDU STABLE PID GAIN
-        float kp = 500;
-        float ki = 200;
-        float kd = 1;
+        float kp = 50;
+        float ki = 00;
+        float kd = 5;
         float pTerm = 0;
         float iTerm = 0;
         float dTerm = 0;
@@ -434,19 +434,15 @@ public:
             pTerm = kp * err[0];
             iTerm += ki * err[0] * T;
             dTerm = kd * (err[0] - err[1]) / T;
-            gain = pTerm + iTerm - dTerm;
-            return motor();
-        }
-
-        int motor() {
-            //NEED2 change
-            if (gain > 90) {
-                gain = 90.0;
+            gain = pTerm + iTerm - dTerm+1500;
+            
+            if (gain>=2300){
+                gain=2300;
             }
-            else if (gain < -90) {
-                gain = -90.0;  // anguler Velocity  cal   max speed ;;;
+            else if (gain<=700){
+                gain=700;
             }
-            return floor(1500 + gain * 8.888889 + 0.5);
+            return floor(gain+ 0.5);
         }
 
         void PIDtermClear() {
