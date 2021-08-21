@@ -125,25 +125,36 @@ class Server{
                         //CMD=w
                         cout<< "go\n";
                         desireVel=1;
-
+                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
+                        penLM=pen.motor(shell.speedControl(desireVel));
+                        penLM=penRM;
                         break;
 
                     case 115 :
                         //CMD=s
                         cout<<"back\n";
                         desireVel=-1;
+                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
+                        penLM=pen.motor(shell.speedControl(desireVel));
+                        penLM=penRM;
                         break;
 
                     case 87:
                         //CMD=W
                         cout<< "GO\n";
                         desireVel=2;
+                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
+                        penLM=pen.motor(shell.speedControl(desireVel));
+                        penLM=penRM;
                         break;
             
                     case 83:
                         //CMD=S
                         cout<< "BACK\n";
                         desireVel=-2;
+                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
+                        penLM=pen.motor(shell.speedControl(desireVel));
+                        penLM=penRM;
                         break;
             
                     case 97:

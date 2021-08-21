@@ -48,7 +48,7 @@ public:
         motorinput[2] = 0;
         motorinput[3] = 0;
     }
-    void calTheta() {
+    double getTheta() {
         /* OBSERVER
         #############################################################################
             Pendulum Transfer Funtion  input(deg)-> Pendulums Theta (deg)
@@ -67,9 +67,6 @@ public:
         pendulumTheta[2] = pendulumTheta[1];
         pendulumTheta[1] = pendulumTheta[0];
         pendulumTheta[0] = 0.1121 * pendulumTheta[1] - 0.1891 * pendulumTheta[2] + 0.08002 * pendulumTheta[3] + 0.3199 * motorinput[0] + 0.5695 * motorinput[1] + 0.1791 * motorinput[2] - 0.07042 * motorinput[3];
-    }
-
-    double getTheta() {
         return pendulumTheta[0];
     }
     double getVel() {

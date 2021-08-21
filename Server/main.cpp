@@ -1,6 +1,6 @@
 #include<server.h>
 using namespace std;
 int main(){
-    Server ser("127.0.0.1",13000);
+    Server ser("10.42.0.168",13000);
     return 0;
 }
