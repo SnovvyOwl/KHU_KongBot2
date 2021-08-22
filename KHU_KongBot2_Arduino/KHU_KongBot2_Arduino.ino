@@ -48,7 +48,7 @@ void loop() {
     	pendR.writeMicroseconds(CMD_PEND_R);//0~180
     	pendL.writeMicroseconds(CMD_PEND_L);//0~180
     	ctrl_roll.writeMicroseconds(CMD_CTRL_ROLL);//0~180
-    	Serial.write(tiltAngle);
+    	Serial.write(tiltAngle.c_str());
 		if(reSYNC){
       	reSYNC_motor();
     	}
