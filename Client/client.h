@@ -155,8 +155,8 @@ class Client{
                 data+=(char)rawdata;
             }while(rawdata!=10);//init ASCII 42 == "*"
             RPY=data;
-	    RPY.pop_back();
-	    RPY.pop_back();
+	        RPY.pop_back();
+	        RPY.pop_back();
         }
         
         void initNano(){
@@ -261,13 +261,21 @@ class Client{
             do {
                 read(client,buffer,BUFF_SIZE);
                 CMD=buffer;
-		if(CMD.size()){
-		    CMD=CMD.substr(0,CMD.find('\n'));
-		    serialPuts(Nano,CMD.c_str());
-		    buffer[0]={0,};
-		    recv_sock=1;
-		}
-		//
+		        if(CMD.size()){
+		            CMD=CMD.substr(0,CMD.find('\n'));
+		            serialPuts(Nano,CMD.c_str());
+		            buffer[0]={0,};
+		            recv_sock=1;
+		        }
             } while (CMD != "q");
+        }
+        void tiltRead(){
+            int rawdata;
+            string data="";
+            do{
+                rawdata=serialGetchar(Nano);
+                data+=(char)rawdata;
+            }while(rawdata!=42);
+            tiltAngle=stof(data);
         }
 };

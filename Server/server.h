@@ -18,15 +18,15 @@ using namespace std;
 normal_distribution<double> dist_W(0,1.0);
 normal_distribution<double> dist_V(0,1.0);
 class Server{
-    private:
-        char *ip;
-        int port=0;
-        int server=0;
-        int client=0;
-        struct sockaddr_in client_addr;
-        struct sockaddr_in server_addr;
-        char CMD;
-        socklen_t client_addr_len=sizeof(client_addr);
+	private:
+		char *ip;
+		int port=0;
+		int server=0;
+		int client=0;
+		struct sockaddr_in client_addr;
+		struct sockaddr_in server_addr;
+		char CMD;
+		socklen_t client_addr_len=sizeof(client_addr);
         string msgReceive="";
         string msgSend="";
         Pendulum pen;
@@ -47,7 +47,6 @@ class Server{
         float desireYaw=0;
         int sock_recv=0;
         ofstream fout;
-        //bool transpitch=0;
     public:
         Server(const char *_ip,int _port){
             ip=(char*)_ip;
@@ -105,7 +104,6 @@ class Server{
                     sock_recv=0;
             
                 }
-        //penLM++;
                 switch (int(CMD)){
                     
                     //CMD to NANO
