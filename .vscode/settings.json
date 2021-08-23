@@ -4,6 +4,9 @@
         "fstream": "cpp",
         "iostream": "cpp",
         "cmath": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "iosfwd": "cpp",
+        "memory": "cpp",
+        "condition_variable": "cpp"
     }
 }
