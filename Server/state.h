@@ -141,11 +141,6 @@ public:
         dist_V = v;
         W = dist_W(generator);
     }
-    void clear() {
-        shellTheta[0] = 0;
-        shellTheta[1] = 0;
-        //X.clear();
-    }
     void calAngularVelocity(float AHRStheta, float encodertheta, double penTheta, double penVel) {
         //##################################################
         //Calculate AngularVelocity for Shell
@@ -216,7 +211,7 @@ public:
         dTerm = kd * (errShellVel[0] - errShellVel[1]) / T;
         gain[0] = pTerm + iTerm - dTerm;
         return  shell2pen();
-        }
+    }
         double shell2pen() {
             /*
             ################################################################################
@@ -241,20 +236,23 @@ public:
             pTerm = 0;
             iTerm = 0;
             dTerm = 0;
-            errShellVel[0] = 0;
-            errShellVel[1] = 0;
-            preDesireVel = 0;//rad
+            fill_n(errShellVel, 3, 0);
+            fill_n(shellTheta,2,0);
+            fill_n(shellSpeed,2,); 
+            fill_n(penInput,3,0);
+            fill_n(errShellVel,2,0);
+            float preDesireVel = 0;
+            fill_n( gain,3,0);
         }
     };
 
     class Tilt {
     private:
-        float tiltTheta[4] = { 0.0,0.0,0.0,0.0 };//rad
-        double iduTheta[2] = { 0.0,0.0 };//deg
-        float RCM = 0;
-        double gain[4] = { 0.0,0.0,0.0,0.0 };
+        float tiltTheta=0;//rad
+        double robotRoll=0;//deg
+        double gain[3] = { 0.0,0.0,0.0};
         float errTiltAngle[2] = { 0.0,0.0 };
-        int tiltInput[4] = { 0,0,0,0 };
+        int tiltInput[3] = { 0,0,0 };
         //SHELL SPEED PID GAIN
         float kp = 20;
         float ki = 10;
@@ -262,7 +260,6 @@ public:
         float pTerm = 0;
         float iTerm = 0;
         float dTerm = 0;
-        float desireTheta = 0;
         float preDesireTheta = 0;
         Mat F = (Mat_<double>(4, 4) << 1.0, 0.1, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.1, 0.0, 0.0, -0.00009637185, 1);
         Mat H = (Mat_<double>(1, 4) << 0, 0, 1, 0);
@@ -289,22 +286,6 @@ public:
             dist_W = w;
             dist_V = v;
             W = dist_W(generator);
-        }
-        void clear() {
-            tiltTheta[0]=0;
-            tiltTheta[1]=0;
-            tiltTheta[2]=0;
-            tiltTheta[3]=0;
-            RCM = 0;
-            errTiltAngle[0] = 0;
-            errTiltAngle[1] = 0;
-        }
-        void setRCM(double massCenter) {
-            //############################################
-            //set Center of mass of Robot
-            //arg: massCenter{mass center of Robot{m}}
-            //############################################
-            RCM = massCenter;
         }
         void calRollAngle(float AHRSTheta) {
             //##################################################
@@ -335,7 +316,7 @@ public:
             Z_hat = H * X_hat;
             X = X_hat + K * (Z - Z_hat);
             P = (I - K * H) * P_hat;
-            iduTheta[0] = X.at<double>(2);
+            robotRoll = X.at<double>(2);
         }
         void calSystem(float rollTheta) {
             //##############################################
@@ -371,16 +352,9 @@ public:
             }
             gain[2] = gain[1];
             gain[1] = gain[0];
-            desireTheta = desireTheta * D2R;//Change RAD
-            if (desireTheta != preDesireTheta) {
-                PIDtermClear();
-            }
-            gain[2] = gain[1];
-            gain[1] = gain[0];
-            preDesireTheta = desireTheta;
             preDesireTheta = desireTheta;
             errTiltAngle[1] = errTiltAngle[0];
-            errTiltAngle[0] = desireTheta - X.at<double>(1);
+            errTiltAngle[0] = desireTheta - robotRoll;
             pTerm = kp * errTiltAngle[0];
             iTerm += ki * errTiltAngle[0] * T;
             dTerm = kd * (errTiltAngle[0] - errTiltAngle[1]) / T;
@@ -390,6 +364,78 @@ public:
         }
         void Idu2tilt() {
             //IDU 2 tilt
+            int theta=0;
+            tiltInput[2]=tiltInput[1];
+            tiltInput[1]=tiltInput[0];
+            theta=abs(floor(tiltTheta+0.5));
+            switch (theta) {
+                case 1:
+                    // 1
+
+                    // 156.8 z^2 - 313.7 z + 156.8
+                    // ---------------------------
+                    //     z^2 - 1.933 z + 1
+
+                    // dt = 0.1
+                    tiltInput[0] = 1.933 * tiltInput[1] - tiltInput[2] + 156.8 * tiltmotor[0] - 313.7 * tiltmotor[1] + 156.8 * tiltmotor[2];
+                    break;
+                case 2:
+                    // 2
+
+                    // 597.8 z^2 - 1196 z + 597.8
+                    // --------------------------
+                    //     z^2 - 1.933 z + 1
+
+                    // dt = 0.1
+                    
+                    tiltInput[0] = 1.933 * tiltInput[1] - tiltInput[2] + 597.8 * gain[0] - 1196 * gain[1] + 597.8 *gain[2];
+                    break;
+                case 3:
+                    // 3
+
+                    // 1333 z^2 - 2665 z + 1333
+                    // ------------------------
+                    // z^2 - 1.933 z + 1
+
+                    // dt = 0.1
+                    tiltInput[0] = 1.933 * tiltInput[1] - tiltInput[2] + 1333 * gain[0] - 2665 * gain[1] + 1333 * gain[2];
+                    break;
+                case 4:
+                    // 4
+
+                    // 2362 z^2 - 4723 z + 2362
+                    // ------------------------
+                    // z^2 - 1.933 z + 1
+
+                    // dt = 0.1
+
+                    tiltInput[0] = 1.933 * tiltInput[1] - tiltInput[2] + 2362 * gain[0] - 4723 * gain[1] + 2362 * gain[2];
+                    break;
+                case 5:
+                    // 5
+
+                    // 3684 z^2 - 7369 z + 3684
+                    // ------------------------
+                    // z^2 - 1.933 z + 1
+
+                    // dt = 0.1
+                    tiltInput[0] = 1.933 * tiltInput[1] - tiltInput[2] + 3684  * gain[0] - 7369 * gain[1] + 3684  * gain[2];
+                    break;
+                default:
+                    // 0
+
+                    // 9.861 z^2 - 19.72 z + 9.861
+                    // ---------------------------
+                    //     z^2 - 1.933 z + 1
+
+                    // dt = 0.1
+
+                    tiltInput[0] = 1.933 * tiltInput[1] -tiltInput[2] + 9.861 * gain[0] - 19.72 * gain[1] + 9.861 * gain[2];
+                    break;
+            }
+        }
+        void setTilt(int tiltPWM){
+            tiltTheta=(float)tiltPWM;
         }
         int motor() {
             if (tiltInput[0] > 2.0944) {
@@ -404,15 +450,23 @@ public:
             return floor(1500 + tiltInput[0] * R2D * 6.66667 + 0.5);
         }
         void PIDtermClear() {
+            preDesireTheta = 0;
             pTerm = 0;
             iTerm = 0;
             dTerm = 0;
+            gain[0]=0;
+            gain[1]=0;
+            gain[2]=0;
+            errTiltAngle[1] =0;
+            errTiltAngle[0]=0;
+            tiltTheta=0;
+            iduTheta=0; //deg
+            fill_n(tiltInput,3,0); 
         }
     };
 
     class IDU {
     private:
-        float iduTheta[4] = { 0.0,0.0,0.0,0.0 }; //array resized is reqired
         //IDU STABLE PID GAIN
         float kp = 50;
         float ki = 00;
@@ -420,7 +474,6 @@ public:
         float pTerm = 0;
         float iTerm = 0;
         float dTerm = 0;
-        double shellTheta[2] = { 0,0 };
         float err[2] = { 0.0,0.0 };
         float gain = 0;
     public:
@@ -446,5 +499,7 @@ public:
             pTerm = 0;
             iTerm = 0;
             dTerm = 0;
+            gain = 0;
+            fill_n(err,2,0.0};
         }
     };

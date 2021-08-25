@@ -104,6 +104,8 @@ class Server{
                     sock_recv=0;
             
                 }
+                shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
+                tilt.calRollAngle(roll);
                 switch (int(CMD)){
                     
                     //CMD to NANO
@@ -123,7 +125,6 @@ class Server{
                         //CMD=w
                         cout<< "go\n";
                         desireVel=1;
-                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
                         penLM=pen.motor(shell.speedControl(desireVel));
                         penLM=penRM;
                         break;
@@ -132,7 +133,6 @@ class Server{
                         //CMD=s
                         cout<<"back\n";
                         desireVel=-1;
-                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
                         penLM=pen.motor(shell.speedControl(desireVel));
                         penLM=penRM;
                         break;
@@ -141,7 +141,6 @@ class Server{
                         //CMD=W
                         cout<< "GO\n";
                         desireVel=2;
-                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
                         penLM=pen.motor(shell.speedControl(desireVel));
                         penLM=penRM;
                         break;
@@ -150,7 +149,6 @@ class Server{
                         //CMD=S
                         cout<< "BACK\n";
                         desireVel=-2;
-                        shell.calAngularVelocity(pitch,encoder,pen.getTheta(),pen.getVel());
                         penLM=pen.motor(shell.speedControl(desireVel));
                         penLM=penRM;
                         break;
@@ -159,23 +157,29 @@ class Server{
                         //CMD=a
                         cout<< "chage roll - direction \n";
                         desireRoll=-1;
+                        tiltM=tilt.rollControl(desireRoll);
                         break;
 
                     case 100:
                         //CMD=d
                         cout<< "chage roll + direction \n";
                         desireRoll=1;
+                        tiltM=tilt.rollControl(desireRoll);
                         break;
 
-                    case 106:
-                        //CMD=j
-                        cout<< "chage yaw  +15 degree direction \n";
-                        break;
+                    // case 106:
+                    //     //CMD=j
+                    //     cout<< "chage yaw  +15 degree direction \n";
+                    //     penLM=1800;
+                    //     penRM=1200;
+                    //     break;
 
-                    case 107:
-                        //CMD=k
-                        cout<< "chage yaw  -15 degree direction \n";
-                        break;
+                    // case 107:
+                    //     //CMD=k
+                    //     cout<< "chage yaw  -15 degree direction \n";
+                    //     penLM=1200;
+                    //     penRM=1800;
+                    //     break;
 
                     case 113:
                         msgSend="* 1500 1500 1500 1500\n";//stop Motor
@@ -204,6 +208,7 @@ class Server{
                     ss>>yaw;
                     ss>>encoder;
                     ss>>tiltTheta;
+                    tilt.setTilt(tiltTheta);
                     buffer[0]={0,};
                     pitchNorm();
                     ss.clear();
