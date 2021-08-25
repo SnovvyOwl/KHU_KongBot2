@@ -223,7 +223,7 @@ class Client{
             sockReceive.detach();
             do{ 
                 //fout<<roll<<"\t"<<pitch<<"\t"<<yaw<<angle<<angleVel<<endl
-                tiltAngle=
+                tiltRead();
                 AHRSread();
                 if((time)>controlPeriod){
 		            angleNow = angle;
@@ -265,6 +265,7 @@ class Client{
 		            CMD=CMD.substr(0,CMD.find('\n'));
 		            serialPuts(Nano,CMD.c_str());
 		            buffer[0]={0,};
+                    
 		            recv_sock=1;
 		        }
             } while (CMD != "q");
