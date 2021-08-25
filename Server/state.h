@@ -238,7 +238,7 @@ public:
             dTerm = 0;
             fill_n(errShellVel, 3, 0);
             fill_n(shellTheta,2,0);
-            fill_n(shellSpeed,2,); 
+            fill_n(shellSpeed,2,0); 
             fill_n(penInput,3,0);
             fill_n(errShellVel,2,0);
             float preDesireVel = 0;
@@ -337,8 +337,8 @@ public:
             // [0.000129285*x3*sin(x1), 0, 1 - 0.0083534*cos(x3) - 1.29285*e^-4cos(x1), 0.1]
             // [0.0025857*x3*sin(x1), 0.000129285*x3*sin(x1), -0.0025857*cos(x1) -0.1670687*cos(x3), 1 - 0.0083534*cos(x3) -1.29285*e^-4*cos(x1)]
             double cosThetaX = cos(rollTheta * D2R);
-            double cosThetaT = cos(tiltTheta[0] * D2R);
-            double sinThetaT = sin(tiltTheta[0] * D2R);
+            double cosThetaT = cos(tiltTheta * D2R);
+            double sinThetaT = sin(tiltTheta* D2R);
             F = (Mat_<double>(4, 4) << 1, 0.1, 0.000858375 * cosThetaX, 0, 0, 1, 0.0171675 * cosThetaX, 0.000858375 * cosThetaX, 0.000129285 * rollTheta * D2R * sinThetaT, 0, 1 - 0.0083534 * cosThetaX - 0.000129285 * cosThetaT, 0.1, 0.0025857 * rollTheta * D2R * sinThetaT, 0.000129285 * rollTheta * D2R * sinThetaT, -0.0025857 * cosThetaT - 0.1670687 * cosThetaX, 1 - 0.0083534 * cosThetaX - 0.000129285 * cosThetaT);
         }
         int rollControl(float desireTheta) {
@@ -377,7 +377,7 @@ public:
                     //     z^2 - 1.933 z + 1
 
                     // dt = 0.1
-                    tiltInput[0] = 1.933 * tiltInput[1] - tiltInput[2] + 156.8 * tiltmotor[0] - 313.7 * tiltmotor[1] + 156.8 * tiltmotor[2];
+                    tiltInput[0] = 1.933 * tiltInput[1] - tiltInput[2] + 156.8 * gain[0] - 313.7 * gain[1] + 156.8 * gain[2];
                     break;
                 case 2:
                     // 2
@@ -460,7 +460,7 @@ public:
             errTiltAngle[1] =0;
             errTiltAngle[0]=0;
             tiltTheta=0;
-            iduTheta=0; //deg
+            robotRoll=0; //deg
             fill_n(tiltInput,3,0); 
         }
     };
@@ -500,6 +500,6 @@ public:
             iTerm = 0;
             dTerm = 0;
             gain = 0;
-            fill_n(err,2,0.0};
+            fill_n(err,2,0.0);
         }
     };
