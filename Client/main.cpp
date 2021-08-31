@@ -7,7 +7,7 @@ int main(int argc,char **argv){
     if(wiringPiSetup()==-1){
         return 1;
     }
-    Client client("10.42.0.168",13000);
+    Client client("192.168.35.98",4000);
     client.startClient("/dev/ttyUSB0",115200,"/dev/ttyACM0",115200);
     return 0;
 }

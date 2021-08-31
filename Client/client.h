@@ -120,12 +120,12 @@ class Client{
             if(client==-1){
                 cerr<< "\n Socket creation error \n";
                 CMD="q";
-		exit(1);
+		        exit(1);
             }
             if (connect(client, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0){    
                 cerr<<"\nConnection Failed \n"; 
                 CMD="q";
-		exit(1);
+		        exit(1);
             }
         }
         void startClient(const char *_AHRSport,int _AHRSbaud, const char *_NanoPort,int _NanoBaud){
