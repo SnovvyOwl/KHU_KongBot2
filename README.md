@@ -39,7 +39,8 @@ make\
 cd ~/KHU_KongBot2/build\
 ./main 
 
-[preview]
+[preview]\
 ![preview](https://github.com/SnovvyOwl/SnovvyOwl.github.io/blob/main/img/lagrangeanalysis.jpg)
-[circuit]
+
+[circuit]\
 ![circut](https://github.com/SnovvyOwl/KHU_KongBot2/blob/master/circuit.jpg)
